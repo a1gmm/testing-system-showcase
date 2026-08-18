@@ -5,7 +5,7 @@ on:
     branches: [codex/showcase-sync]
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 concurrency:
@@ -20,10 +20,12 @@ jobs:
       GH_REPO: ${{ github.repository }}
       REVIEW_BRANCH: codex/showcase-sync
     steps:
-      - name: Open pull request when needed
+      - name: Publish verified showcase update
         run: |
           set -euo pipefail
-          open_count="$(gh pr list --repo "${GH_REPO}" --head "${REVIEW_BRANCH}" --state open --json number --jq length)"
-          if [ "${open_count}" = "0" ]; then
-            gh pr create --repo "${GH_REPO}" --head "${REVIEW_BRANCH}" --base main --title "Sync sanitized public showcase" --body "Generated from the private source repository. Review the sanitized diff before merging."
+          pr_number="$(gh pr list --repo "${GH_REPO}" --head "${REVIEW_BRANCH}" --base main --state open --json number --jq '.[0].number // empty')"
+          if [ -z "${pr_number}" ]; then
+            gh pr create --repo "${GH_REPO}" --head "${REVIEW_BRANCH}" --base main --title "Sync sanitized public showcase" --body "Generated, sanitized, and tested by the private source repository automation."
+            pr_number="$(gh pr list --repo "${GH_REPO}" --head "${REVIEW_BRANCH}" --base main --state open --json number --jq '.[0].number')"
           fi
+          gh pr merge --repo "${GH_REPO}" "${pr_number}" --squash --delete-branch
