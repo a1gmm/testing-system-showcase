@@ -17,7 +17,7 @@ import StructuredSheet from '../components/StructuredSheet.vue'
 type Tpl = { code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; raw: string; file: string }
 const templates = templatesJson as Tpl[]
 
-const MATRICES = ['废水', '地表水', '地下水', '海水', '土壤', '固废', '环境空气', '废气', '生活饮用水', '大气降水', '噪声']
+const MATRICES = ['废水', '地表水', '地下水', '海水', '土壤', '固废', '环境空气', '有组织废气', '无组织废气', '废气', '生活饮用水', '大气降水', '噪声']
 const STATUS = [['全部', ''], ['待检测', 'pending'], ['检测中', 'testing'], ['已完成', 'done']] as [string, string][]
 const statusLabel: Record<string, string> = { pending: '待检测', testing: '检测中', done: '已完成', rejected: '已拒收' }
 // 状态 → 语义色调（仅用于圆点/胶囊，不给文字上色）

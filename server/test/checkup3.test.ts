@@ -17,7 +17,7 @@ import {
   quoteRowsToPlan, saveContractQuote,
   createRefMaterial, deleteRefMaterial, listRefMaterials, createReagent, deleteReagent, listReagents,
   upsertCustomer, createUser, updateUser, createInstrument,
-  addSystemRecord, updateSystemRecord, addSubcontract, updateSubcontract,
+  addSystemRecord, updateSystemRecord, addSubcontract, updateSubcontract, addAttachment,
 } from '../src/handlers.ts'
 
 function freshDb() { return openDb(':memory:') }
@@ -78,6 +78,19 @@ test('修11 重批重排：挂现场表单的待派工期次保留原 id 只挪�
   assert.ok(rounds.some(r => r.id === keepId), '挂表单的期次保留原 id 不被删')
   assert.equal(getRoundSheet(db, keepId, 'HJ-TC-136')!.data.rows[0].v, '现场已填的12行', '表单还在')
   assert.ok(listAudit(db, c.id).some(a => a.action === 'round_reschedule_keep'), '保留动作有留痕')
+})
+
+test('修11 重批重排：只挂采样单独立附件的期次也必须保留并留痕', () => {
+  const db = freshDb(); seedCrew(db)
+  const { c } = makeRound(db, { period: ['2026-01-01', '2026-12-31'], cycle: 3 })
+  const keepId = listRounds(db, c.id)[1].id
+  addAttachment(db, { entityType: 'round_sheet', entityId: `${keepId}::HJ-TC-136`, origName: '采样单现场.jpg', storedName: 'sheet-photo.jpg' }, { name: '赵采样', username: 'demo_sampler' })
+  createScheme(db, {
+    contractId: c.id, cycleMonths: 0, periodStart: '2026-01-01', periodEnd: '2026-12-31',
+    points: [{ element: '废水', point: '1#口', items: ['COD'], freq: composeFreq(1, 6), standard: '' }],
+  })
+  reviewScheme(db, c.id, 'approve', '许技术')
+  assert.ok(listAudit(db, c.id).some(a => a.action === 'round_reschedule_keep' && JSON.stringify(a.detail).includes(keepId)))
 })
 
 // ============ 【12】期次终止态 ============

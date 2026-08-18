@@ -3,9 +3,9 @@ import assert from 'node:assert/strict'
 import { openDb } from '../src/db.ts'
 import {
   createContract, createScheme, reviewScheme,
-  assignRound, failRound, sampleRound, confirmRoundField, getRound, listRounds,
+  assignRound, failRound, sampleRound, confirmRoundField, getRound, getRoundDetail, listRounds,
   qcRequirements, solidWasteMinPortions, roundQcRequirements,
-  saveRoundField, listHandovers, createUser,
+  saveRoundField, listHandovers, createUser, createSample,
 } from '../src/handlers.ts'
 
 function freshDb() {
@@ -99,6 +99,32 @@ test('质控规则：臭气浓度不需要空白', () => {
   assert.equal(reqs.filter(q => q.qcType.includes('空白')).length, 0)
 })
 
+test('有组织与无组织废气沿用废气质控规则和编号前缀', () => {
+  for (const matrix of ['有组织废气', '无组织废气']) {
+    const reqs = qcRequirements([{ matrix, items: ['颗粒物'], qty: 1 }])
+    assert.ok(reqs.some(r => r.qcType === '全程序空白' && r.matrix === matrix))
+  }
+  const db = freshDb()
+  assert.match(createSample(db, { matrix: '有组织废气' }, 2026).id, /^Q/)
+  assert.match(createSample(db, { matrix: '无组织废气' }, 2026).id, /^Q/)
+})
+
+test('有组织与无组织废气真实收样均生成 Q 编号质控样和采样交接', () => {
+  for (const matrix of ['有组织废气', '无组织废气']) {
+    const db = freshDb()
+    const r = makeRound(db, [{ matrix, items: ['颗粒物'], qty: 1 }])
+    assignRound(db, r.id, ['赵采样'])
+    confirmRoundField(db, r.id, { name: '赵采样', username: 'demo_sampler' })
+    const made = sampleRound(db, r.id, { name: '赵采样', username: 'demo_sampler' })
+    assert.ok(made.some(s => !s.qc_type && s.matrix === matrix))
+    assert.ok(made.some(s => s.qc_type === '全程序空白' && s.matrix === matrix))
+    assert.ok(made.every(s => /^Q/.test(s.id)))
+    for (const sample of made) {
+      assert.ok(listHandovers(db, sample.id).some(h => h.action === '采样交接'))
+    }
+  }
+})
+
 test('质控规则：土壤→现场平行；土壤VOC→运输空白+全程序空白，平行至少2份', () => {
   const plain = qcRequirements([{ matrix: '土壤', items: ['镉'], qty: 5 }])
   assert.ok(plain.find(q => q.qcType === '现场平行'))
@@ -122,6 +148,18 @@ test('roundQcRequirements：按期次items出清单', () => {
   const reqs = roundQcRequirements(db, r.id)
   assert.ok(reqs.find(q => q.qcType === '全程序空白'))
   assert.equal(reqs.find(q => q.qcType === '现场平行')!.qty, 1)
+})
+
+test('期次详情保留计划点位，供采样表初始行预填', () => {
+  const db = freshDb()
+  const c = createContract(db, { client: '甲厂', plan: [{ matrix: '废水', point: '总排污口', items: ['COD'], qty: 1 }] }, 2026)
+  createScheme(db, {
+    contractId: c.id, cycleMonths: 0, periodStart: '2026-05-01', periodEnd: '2026-05-01',
+    points: [{ element: '废水', point: '总排污口', items: ['COD'], freq: '1次', standard: 'GB8978' }],
+  }, 2026)
+  reviewScheme(db, c.id, 'approve', '许技术')
+  const round = listRounds(db, c.id)[0]
+  assert.equal(getRoundDetail(db, round.id).planItems[0].point, '总排污口')
 })
 
 // ============ S4-4 入库自动建质控样 + S4-3 自动交接记录 ============

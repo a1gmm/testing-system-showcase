@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { api, currentUser, QC_TYPES, UNIT_OPTS, type DueRound, type RoundDetail, type FieldInfo, type QcRecord, type QcRequirement } from '../api'
 import { can } from '../permissions'
-import { confirmIfDirty } from '../utils/dirty'
+import { confirmIfDirty, hasDirty } from '../utils/dirty'
 import { todayLocal } from '../utils/date'
 import RecordAttachments from '../components/RecordAttachments.vue'
 import StructuredSheet from '../components/StructuredSheet.vue'
@@ -12,12 +12,13 @@ import templatesJson from '../data/templates.json'
 import { templatePhase } from '../data/phase'
 import { FORMS } from '../data/forms'
 import { defaultStage, type StageKey } from '../utils/roundStage'
+import { buildRoundSheetSeed, initialSheetCodes, samplingSheetsForMatrix } from '../utils/samplingWorkflow'
 
 // 采样单池 = 作业环节为"现场"的表（采样记录 + 挂在原始记录里的现场直读/比对表），按基质匹配；交接表在样品页挂附件
-type Tpl = { code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; file: string }
+type Tpl = { code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; file: string; raw?: string; phase?: string; stage?: string }
 const SAMPLING_SHEETS = (templatesJson as Tpl[]).filter(t => templatePhase(t) === '现场')
 function sheetsForMatrix(matrix: string): Tpl[] {
-  const hit = SAMPLING_SHEETS.filter(t => t.matrix === matrix)
+  const hit = samplingSheetsForMatrix(SAMPLING_SHEETS, matrix)
   // 基质没标的采样单（臭气/油烟等）按项目名兜底匹配
   return hit.length ? hit : SAMPLING_SHEETS.filter(t => t.analyte && matrix.includes(t.analyte))
 }
@@ -101,26 +102,35 @@ const qcReqText = computed(() =>
 // 每个基质对应的采样单（open() 时已初始化，默认选第一张，可换）
 function initSheets(matrices: string[]) {
   if (!field.value.sheets) field.value.sheets = {}
+  if (!field.value.sheetCodes) field.value.sheetCodes = {}
+  if (!field.value.sheetDrafts) field.value.sheetDrafts = {}
   for (const m of matrices) {
-    if (!field.value.sheets[m]) {
-      const t = sheetsForMatrix(m)[0]
-      field.value.sheets[m] = { code: t?.code || '', name: t?.name || '' }
-    }
+    const t = sheetsForMatrix(m)[0]
+    field.value.sheetCodes[m] = initialSheetCodes(field.value, m, t?.code || '')
+    if (!field.value.sheets[m]) field.value.sheets[m] = { code: t?.code || '', name: t?.name || '' }
   }
 }
-function sheetOf(matrix: string) {
-  if (!field.value.sheets?.[matrix]) initSheets([matrix])   // 兜底
-  return field.value.sheets![matrix]
+function selectedSheetCodes(matrix: string) {
+  if (!field.value.sheetCodes?.[matrix]) initSheets([matrix])
+  return field.value.sheetCodes![matrix]
 }
-async function pickSheet(matrix: string, code: string) {
+function sheetDraft(code: string) {
+  if (!field.value.sheetDrafts) field.value.sheetDrafts = {}
+  if (!field.value.sheetDrafts[code]) field.value.sheetDrafts[code] = { code, name: tplOf(code)?.name || '', point: '', character: '', method: '', container: '', note: '' }
+  return field.value.sheetDrafts[code]
+}
+async function pickSheets(matrix: string, codes: string[]) {
   if (!(await confirmIfDirty())) return   // 正填着的采样单没保存就换表？先拦一道
-  const t = SAMPLING_SHEETS.find(x => x.code === code)
-  const s = sheetOf(matrix)
-  s.code = code; s.name = t?.name || ''
+  field.value.sheetCodes![matrix] = [...new Set(codes.filter(Boolean))]
 }
 // 选中的采样单在模板库有精确版式的，现场直接填整张表（存 round_sheets）；没有的退回5格简化版
 function tplOf(code: string) { return SAMPLING_SHEETS.find(x => x.code === code) }
 function hasFullForm(code: string) { return !!FORMS[code] }
+function roundSheetSeed(matrix: string) {
+  const r = detail.value!.round
+  return buildRoundSheetSeed({ plannedDate: r.plan_date || r.due_date, organization: detail.value!.contract?.client || '', projectNo: r.contract_id, planItems: detail.value!.planItems, matrix })
+}
+function roundSheetAttachmentId(code: string) { return `${detail.value!.round.id}::${code}` }
 
 // 三段式：dispatch 排产派工 / field 现场采样 / stock 样品与质控；按状态自动展开当前段
 const openStage = ref<StageKey | ''>('dispatch')
@@ -194,13 +204,14 @@ async function saveField() {
 }
 
 // —— 设备领用提示（PRD：领了设备登记才去采样）——本期关联的在外领用
-const roundCheckouts = ref<{ instrument_id: string }[]>([])
+const roundCheckouts = ref<{ instrument_id: string; instrument_name?: string }[]>([])
 async function loadRoundCheckouts() {
   roundCheckouts.value = []
   if (!detail.value) return
   try {
     const all = await api.listCheckouts(true)
     roundCheckouts.value = all.filter((c: any) => c.round_id === detail.value!.round.id)
+    if (!field.value.instrumentIds?.length && roundCheckouts.value.length) field.value.instrumentIds = roundCheckouts.value.map(c => c.instrument_id)
   } catch { /* */ }
 }
 
@@ -285,13 +296,29 @@ const dueReached = computed(() => {
 })
 async function doSampleIn() {
   if (!detail.value) return
+  if (hasDirty()) {
+    ElMessage.warning('还有未保存的采样表，请先保存后再收样入库')
+    return
+  }
   // 收样入库前先把现场登记存了——不能让"入库"这一下把没保存的登记内容丢掉
-  try { await api.saveRoundField(detail.value.round.id, field.value) } catch { /* 登记保存失败不阻塞入库确认框，入库自身还有校验 */ }
+  try {
+    await api.saveRoundField(detail.value.round.id, field.value)
+  } catch (e: any) {
+    ElMessage.error('收样入库已中止：现场记录保存失败，' + (e?.response?.data?.error || e?.message || e))
+    return
+  }
   const r = detail.value.round
   const total = detail.value.planItems.reduce((s, p) => s + p.qty, 0)
   const qcNote = qcReqs.value.length ? `\n同时按质控规则自动建质控样：${qcReqText.value}` : ''
-  await ElMessageBox.confirm(`确认第 ${r.round_no} 期已现场采样，按方案把 ${total} 个样品收样入库（自动编号）？${qcNote}\n每个样品会自动生成「采样交接」记录。`, `第 ${r.round_no} 期 · 收样入库`, { confirmButtonText: '收样入库', cancelButtonText: '取消', type: 'info' }).catch(() => Promise.reject())
-    .then(async () => { const made = await api.sampleRound(r.id); ElMessage.success(`已入库 ${made.length} 个样品（含质控样）`); await refresh(); openStage.value = 'stock' }).catch(() => {})
+  try {
+    await ElMessageBox.confirm(`确认第 ${r.round_no} 期已现场采样，按方案把 ${total} 个普通样品收样入库（自动编号）？${qcNote}\n质控样会在这一步由系统自动建档，不需要先在采样单上手工生成。每个样品会自动生成「采样交接」记录。`, `第 ${r.round_no} 期 · 收样入库`, { confirmButtonText: '收样入库', cancelButtonText: '取消', type: 'info' })
+    const made = await api.sampleRound(r.id)
+    ElMessage.success(`已入库 ${made.length} 个样品（含系统生成的质控样）`)
+    await refresh(); openStage.value = 'stock'
+  } catch (e: any) {
+    if (e === 'cancel' || e === 'close') return
+    ElMessage.error('收样入库失败：' + (e?.response?.data?.error || e?.message || e))
+  }
 }
 const reschedule = ref('')
 async function doFail() {
@@ -520,6 +547,12 @@ onMounted(() => { refresh(); loadSamplers() })
               <p v-else-if="roundCheckouts.length" class="sp-hint" style="color:var(--good)">
                 已为本期领用：{{ roundCheckouts.map(c => c.instrument_id).join('、') }}
               </p>
+              <div v-if="roundCheckouts.length" class="field-equipment">
+                <label>本次实际使用的采样设备</label>
+                <el-select v-model="field.instrumentIds" multiple filterable :disabled="!canField" placeholder="从本期已领用设备中选择" style="min-width:360px;max-width:720px">
+                  <el-option v-for="c in roundCheckouts" :key="c.instrument_id" :value="c.instrument_id" :label="`${c.instrument_id} ${c.instrument_name || ''}`" />
+                </el-select>
+              </div>
               <div class="field" :class="{ ro: !canField }">
                 <label>采样日期<input v-model="field.date" type="date" :disabled="!canField" /></label>
                 <label>采样时刻<input v-model="field.time" placeholder="如 09:30（现场时间）" :disabled="!canField" /></label>
@@ -542,25 +575,29 @@ onMounted(() => { refresh(); loadSamplers() })
               <!-- 按基质填采样单（模板库现场表） -->
               <div v-for="m in roundMatrices" :key="m" class="sheet" v-show="sheetsForMatrix(m).length">
                 <div class="sheet-head">
-                  <b>{{ m }} · 采样单</b>
-                  <select :value="sheetOf(m).code" @change="pickSheet(m, ($event.target as HTMLSelectElement).value)">
-                    <option v-for="t in sheetsForMatrix(m)" :key="t.code" :value="t.code">{{ t.code }} {{ t.name }}</option>
-                  </select>
+                  <b>{{ m }} · 采样单（可多选）</b>
+                  <el-select :model-value="selectedSheetCodes(m)" multiple filterable collapse-tags-tooltip placeholder="选择本次需要填写的采样单" style="min-width:420px;max-width:760px" @change="pickSheets(m, $event)">
+                    <el-option v-for="t in sheetsForMatrix(m)" :key="t.code" :value="t.code" :label="`${t.code} ${t.name}`" />
+                  </el-select>
                 </div>
-                <!-- 模板库有精确版式的：现场直接填整张原始记录表（独立保存，存到本期次名下） -->
-                <StructuredSheet v-if="hasFullForm(sheetOf(m).code)"
-                  :key="detail.round.id + sheetOf(m).code"
-                  :round-id="detail.round.id" :readonly="!canField"
-                  :code="sheetOf(m).code" :sheet-type="tplOf(sheetOf(m).code)?.sheetType || '采样记录'"
-                  :template-name="tplOf(sheetOf(m).code)?.name || ''"
-                  :analyte="tplOf(sheetOf(m).code)?.analyte || ''" :method="tplOf(sheetOf(m).code)?.method || ''" :matrix="m" />
-                <!-- 没有精确版式的：5格简化登记，随「保存现场记录」一起存 -->
-                <div v-else class="field" :class="{ ro: !canField }">
-                  <label>采样点位<input v-model="sheetOf(m).point" placeholder="本基质实际点位" :disabled="!canField" /></label>
-                  <label>样品性状<input v-model="sheetOf(m).character" placeholder="颜色 / 气味 / 状态" :disabled="!canField" /></label>
-                  <label>采样方法<input v-model="sheetOf(m).method" placeholder="如 瞬时采样 / 混合采样" :disabled="!canField" /></label>
-                  <label>容器与保存<input v-model="sheetOf(m).container" placeholder="如 聚乙烯瓶 · 加硫酸 · 4℃" :disabled="!canField" /></label>
-                  <label class="wide">备注<input v-model="sheetOf(m).note" placeholder="可空" :disabled="!canField" /></label>
+                <div v-if="!selectedSheetCodes(m).length" class="sp-hint">请至少选择一张本次要填写的采样单。</div>
+                <div v-for="code in selectedSheetCodes(m)" :key="detail.round.id + code" class="sheet-instance">
+                  <div class="sheet-instance-title"><b>{{ code }} {{ tplOf(code)?.name || '' }}</b><span>计划日期 {{ detail.round.plan_date || detail.round.due_date }}</span></div>
+                  <!-- 模板库有精确版式的：现场直接填整张原始记录表（独立保存，存到本期次名下） -->
+                  <StructuredSheet v-if="hasFullForm(code)"
+                    :round-id="detail.round.id" :readonly="!canField" :initial-data="roundSheetSeed(m)"
+                    :code="code" :sheet-type="tplOf(code)?.sheetType || '采样记录'"
+                    :template-name="tplOf(code)?.name || ''"
+                    :analyte="tplOf(code)?.analyte || ''" :method="tplOf(code)?.method || ''" :matrix="m" />
+                  <!-- 没有精确版式的：每个表号独立一份简化登记 -->
+                  <div v-else class="field" :class="{ ro: !canField }">
+                    <label>采样点位<input v-model="sheetDraft(code).point" placeholder="本基质实际点位" :disabled="!canField" /></label>
+                    <label>样品性状<input v-model="sheetDraft(code).character" placeholder="颜色 / 气味 / 状态" :disabled="!canField" /></label>
+                    <label>采样方法<input v-model="sheetDraft(code).method" placeholder="如 瞬时采样 / 混合采样" :disabled="!canField" /></label>
+                    <label>容器与保存<input v-model="sheetDraft(code).container" placeholder="系统建议后可修改" :disabled="!canField" /></label>
+                    <label class="wide">备注<input v-model="sheetDraft(code).note" placeholder="可空" :disabled="!canField" /></label>
+                  </div>
+                  <div class="sheet-photo"><span>本采样单现场照片 / 扫描件</span><RecordAttachments type="round_sheet" :id="roundSheetAttachmentId(code)" :frozen="!canField" /></div>
                 </div>
               </div>
               <el-button v-if="canField" size="small" @click="saveField">保存现场记录</el-button>
@@ -594,9 +631,9 @@ onMounted(() => { refresh(); loadSamplers() })
                 </div>
               </div>
 
-              <!-- 现场照片 / 交接单扫描件：直接挂本期次，采样员现场就能传 -->
+              <!-- 本期公共现场照片：不属于某一张采样单的环境全景/补充证据 -->
               <div class="sheet">
-                <div class="sheet-head"><b>现场照片 / 交接单扫描件</b></div>
+                <div class="sheet-head"><b>本期公共现场照片</b><span class="sec-note">每张采样单的照片请在对应表单下上传</span></div>
                 <RecordAttachments type="round" :id="detail.round.id" />
               </div>
             </div>
@@ -813,6 +850,12 @@ onMounted(() => { refresh(); loadSamplers() })
 .sheet{border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin-top:10px}
 .sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px}
 .sheet-head select{border:1px solid var(--line-strong);border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;background:var(--surface);color:var(--ink);max-width:320px}
+.sheet-instance{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.sheet-instance-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:12.5px;color:var(--muted)}
+.sheet-instance-title b{color:var(--ink)}
+.sheet-photo{margin-top:10px;padding:10px 12px;background:var(--surface-2);border-radius:var(--radius-sm);font-size:12.5px}
+.field-equipment{display:flex;align-items:center;gap:12px;margin:10px 0 12px;font-size:12.5px}
+.field-equipment>label{font-weight:600;color:var(--ink)}
 .qcbadge{flex:none;font-size:10.5px;font-weight:600;color:var(--accent-ink);background:var(--accent-soft);border-radius:4px;padding:1px 6px}
 .hint{font-size:11.5px;color:var(--faint);margin-left:10px}
 .failnote{font-size:12.5px;color:var(--crit);background:var(--crit-soft);border-radius:7px;padding:7px 10px;margin-bottom:8px}

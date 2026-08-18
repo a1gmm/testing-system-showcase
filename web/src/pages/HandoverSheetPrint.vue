@@ -20,7 +20,7 @@ onMounted(async () => {
   } catch (e: any) { err.value = e?.response?.data?.error || e?.message || String(e) }
 })
 
-const GAS = ['废气', '环境空气', '大气降水']
+const GAS = ['废气', '有组织废气', '无组织废气', '环境空气', '大气降水']
 const isGas = computed(() => Object.values(smap.value).some(s => GAS.includes(s.matrix)))
 const isSelf = computed(() => sh.value?.source === 'self')
 const formNo = computed(() => (isGas.value ? 'HJ–TC-596' : isSelf.value ? 'HJ–TC-135-1' : 'HJ–TC-135'))
@@ -71,7 +71,7 @@ function doClose() { window.close(); setTimeout(() => { location.href = '/sample
           <template v-if="isGas">
             <tr v-for="r in sh.detail" :key="r.sampleId">
               <td>{{ r.sampleId }}</td>
-              <td>{{ smap[r.sampleId]?.matrix === '环境空气' ? '环境空气' : '废气' }}</td>
+              <td>{{ smap[r.sampleId]?.matrix === '环境空气' ? '环境空气' : (smap[r.sampleId]?.matrix || '废气') }}</td>
               <td :class="{ rejected: r.rejected }">{{ r.rejected ? '拒收：' + r.rejectReason : (r.condition || '完好') }}</td>
               <td>{{ (r.items || []).join('、') }}</td>
               <td>{{ smap[r.sampleId]?.qc_type || '' }}</td>

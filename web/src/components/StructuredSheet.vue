@@ -28,6 +28,7 @@ const props = defineProps<{
   sampleId?: string; templateName?: string
   roundId?: string                // 期次模式：采样员现场填，存 round_sheets（无三级审核链）
   tplMeta?: Record<string, any>   // 每张表从原件抽出的页脚元数据(方法依据/仪器编号/波长/狭缝/检出限等)
+  initialData?: { rows?: Record<string, any>[]; meta?: Record<string, any>; cells?: Record<string, any> } // 新期次表从计划预填；已保存数据优先覆盖
   readonly?: boolean              // 无该表填写权限的岗位（如质控员看采样表）：能看不能改
   lockText?: string               // 只读时的锁提示，按场景传（采样表/检测记录说法不一样）
 }>()
@@ -177,6 +178,17 @@ function applyData(d: any) {
   if (d.meta) Object.assign(meta, d.meta)
   if (d.cells) Object.assign(cells, d.cells)
   if (d.reg && (d.reg.a != null || d.reg.b != null)) { manualReg.a = d.reg.a ?? manualReg.a; manualReg.b = d.reg.b ?? manualReg.b }
+}
+
+// 新建现场表时从监测计划带入日期、单位、点位和项目。这里只做初始种子；
+// onMounted 读取到后端已保存版本后会完整覆盖，绝不改写历史记录。
+if (roundPersist.value && props.initialData) {
+  const { rows: initialRows, ...rest } = props.initialData
+  applyData(rest)
+  for (const [i, initialRow] of (initialRows || []).entries()) {
+    if (rows[i]) Object.assign(rows[i], initialRow)
+    else rows.push({ ...initialRow })
+  }
 }
 
 // 乐观锁基线：打开时的 updated_at；保存成功后跟着最新走

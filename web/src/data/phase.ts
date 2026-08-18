@@ -15,13 +15,14 @@ export type Phase = '现场' | '交接' | '实验室'
 // 直接读 fieldSurveyForms 的键，避免和那份清单对不上。
 const FIELD_FORM_CODES = new Set(Object.keys(fieldSurveyForms))
 
-type PhaseInput = { code: string; sheetType: string; phase?: string }
+type PhaseInput = { code: string; sheetType: string; phase?: string; stage?: string }
 
 export function templatePhase(t: PhaseInput): Phase {
   // 人工覆盖优先（只认三个合法值，瞎写的忽略）
   if (t.phase === '现场' || t.phase === '交接' || t.phase === '实验室') return t.phase
   if (t.sheetType === '样品交接') return '交接'
   if (t.sheetType === '采样记录') return '现场'
+  if (t.stage === '采样记录') return '现场'
   if (FIELD_FORM_CODES.has(t.code)) return '现场'
   return '实验室'
 }

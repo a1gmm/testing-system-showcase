@@ -2,9 +2,9 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { openDb } from '../src/db.ts'
 import {
-  createSample, addHandover, saveRecord, reviewRecord,
+  createSample, addHandover, saveRecord, reviewRecord, createContract, createScheme, reviewScheme, listRounds,
   addAttachment, listAttachments, getAttachment, deleteAttachment,
-  listAudit,
+  listAudit, canManageAttachment,
 } from '../src/handlers.ts'
 
 function freshDb() { return openDb(':memory:') }
@@ -78,4 +78,43 @@ test('附件：采样交接等事件类记录也能挂附件（无定稿概念�
   assert.equal(listAttachments(db, 'handover', String(h.id)).length, 1)
   deleteAttachment(db, a.id, actor)
   assert.equal(listAttachments(db, 'handover', String(h.id)).length, 0)
+})
+
+test('现场采样单附件按期次和表号分别归档', () => {
+  const db = freshDb()
+  const c = createContract(db, { client: '甲厂', plan: [{ matrix: '废水', items: ['COD'], qty: 1 }] }, 2026)
+  createScheme(db, { contractId: c.id, cycleMonths: 0, periodStart: '2026-08-01', periodEnd: '2026-08-01' }, 2026)
+  reviewScheme(db, c.id, 'approve', '许技术')
+  const round = listRounds(db, c.id)[0]
+  const first = `${round.id}::HJ-TC-136`
+  const second = `${round.id}::HJ-TC-146`
+  addAttachment(db, { entityType: 'round_sheet', entityId: first, origName: '第一张.jpg', storedName: 'one.jpg' }, actor)
+  addAttachment(db, { entityType: 'round_sheet', entityId: second, origName: '第二张.jpg', storedName: 'two.jpg' }, actor)
+  assert.equal(listAttachments(db, 'round_sheet', first)[0].orig_name, '第一张.jpg')
+  assert.equal(listAttachments(db, 'round_sheet', second)[0].orig_name, '第二张.jpg')
+  assert.throws(() => addAttachment(db, { entityType: 'round_sheet', entityId: 'MISSING::HJ-TC-136', origName: 'x.jpg', storedName: 'x.jpg' }, actor), /不存在/)
+  assert.throws(() => addAttachment(db, { entityType: 'round_sheet', entityId: round.id, origName: 'x.jpg', storedName: 'x.jpg' }, actor), /格式错误/)
+  assert.throws(() => addAttachment(db, { entityType: 'round_sheet', entityId: `${round.id}::`, origName: 'x.jpg', storedName: 'x.jpg' }, actor), /格式错误/)
+})
+
+test('采样单附件只允许采样员、技术负责人和管理员管理', () => {
+  assert.equal(canManageAttachment({ name: '赵采样', roles: ['sampler'] } as any, 'round_sheet'), true)
+  assert.equal(canManageAttachment({ name: '许技术', roles: ['tech'] } as any, 'round_sheet'), true)
+  assert.equal(canManageAttachment({ name: '管理员', roles: ['admin'] } as any, 'round_sheet'), true)
+  assert.equal(canManageAttachment({ name: '周登记', roles: ['registrar'] } as any, 'round_sheet'), false)
+  assert.equal(canManageAttachment({ name: '吴质控', roles: ['qc'] } as any, 'round_sheet'), false)
+})
+
+test('现场采样单附件在报告签发后冻结新增和删除', () => {
+  const db = freshDb()
+  const c = createContract(db, { client: '甲厂', plan: [{ matrix: '废水', items: ['COD'], qty: 1 }] }, 2026)
+  createScheme(db, { contractId: c.id, cycleMonths: 0, periodStart: '2026-08-01', periodEnd: '2026-08-01' }, 2026)
+  reviewScheme(db, c.id, 'approve', '许技术')
+  const round = listRounds(db, c.id)[0]
+  const target = `${round.id}::HJ-TC-136`
+  const attachment = addAttachment(db, { entityType: 'round_sheet', entityId: target, origName: '现场.jpg', storedName: 'field.jpg' }, actor)
+  db.prepare(`INSERT INTO reports (id, round_id, contract_id, client, title, conclusion, data, status, created_at)
+    VALUES ('BG2026-9999', ?, ?, '甲厂', '报告', '', '{}', 'issued', '2026-08-02T00:00:00Z')`).run(round.id, c.id)
+  assert.throws(() => addAttachment(db, { entityType: 'round_sheet', entityId: target, origName: '补传.jpg', storedName: 'late.jpg' }, actor), /冻结/)
+  assert.throws(() => deleteAttachment(db, attachment.id, actor), /冻结/)
 })

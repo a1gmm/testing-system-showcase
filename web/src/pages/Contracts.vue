@@ -9,7 +9,7 @@ import { rmbUpper } from '../../../server/src/rmb'
 import templatesJson from '../data/templates.json'
 
 const router = useRouter()
-const MATRICES = ['废水', '地表水', '地下水', '海水', '土壤', '固废', '环境空气', '废气', '生活饮用水', '大气降水', '噪声']
+const MATRICES = ['废水', '地表水', '地下水', '海水', '土壤', '固废', '环境空气', '有组织废气', '无组织废气', '废气', '生活饮用水', '大气降水', '噪声']
 const rollupLabel: Record<string, string> = { pending: '待检测', testing: '检测中', review: '待审核', approved: '已审核' }
 
 const projects = ref<ProjectSummary[]>([])
@@ -673,7 +673,7 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
               <div class="plabel">样品计划 <span class="hint">每行 = 基质 + 检测项目 + 数量 + <b>各自的监测周期</b>（废水可每月、废气可每季）</span></div>
               <div class="prow-head"><span>基质</span><span>检测项目</span><span>数量</span><span>监测周期</span><span></span></div>
               <div v-for="(p, i) in form.plan" :key="i" class="prow">
-                <select v-model="p.matrix"><option v-for="m in MATRICES" :key="m" :value="m">{{ m }}</option></select>
+                <select v-model="p.matrix"><option v-for="m in MATRICES" :key="m" :value="m">{{ m === '废气' ? '废气（历史未区分）' : m }}</option></select>
                 <!-- 决策7 同口径：项目从模板库勾选才对得上记录表；实在缺项可现打（会提醒） -->
                 <el-select v-model="p.items" multiple filterable allow-create default-first-option collapse-tags collapse-tags-tooltip :max-collapse-tags="2" placeholder="从模板库选项目（可搜）" size="small" class="items" @change="warnFreeItem">
                   <el-option v-for="it in ITEM_DICT" :key="it" :label="it" :value="it" />
@@ -799,7 +799,7 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
               <div class="sch-head"><span>要素/基质</span><span>点位</span><span>检测项目</span><span>每天次数</span><span>监测周期</span><span>执行标准</span><span></span></div>
               <template v-for="(p, i) in schemePoints" :key="i">
                 <div class="sch-row">
-                  <select v-model="p.element"><option v-for="m in MATRICES" :key="m" :value="m">{{ m }}</option></select>
+                  <select v-model="p.element"><option v-for="m in MATRICES" :key="m" :value="m">{{ m === '废气' ? '废气（历史未区分）' : m }}</option></select>
                   <input v-model="p.point" placeholder="总排口 / 厂界（必填）" />
                   <!-- 决策7：项目只能从模板库选（454张表的项目名录），不能手打——手打对不上模板，后面全乱 -->
                   <el-select v-model="p.items" multiple filterable collapse-tags collapse-tags-tooltip placeholder="从模板库选项目" size="small" class="sch-items">

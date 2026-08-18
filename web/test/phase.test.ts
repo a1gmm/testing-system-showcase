@@ -25,6 +25,12 @@ describe('templatePhase 作业环节归类', () => {
     expect(templatePhase({ code: 'HJ-TC-733', sheetType: '原始记录' })).toBe('现场')
   })
 
+  it('模板清单明确标为采样记录的原始记录也归现场', () => {
+    expect(templatePhase({ code: 'HJ-TC-142', sheetType: '原始记录', stage: '采样记录' })).toBe('现场')
+    expect(templatePhase({ code: 'HJ-TC-476', sheetType: '原始记录', stage: '采样记录' })).toBe('现场')
+    expect(templatePhase({ code: 'HJ-TC-585', sheetType: '原始记录', stage: '采样记录' })).toBe('现场')
+  })
+
   it('fieldSurveyForms 里的每张表都判为现场（防清单漂移）', () => {
     for (const code of Object.keys(fieldSurveyForms)) {
       expect(templatePhase({ code, sheetType: '原始记录' })).toBe('现场')

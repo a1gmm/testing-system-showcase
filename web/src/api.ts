@@ -50,7 +50,7 @@ export type Sample = {
   qc_type?: string | null   // S4：质控样类型（全程序空白/运输空白/现场平行），普通样为空
   created_at: string
 }
-export type ContractSample = { id: number; contract_id: string; matrix: string; items: string[]; qty: number; cycle_months: number; note: string }
+export type ContractSample = { id: number; contract_id: string; matrix: string; items: string[]; qty: number; cycle_months: number; note: string; point?: string }
 export type ContractUpdatePatch = { client?: string; contact?: string; phone?: string; project?: string; note?: string; periodStart?: string; periodEnd?: string; urgent?: boolean }
 export type SchemePoint = { element: string; point: string; items: string[]; freq: string; standard: string }
 export type LimitRule = { analyte: string; op: '≤' | '≥' | 'range'; value: number | null; value2?: number | null; unit: string; standard?: string }
@@ -69,6 +69,9 @@ export type FieldInfo = {
   calBefore?: number | string; calAfter?: number | string; wind?: number | string   // 噪声：测前/测后校准、风速m/s
   tons?: number | string                                                            // 固废：堆存量(t)，查最小份样数
   sheets?: Record<string, SamplingSheet>                                            // 基质 → 已填采样单
+  sheetCodes?: Record<string, string[]>                                             // 基质 → 本期要填的多张采样单表号
+  sheetDrafts?: Record<string, SamplingSheet>                                       // 无精确版式时按表号保存简化登记（兼容多表）
+  instrumentIds?: string[]                                                          // 本期已领用且现场实际使用的设备
 }
 export type QcRequirement = { qcType: string; matrix: string; qty: number; basis: string }
 export type Round = {
@@ -144,7 +147,7 @@ export type TestNotice = { id: string; sheet_id: string; round_id: string | null
 export type NoticeDecodeRow = { sampleId: string; pointName: string | null; client: string; matrix: string; qcType: string | null }
 export type OrgProfile = { id: number; name: string; name_en: string | null; address: string | null; postcode: string | null; phone: string | null; fax: string | null; cma_no: string | null; note: string | null }
 export type MonitoringPoint = { id: number; contract_id: string; code: string; name: string; matrix: string | null; source: 'contract' | 'field'; planned_desc: string | null; actual_desc: string | null; coordinate: string | null; remark: string | null; created_at: string }
-export type AttachEntityType = 'record' | 'handover' | 'pretreatment' | 'qc' | 'system_record' | 'round' | 'report' | 'delivery'
+export type AttachEntityType = 'record' | 'handover' | 'pretreatment' | 'qc' | 'system_record' | 'round' | 'round_sheet' | 'report' | 'delivery'
 export type Attachment = { id: string; entity_type: string; entity_id: string; orig_name: string; stored_name: string; mime: string | null; size: number | null; who: string; username: string | null; at: string; deleted_at: string | null; deleted_by: string | null }
 export const HANDOVER_ACTIONS = ['采样交接', '接样入库', '流转领用', '归还', '留样', '处置']
 export type QcRecord = { id: number; qc_type: string; round_id: string | null; sample_id: string | null; analyte: string | null; data: any; unit: string | null; result: number | null; verdict: string | null; criterion: string | null; note: string | null; who: string; username: string | null; at: string }
