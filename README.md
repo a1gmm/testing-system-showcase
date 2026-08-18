@@ -49,3 +49,8 @@ be raised as an issue so they can be applied at the source and exported again.
 
 All organizations, people, addresses, phone numbers, and sample records shown
 in this public version are fictional.
+
+## Updates
+
+Changes from the private source are exported to a review branch automatically.
+Each update is merged only after the sanitized public diff has been reviewed.
