@@ -17,10 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
       REVIEW_BRANCH: codex/showcase-sync
     steps:
       - name: Open pull request when needed
         run: |
-          if [ "$(gh pr list --head "${REVIEW_BRANCH}" --state open --json number --jq length)" = "0" ]; then
-            gh pr create --head "${REVIEW_BRANCH}" --base main --title "Sync sanitized public showcase" --body "Generated from the private source repository. Review the sanitized diff before merging."
+          set -euo pipefail
+          open_count="$(gh pr list --repo "${GH_REPO}" --head "${REVIEW_BRANCH}" --state open --json number --jq length)"
+          if [ "${open_count}" = "0" ]; then
+            gh pr create --repo "${GH_REPO}" --head "${REVIEW_BRANCH}" --base main --title "Sync sanitized public showcase" --body "Generated from the private source repository. Review the sanitized diff before merging."
           fi
