@@ -1,0 +1,26 @@
+name: Propose showcase update
+
+on:
+  push:
+    branches: [codex/showcase-sync]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: propose-showcase-update
+  cancel-in-progress: false
+
+jobs:
+  open-pull-request:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REVIEW_BRANCH: codex/showcase-sync
+    steps:
+      - name: Open pull request when needed
+        run: |
+          if [ "$(gh pr list --head "${REVIEW_BRANCH}" --state open --json number --jq length)" = "0" ]; then
+            gh pr create --head "${REVIEW_BRANCH}" --base main --title "Sync sanitized public showcase" --body "Generated from the private source repository. Review the sanitized diff before merging."
+          fi
