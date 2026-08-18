@@ -1,0 +1,8176 @@
+[
+ {
+  "code": "HJ-TC-001",
+  "name": "铜",
+  "analyte": "铜",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "001-铜-水质铜、锌、铅、镉的测定原子吸收分光光度法 GBT7475-1987-原子吸收分光光度法原始记录表",
+  "file": "0001.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "wavelength": "324.7nm",
+   "basis": "GB/T7475-1987",
+   "slit": "0.4nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-002",
+  "name": "铜",
+  "analyte": "铜",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "校准曲线",
+  "raw": "002-铜-水质铜、锌、铅、镉的测定原子吸收分光光度法-GBT7475-1987--校准曲线绘制及回归方程原始记录表",
+  "file": "0002.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "basis": "GB/T7475-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-003",
+  "name": "锌 · 废水",
+  "analyte": "锌",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "003-原子吸收分光光度法原始记录表--污水锌",
+  "file": "0003.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "wavelength": "213.9nm",
+   "basis": "GB/T7475-1987",
+   "slit": "0.4nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-004",
+  "name": "锌 · 废水",
+  "analyte": "锌",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "004-校准曲线绘制及回归方程原始记录表--污水锌",
+  "file": "0004.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "basis": "GB/T7475-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-005",
+  "name": "铅 · 废水",
+  "analyte": "铅",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "005-原子吸收分光光度法原始记录表--污水铅",
+  "file": "0005.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "wavelength": "283.3nm",
+   "basis": "GB/T7475-1987",
+   "slit": "0.4nm",
+   "detectionLimit": "0.2mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-006",
+  "name": "铅 · 废水",
+  "analyte": "铅",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "006-校准曲线绘制及回归方程原始记录表--污水铅",
+  "file": "0006.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "basis": "GB/T7475-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-007",
+  "name": "镉 · 废水",
+  "analyte": "镉",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "007-原子吸收分光光度法原始记录表--污水镉",
+  "file": "0007.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "wavelength": "228.8nm",
+   "basis": "GB/T7475-1987",
+   "slit": "0.4nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-008",
+  "name": "镉 · 废水",
+  "analyte": "镉",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "008-校准曲线绘制及回归方程原始记录表--污水镉",
+  "file": "0008.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "basis": "GB/T7475-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-009",
+  "name": "铁 · 废水",
+  "analyte": "铁",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "009-原子吸收分光光度法原始记录表--污水铁",
+  "file": "0009.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铁、锰的测定火焰原子吸收分光光度法",
+   "wavelength": "248.3nm",
+   "basis": "GB/T11911-1989",
+   "slit": "0.2nm",
+   "detectionLimit": "0.03mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-010",
+  "name": "铁 · 废水",
+  "analyte": "铁",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "010-校准曲线绘制及回归方程原始记录表--污水铁",
+  "file": "0010.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铁、锰的测定火焰原子吸收分光光度法",
+   "basis": "GB／T11911-1989"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-011",
+  "name": "锰 · 废水",
+  "analyte": "锰",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "011-原子吸收分光光度法原始记录表--污水锰",
+  "file": "0011.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铁、锰的测定火焰原子吸收分光光度法",
+   "wavelength": "279.5nm",
+   "basis": "GB/T11911-1989",
+   "slit": "0.2nm",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-012",
+  "name": "锰 · 废水",
+  "analyte": "锰",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "012-校准曲线绘制及回归方程原始记录表--污水锰",
+  "file": "0012.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铁、锰的测定火焰原子吸收分光光度法",
+   "basis": "GB/T11911-1989"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-013",
+  "name": "镍",
+  "analyte": "镍",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "013-原子吸收分光光度法原始记录表--镍",
+  "file": "0013.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质镍的测定火焰原子吸收分光光度法",
+   "wavelength": "232.0nm",
+   "basis": "GB/T11912-1989",
+   "slit": "0.2nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-014",
+  "name": "镍 · 废水",
+  "analyte": "镍",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "014-校准曲线绘制及回归方程原始记录表--污水镍",
+  "file": "0014.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质镍的测定火焰原子吸收分光光度法",
+   "basis": "GB/T11912-1989"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-015",
+  "name": "总铬",
+  "analyte": "总铬",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "015-分光光度法原始记录表--总铬",
+  "file": "0015.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：10mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质总铬的测定高锰酸钾氧化-二苯测定",
+   "wavelength": "540nm参比溶液：蒸馏水b=",
+   "basis": "GB7466-87",
+   "detectionLimit": "0.004mg/LbVAAa−−0"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-016",
+  "name": "总铬 · 废水",
+  "analyte": "总铬",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "016-校准曲线绘制及回归方程原始记录表--污水总铬",
+  "file": "0016.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质总铬的测定高锰酸钾氧化-二苯碳酰二肼分光光度法",
+   "basis": "GB7466-87"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-017",
+  "name": "汞 · 废水",
+  "analyte": "汞",
+  "matrix": "废水",
+  "method": "原子荧光",
+  "sheetType": "原始记录",
+  "raw": "017-冷原子吸收（荧光）测汞原始记录表--污水汞",
+  "file": "0017.pdf",
+  "meta": {
+   "instrument": "JKG-205型冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "水质总汞的测定冷原子吸收分光光度法",
+   "basis": "HJ597-2011",
+   "detectionLimit": "0.02µg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-018",
+  "name": "汞 · 废水",
+  "analyte": "汞",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "018-校准曲线绘制及回归方程原始记录表--污水汞",
+  "file": "0018.pdf",
+  "meta": {
+   "instrument": "JKG-205型冷原子吸收分光光度计",
+   "instrumentNo": "TC-032",
+   "methodFull": "水质总汞的测定冷原子吸收分光光度法",
+   "basis": "HJ597-2011",
+   "wavelength": "253.7nm",
+   "detectionLimit": "0.02µg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-019",
+  "name": "汞 · 地下水",
+  "analyte": "汞",
+  "matrix": "地下水",
+  "method": "原子荧光",
+  "sheetType": "原始记录",
+  "raw": "019-冷原子吸收（荧光）测汞原始记录表--地下水汞",
+  "file": "0019.pdf",
+  "meta": {
+   "instrument": "JKG-205型冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006",
+   "detectionLimit": "0.2ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-020",
+  "name": "汞 · 地下水",
+  "analyte": "汞",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "020-校准曲线绘制及回归方程原始记录表--地下水汞",
+  "file": "0020.pdf",
+  "meta": {
+   "instrument": "JKG-205型冷原子吸收分光光度计",
+   "instrumentNo": "TC-032",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-022",
+  "name": "铜 · 土壤",
+  "analyte": "铜",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "022-校准曲线绘制及回归方程原始记录表--土壤铜",
+  "file": "0021.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤质量铜、锌的测定火焰原子吸收分光光度法",
+   "basis": "GB/T17138-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-024",
+  "name": "锌 · 土壤",
+  "analyte": "锌",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "024-校准曲线绘制及回归方程原始记录表--土壤锌",
+  "file": "0022.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤质量铜、锌的测定火焰原子吸收分光光度法",
+   "basis": "GB/T17138-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-026",
+  "name": "铅 · 土壤",
+  "analyte": "铅",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "026-校准曲线绘制及回归方程原始记录表--土壤铅",
+  "file": "0023.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "土壤质量铅、镉的测定石墨炉原子吸收分光光度法",
+   "basis": "GB/T17141-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-027",
+  "name": "镉 · 土壤",
+  "analyte": "镉",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "027-土壤（沉积物）原子吸收分光光度法原始记录表--镉",
+  "file": "0024.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "土壤质量铅、镉的测定石墨炉原子吸收分光光度法",
+   "wavelength": "228.8nm",
+   "basis": "GB/T17141-1997",
+   "slit": "0.4nm",
+   "detectionLimit": "0.01mg/kg 前处"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-028",
+  "name": "镉 · 土壤",
+  "analyte": "镉",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "028-校准曲线绘制及回归方程原始记录表--土壤镉",
+  "file": "0025.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "土壤质量铅、镉的测定石墨炉原子吸收分光光度法",
+   "basis": "GB/T17141-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-029",
+  "name": "铬 · 土壤",
+  "analyte": "铬",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "029-土壤（沉积物）原子吸收分光光度法原始记录表--铬",
+  "file": "0026.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "wavelength": "357.9nm",
+   "basis": "HJ491-2019",
+   "slit": "0.2nm",
+   "detectionLimit": "4mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-030",
+  "name": "铬 · 土壤",
+  "analyte": "铬",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "030-校准曲线绘制及回归方程原始记录表--土壤铬",
+  "file": "0027.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物 铜、锌、铅、镍、铬的测定 火焰原子吸收分光光度法",
+   "basis": "HJ491-2019",
+   "vdef": "100",
+   "wavelength": "357.9nm",
+   "detectionLimit": "4mg/kg",
+   "corrThreshold": "≥0.999"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-031",
+  "name": "镍 · 土壤",
+  "analyte": "镍",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "031-土壤（沉积物）原子吸收分光光度法原始记录表--镍",
+  "file": "0028.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤质量镍的测定火焰原子吸收分光光度法",
+   "wavelength": "232.0nm",
+   "basis": "GB/T17139-1997",
+   "slit": "0.2nm",
+   "detectionLimit": "5mg/kg b*m*("
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-032",
+  "name": "镍 · 土壤",
+  "analyte": "镍",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "032-校准曲线绘制及回归方程原始记录表--土壤镍",
+  "file": "0029.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤质量镍的测定火焰原子吸收分光光度法",
+   "basis": "GB/T17139-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-033",
+  "name": "汞 · 土壤",
+  "analyte": "汞",
+  "matrix": "土壤",
+  "method": "原子荧光",
+  "sheetType": "原始记录",
+  "raw": "033-土壤（沉积物）冷原子吸收（荧光）测汞原始记录表-土壤中汞",
+  "file": "0030.pdf",
+  "meta": {
+   "instrument": "JKG—205型冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "土壤质量总汞的测定冷原子吸收分光光度法",
+   "basis": "GB/T17136-1997",
+   "detectionLimit": "0.005mg/kgb*"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-034",
+  "name": "汞 · 土壤",
+  "analyte": "汞",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "034-校准曲线绘制及回归方程原始记录表--土壤汞",
+  "file": "0031.pdf",
+  "meta": {
+   "instrument": "JKG-205型冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "土壤质量总汞的测定冷原子吸收分光光度法",
+   "basis": "GB/T17136-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-037",
+  "name": "汞 · 废气",
+  "analyte": "汞",
+  "matrix": "废气",
+  "method": "原子荧光",
+  "sheetType": "原始记录",
+  "raw": "037-废气冷原子吸收（荧光）测汞原始记录表",
+  "file": "0032.pdf",
+  "meta": {
+   "instrument": "JKG-205冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "固定污染源废气汞的测定冷原子吸收分光光度法（暂行）",
+   "basis": "HJ543-2009",
+   "detectionLimit": "0.0025mg/m³(采样体积10L时);测定下限0.01mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-038",
+  "name": "汞 · 废气",
+  "analyte": "汞",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "038-校准曲线绘制及回归方程原始记录表--废气汞及化合物",
+  "file": "0033.pdf",
+  "meta": {
+   "instrument": "JKG-205冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "固定污染源废气汞的测定冷原子吸收分光光度法（暂行）",
+   "basis": "HJ543-2009",
+   "detectionLimit": "0.0025mg/m³(采样10L)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-039",
+  "name": "铅 · 环境空气",
+  "analyte": "铅",
+  "matrix": "环境空气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "039-环境空气原子吸收分光光度法原始记录表--铅及化合物",
+  "file": "0034.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "环境空气铅的测定火焰原子吸收分光光度法",
+   "wavelength": "283.3nm",
+   "basis": "GB/T15264-1994",
+   "slit": "0.4nm",
+   "detectionLimit": "4mg/m³b*Vn÷1000*1000St/Sa="
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-040",
+  "name": "铅",
+  "analyte": "铅",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "040-校准曲线绘制及回归方程原始记录表--铅及化合物",
+  "file": "0035.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "环境空气铅的测定火焰原子吸收分光光度法",
+   "basis": "GB/T15264-1994"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-041",
+  "name": "镍 · 环境空气",
+  "analyte": "镍",
+  "matrix": "环境空气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "041-环境空气原子吸收分光光度法原始记录表--镍及化合物",
+  "file": "0036.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "大气固定污染源镍的测定火焰原子吸收分光光度法",
+   "wavelength": "232.0nm",
+   "basis": "HJ/T63.1-2001",
+   "slit": "0.2nm",
+   "detectionLimit": "3×10⁻⁵mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-0418",
+  "name": "电导率",
+  "analyte": "电导率",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "0418-电导率测量原始记录表",
+  "file": "0037.pdf",
+  "meta": {
+   "instrument": "DDS-12A精密数字式电导率仪",
+   "instrumentNo": "TC-015",
+   "methodFull": "土壤电导率的测定电极法",
+   "basis": "HJ802-2016"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-042",
+  "name": "镍 · 环境空气",
+  "analyte": "镍",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "042-校准曲线绘制及回归方程原始记录表--空气镍及化合物",
+  "file": "0038.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "methodFull": "火焰原子吸收分光光度法",
+   "basis": "HJ/T63.1-2001",
+   "wavelength": "232.0nm",
+   "slit": "0.09nm",
+   "detectionLimit": "3×10⁻⁵mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-044",
+  "name": "镉 · 环境空气",
+  "analyte": "镉",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "044-校准曲线绘制及回归方程原始记录表--空气镉及化合物",
+  "file": "0039.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "methodFull": "火焰原子吸收分光光度法",
+   "basis": "HJ/T 64.1-2001",
+   "wavelength": "228.8nm",
+   "slit": "1.3nm",
+   "detectionLimit": "3×10⁻⁸mg/m³"
+  },
+  "retired": true,
+  "retiredReason": "本所已停用该方法（2026-07-16 技术负责人确认不再开展此项目）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-045",
+  "name": "铬 · 环境空气",
+  "analyte": "铬",
+  "matrix": "环境空气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "045-环境空气原子吸收分光光度法原始记录表--铬及化合物",
+  "file": "0040.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "methodFull": "原子吸收分光光度法",
+   "wavelength": "357.9nm",
+   "basis": "国家环保总局（2003）第四版",
+   "slit": "0.4nm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-046",
+  "name": "铬 · 环境空气",
+  "analyte": "铬",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "046-校准曲线绘制及回归方程原始记录表--空气铬及化合物",
+  "file": "0041.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "methodFull": "原子吸收分光光度法",
+   "basis": "国家环保总局（2003）第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-047",
+  "name": "pH",
+  "analyte": "pH",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "047-PH值 原始记录表",
+  "file": "0042.pdf",
+  "meta": {
+   "instrument": "PHS-3C型实验室PH计标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
+   "instrumentNo": "TC-014",
+   "methodFull": "水质PH的测定玻璃电极法标准缓冲溶液II测定值",
+   "basis": "GB/T6920-1986"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-049",
+  "name": "阴离子表面活性剂",
+  "analyte": "阴离子表面活性剂",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "049-分光光度法原始记录表--阴离子",
+  "file": "0043.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度法光程：10mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "GB/T7494-1987",
+   "wavelength": "652nm参比溶液：氯仿b=",
+   "basis": "水质阴离子表面活性剂的测定亚甲蓝分光光度法测定",
+   "detectionLimit": "0.05mg/Lr="
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-050",
+  "name": "阴离子表面活性剂校准曲线",
+  "analyte": "阴离子表面活性剂",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "050-校准曲线绘制及回归方程原始记录表--阴离子",
+  "file": "0044.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质阴离子表面活性剂的测定亚甲蓝分光光度法标准使用溶液浓度：10ug/ml",
+   "basis": "GB/T7494-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-051",
+  "name": "悬浮物",
+  "analyte": "悬浮物",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "051-重量测量原始记录表悬浮物",
+  "file": "0045.pdf",
+  "meta": {
+   "instrument": "ME204/02E电子天平DHG-9070A电热鼓风干燥箱",
+   "instrumentNo": "TC-006TC-010",
+   "methodFull": "水质悬浮物的测定重量法",
+   "basis": "GB/T11901-1989",
+   "detectionLimit": "4mg/L式中：W1-总重"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-055",
+  "name": "硝酸盐氮 · 地下水",
+  "analyte": "硝酸盐氮",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "055-1-亚硝酸盐氮地下水-校准曲线及回归方程原始记录表",
+  "file": "0046.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计标准使用溶液浓度：0.10ug/ml",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-056",
+  "name": "氟化物（环境空气）",
+  "analyte": "氟化物",
+  "matrix": "环境空气",
+  "method": "电极法",
+  "sheetType": "原始记录",
+  "raw": "056-环境空气离子选择电极法测量原始记录表",
+  "file": "0047.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-014",
+   "methodFull": "环境空气 氟化物的测定 滤膜采样/氟离子选择电极法",
+   "basis": "HJ955-2018",
+   "detectionLimit": "0.5μg/m³，测定下限2.0μg/m³（50L/min、1h档；24h档0.06/0.24μg/m³）",
+   "formula": "①lgm=(E−Ec)/Sc（m:氟含量,μg；E:试样电位值,mV；Ec:标准曲线截距,mV；Sc:标准曲线斜率,mV）②ρ(F⁻)=(m−m0)/V0（m0:实验室空白平均氟含量,μg；V0:标况采样体积Vn,m³）",
+   "slopeThreshold": "-58.0mV±2.0mV（20~25℃，HJ955-2018第12.3条）",
+   "resultPrecision": "1h均值：<10.0μg/m³保留小数点后1位，≥10.0μg/m³保留3位有效数字；24h均值：<10.0μg/m³保留小数点后2位，≥10.0μg/m³保留3位有效数字（HJ955-2018第10.2条）",
+   "qcNote": "每批实验室空白≥2个（空白值<1.4μg）、全程序空白≥1个（空白值<2.0μg）；标准曲线相关系数应≥0.999（HJ955-2018第12.3、12.4条）"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-057",
+  "name": "氟化物校准曲线（环境空气）",
+  "analyte": "氟化物",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "057-空气中的氟校准曲线绘制及回归方程原始记录表",
+  "file": "0048.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-014",
+   "methodFull": "环境空气 氟化物的测定 滤膜采样/氟离子选择电极法",
+   "basis": "HJ955-2018",
+   "resolution": "0.1mV",
+   "standardUseConc": "10mg/L",
+   "constVolume": "50mL",
+   "xAxis": "lg(氟含量µg)",
+   "rCriterion": "≥0.999",
+   "slopeCheck": "-58.0±2.0mV/十倍浓度(20~25℃)",
+   "detectionLimit": "0.5µg/m³(50L/min,1h) / 0.06µg/m³(16.7L/min,24h)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-058",
+  "name": "苯胺类",
+  "analyte": "苯胺类",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "058-分光光度法原始记录表--苯胺类",
+  "file": "0049.pdf",
+  "meta": {
+   "instrument": "UV-1801 紫外分光光度计 光 程： 10mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 苯胺类化合物的测定N-(1-萘基)乙二胺偶氮分光光度法 测定波 长：545nm 参比溶液：蒸馏水 b=",
+   "basis": "GB/T11889-1989",
+   "detectionLimit": "0.03mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-059",
+  "name": "苯胺类",
+  "analyte": "苯胺类",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "059-校准曲线绘制及回归方程原始记录表-苯胺类",
+  "file": "0050.pdf",
+  "meta": {
+   "instrument": "UV-1801型紫外分光光度计标准使用溶液浓度：10.0ug/ml配置溶液体积：25ml",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质苯胺类化合物的测定N-(1-萘基)乙二胺偶氮分光光度法",
+   "basis": "GB11889-1989"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-060",
+  "name": "硫化物 · 低浓度(光程30mm)",
+  "analyte": "硫化物",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "060-1-分光光度法原始记录表--硫化物-低",
+  "file": "0051.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 硫化物的测定 亚甲基蓝分光光度法",
+   "wavelength": "665nm",
+   "basis": "HJ1226-2021",
+   "detectionLimit": "0.01mg/L",
+   "analyte": "硫化物",
+   "pathLength": "10mm",
+   "reference": "除氧去离子水"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-060",
+  "name": "硫化物 · 高浓度(光程10mm)",
+  "analyte": "硫化物",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "060-2-分光光度法原始记录表--硫化物-高",
+  "file": "0052.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 硫化物的测定 亚甲基蓝分光光度法",
+   "wavelength": "665nm",
+   "basis": "HJ1226-2021",
+   "detectionLimit": "0.01mg/L",
+   "analyte": "硫化物",
+   "pathLength": "10mm",
+   "reference": "除氧去离子水"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-060",
+  "name": "硫化物",
+  "analyte": "硫化物",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "060-分光光度法原始记录表--硫化物",
+  "file": "0053.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 硫化物的测定 亚甲基蓝分光光度法",
+   "wavelength": "665nm",
+   "basis": "HJ1226-2021",
+   "detectionLimit": "0.01mg/L",
+   "analyte": "硫化物",
+   "pathLength": "10mm",
+   "reference": "除氧去离子水"
+  },
+  "retired": true,
+  "retiredReason": "060 硫化物：采用已废止 GB/T16489-1996，被 HJ1226-2021 替代（现行为母子表 060-1/060-2）（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-061",
+  "name": "硫化物",
+  "analyte": "硫化物",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "061-1校准曲线绘制及回归方程原始记录表--硫化物(新）",
+  "file": "0054.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 硫化物的测定 亚甲基蓝分光光度法",
+   "basis": "HJ1226-2021",
+   "wavelength": "665nm",
+   "detectionLimit": "0.01mg/L（10mm比色皿）/0.003mg/L（30mm比色皿）",
+   "analyte": "硫化物"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-061",
+  "name": "硫化物",
+  "analyte": "硫化物",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "061-校准曲线绘制及回归方程原始记录表--硫化物",
+  "file": "0055.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 硫化物的测定 亚甲基蓝分光光度法",
+   "basis": "HJ1226-2021",
+   "wavelength": "665nm",
+   "detectionLimit": "0.01mg/L（10mm比色皿）/0.003mg/L（30mm比色皿）",
+   "analyte": "硫化物"
+  },
+  "retired": true,
+  "retiredReason": "061 硫化物校准曲线：采用已废止 GB/T16489-1996，被 HJ1226-2021 替代（留 0054）（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-062",
+  "name": "砷 · 地下水",
+  "analyte": "砷",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "062-1校准曲线绘制及回归方程原始记录表-地下水砷",
+  "file": "0056.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-062",
+  "name": "砷 · 地下水",
+  "analyte": "砷",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "062-校准曲线绘制及回归方程原始记录表-地下水砷",
+  "file": "0057.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2023"
+  },
+  "retired": true,
+  "retiredReason": "062 砷校准曲线：方法章节金属指标(6.2)为 GB/T5750.6-2006 旧章节，现行2023版应为(9.2)，留 0056（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-063",
+  "name": "砷 · 地下水",
+  "analyte": "砷",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "063-1砷地下水--分光光度法原始记录表",
+  "file": "0058.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "515nm参比溶液：三氯甲烷",
+   "basis": "GB/T5750.6-2023",
+   "detectionLimit": "0.01mg/LbV"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-063",
+  "name": "砷 · 地下水",
+  "analyte": "砷",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "063砷地下水--分光光度法原始记录表",
+  "file": "0059.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "515nm参比溶液：三氯甲烷",
+   "basis": "GB/T5750.6-2006",
+   "detectionLimit": "0.01mg/LbV"
+  },
+  "retired": true,
+  "retiredReason": "063 砷：采用 GB/T5750.6-2006 旧版，被2023版(0058)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-064",
+  "name": "砷 · 地表水",
+  "analyte": "砷",
+  "matrix": "地表水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "064砷地表水--分光光度法原始记录表",
+  "file": "0060.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "水质总砷的测定二乙基二硫代氨基甲酸银分光光度法测定",
+   "wavelength": "530nm参比溶液：三氯甲烷b=",
+   "basis": "GB/T7485-1987",
+   "detectionLimit": "0.007mg/LbV1"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-065",
+  "name": "砷",
+  "analyte": "砷",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "065-校准曲线绘制及回归方程原始记录表-水质砷",
+  "file": "0061.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质总砷的测定二乙基二硫代氨基甲酸银分光光度法",
+   "basis": "GB/T7485-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-0656",
+  "name": "电导率 · 地下水",
+  "analyte": "电导率",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "0656-地下水电导率测量原始记录表",
+  "file": "0062.pdf",
+  "meta": {
+   "instrument": "DDS-12A精密数字式电导率仪",
+   "instrumentNo": "TC-015",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-066",
+  "name": "氟化物 · 地表水",
+  "analyte": "氟化物",
+  "matrix": "地表水",
+  "method": "电极法",
+  "sheetType": "原始记录",
+  "raw": "066-离子选择电极法测量原始记录表--地表水氟化物",
+  "file": "0063.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-016",
+   "methodFull": "水质氟化物的测定离子选择电极法",
+   "basis": "GB/T7484-1987",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-067",
+  "name": "氟化物 · 废水",
+  "analyte": "氟化物",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "067-校准曲线绘制及回归方程原始记录表-污水氟化物",
+  "file": "0064.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-016",
+   "methodFull": "水质氟化物的测定离子选择电极法",
+   "basis": "GB/T7484-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-068",
+  "name": "氟化物 · 地下水",
+  "analyte": "氟化物",
+  "matrix": "地下水",
+  "method": "电极法",
+  "sheetType": "原始记录",
+  "raw": "068-1离子选择电极法测量原始记录表--地下水氟化物",
+  "file": "0065.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-016",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023",
+   "detectionLimit": "0.2mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-068",
+  "name": "氟化物 · 地下水",
+  "analyte": "氟化物",
+  "matrix": "地下水",
+  "method": "电极法",
+  "sheetType": "原始记录",
+  "raw": "068-离子选择电极法测量原始记录表--地下水氟化物",
+  "file": "0066.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-016",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2006",
+   "detectionLimit": "0.2mg/L"
+  },
+  "retired": true,
+  "retiredReason": "068 氟化物：采用 GB/T5750.5-2006 旧版，被2023版(0065)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-069",
+  "name": "氟化物 · 地下水",
+  "analyte": "氟化物",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "069-1-校准曲线绘制及回归方程原始记录表-地下水氟化物",
+  "file": "0067.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-016标准使用液浓度：10mg/L",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-069",
+  "name": "氟化物 · 地下水",
+  "analyte": "氟化物",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "069-校准曲线绘制及回归方程原始记录表-地下水氟化物",
+  "file": "0068.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-016",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2006"
+  },
+  "retired": true,
+  "retiredReason": "069 氟化物校准曲线：采用 GB/T5750.5-2006 旧版，被2023版(0067)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-070",
+  "name": "溶解氧",
+  "analyte": "溶解氧",
+  "matrix": "",
+  "method": "容量滴定",
+  "sheetType": "原始记录",
+  "raw": "070-容量测量原始记录表-溶解氧",
+  "file": "0069.pdf",
+  "meta": {
+   "methodFull": "水质溶解氧的测定碘量法",
+   "basis": "GB/T7489-1987",
+   "detectionLimit": "0.2mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-071",
+  "name": "生化需氧量",
+  "analyte": "生化需氧量",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "071-五日生化需氧量（BOD5）测量原始记录表-整理",
+  "file": "0070.pdf",
+  "meta": {
+   "instrument": "250-B型生化培养箱",
+   "instrumentNo": "TC-020",
+   "methodFull": "水质五日生化需氧量（BOD5）的测定稀释与接种法",
+   "basis": "HJ505-2009",
+   "detectionLimit": "0.5mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-074",
+  "name": "铜 · 地下水",
+  "analyte": "铜",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "074-校准曲线绘制及回归方程原始记录表--地下水铜",
+  "file": "0071.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-075",
+  "name": "铜 · 地下水",
+  "analyte": "铜",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "075-1原子吸收分光光度法原始记录表-地下水铜",
+  "file": "0072.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "324.7nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.4nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-076",
+  "name": "铅 · 地下水",
+  "analyte": "铅",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "076-原子吸收分光光度法原始记录表-地下水铅",
+  "file": "0073.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "283.3nm",
+   "basis": "GB/T5750.6-2006",
+   "slit": "0.4nm",
+   "detectionLimit": "2.5ug/L"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-077",
+  "name": "铅 · 地下水",
+  "analyte": "铅",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "077-校准曲线绘制及回归方程原始记录表--地下水铅",
+  "file": "0074.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-078",
+  "name": "锌 · 地下水",
+  "analyte": "锌",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "078-1原子吸收分光光度法原始记录表-地下水锌",
+  "file": "0075.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "213.9nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.4nm",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-079",
+  "name": "锌 · 地下水",
+  "analyte": "锌",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "079-校准曲线绘制及回归方程原始记录表--地下水锌",
+  "file": "0076.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-080",
+  "name": "镉 · 地下水",
+  "analyte": "镉",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "080-校准曲线绘制及回归方程原始记录表--地下水镉",
+  "file": "0077.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-081",
+  "name": "镉 · 地下水",
+  "analyte": "镉",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "081-原子吸收分光光度法原始记录表-地下水镉",
+  "file": "0078.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "228.8nm",
+   "basis": "GB/T5750.6-2006",
+   "slit": "0.4nm",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-082",
+  "name": "锰 · 地下水",
+  "analyte": "锰",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "082-1原子吸收分光光度法原始记录表-地下水锰",
+  "file": "0079.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "279.5nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.2nm",
+   "detectionLimit": "0.02mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-083",
+  "name": "锰 · 地下水",
+  "analyte": "锰",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "083-校准曲线绘制及回归方程原始记录表--地下水锰",
+  "file": "0080.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-086",
+  "name": "二氧化硫 · 环境空气",
+  "analyte": "二氧化硫",
+  "matrix": "环境空气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "086-环境空气监测分光光度法原始记录表--二氧化硫",
+  "file": "0081.pdf",
+  "meta": {
+   "instrument": "UV-1801型紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气二氧化硫的测定甲醛吸收-副玫瑰苯胺分光光度法",
+   "wavelength": "577nm",
+   "basis": "HJ482-2009",
+   "detectionLimit": "0.007mg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-087",
+  "name": "二氧化硫",
+  "analyte": "二氧化硫",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "087-校准曲线绘制及回归方程原始记录表-二氧化硫",
+  "file": "0082.pdf",
+  "meta": {
+   "instrument": "UV-1801型紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气二氧化硫的测定甲醛吸收-副玫瑰苯胺分光光度法",
+   "basis": "HJ482-2009",
+   "wavelength": "577nm",
+   "detectionLimit": "0.007mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-088",
+  "name": "硫化氢（环境空气）",
+  "analyte": "硫化氢",
+  "matrix": "环境空气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "088-环境空气监测分光光度法原始记录表--硫化氢",
+  "file": "0083.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气和废气监测分析方法第三篇第一章十一硫化氢亚甲基蓝分光光度法b=",
+   "wavelength": "665nm光程：20mm",
+   "basis": "国家环保总局（2003）版第四版",
+   "detectionLimit": "0.001mg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-089",
+  "name": "硫化氢校准曲线",
+  "analyte": "硫化氢",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "089-校准曲线绘制及回归方程原始记录表-H2S",
+  "file": "0084.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气和废气监测分析方法第三篇第一章十一硫化氢亚甲基蓝分光光度法",
+   "basis": "国家环保总局（2003）版第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-090",
+  "name": "砷 · 土壤",
+  "analyte": "砷",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "090-校准曲线绘制及回归方程原始记录表-土壤砷",
+  "file": "0085.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "土壤质量总砷的测定二乙基二硫代氨基甲酸银分光光度法定容体积：50ml",
+   "basis": "GB/T17134-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-091",
+  "name": "砷 · 土壤",
+  "analyte": "砷",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "091-土壤（沉积物）原子吸收分光光度法原始记录表--砷",
+  "file": "0086.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "土壤质量总砷的测定二乙基二硫代氨基甲酸银分光光度法b= 光程：10mm",
+   "wavelength": "510nm",
+   "basis": "GB/T17134-1997",
+   "detectionLimit": "0.5mg/Kg(A-A"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-092",
+  "name": "氨氮 · 地表水",
+  "analyte": "氨氮",
+  "matrix": "地表水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "092-氨氮地表水--分光光度法原始记录表",
+  "file": "0087.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计光程：20mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质氨氮的测定纳氏试剂分光光度法",
+   "wavelength": "420nm",
+   "basis": "HJ535-2009",
+   "detectionLimit": "0.025mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-093",
+  "name": "氨氮 · 废水",
+  "analyte": "氨氮",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "093-氨氮-校准曲线原始记录 地表水、污水",
+  "file": "0088.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质氨氮的测定纳氏试剂分光光度法",
+   "basis": "HJ535-2009",
+   "wavelength": "420nm",
+   "cuvette": "20mm",
+   "detectionLimit": "0.025mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-094",
+  "name": "石油类",
+  "analyte": "石油类",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "094-红外分光光度法测油（石油类、动植物油）原始记录表1",
+  "file": "0089.pdf",
+  "meta": {
+   "instrument": "JKY-3A红外测油仪",
+   "methodFull": "水质石油类和动植物油类的测定红外分光光度法",
+   "basis": "HJ637-2018",
+   "detectionLimit": "0.06mg/L（测定下限0.24mg/L）",
+   "instrumentNo": "TC-031"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-095",
+  "name": "六价铬",
+  "analyte": "六价铬",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "095-新六价铬分光光度法原始记录表",
+  "file": "0090.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计光程：30mm",
+   "instrumentNo": "TC-005 bVaAA−−0",
+   "methodFull": "水质六价铬的测定二苯碳酰二肼分光光度法测定",
+   "wavelength": "540nm参比溶液：蒸馏水b=",
+   "basis": "GB7467-87",
+   "detectionLimit": "0.004mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-096",
+  "name": "六价铬 · 废水",
+  "analyte": "六价铬",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "096-六价铬-校准曲线原始记录 地表水、污水",
+  "file": "0091.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质六价铬的测定二苯碳酰二肼分光光度法",
+   "basis": "GB7467-87"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-097",
+  "name": "总氮",
+  "analyte": "总氮",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "097-新总氮分光光度法原始记录表 -去除定容体积",
+  "file": "0092.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质总氮的测定碱性过硫酸钾消解紫外分光光度法",
+   "wavelength": "220nm、275nm",
+   "basis": "HJ636-2012",
+   "detectionLimit": "0.05mg/L",
+   "opticalPath": "10mm",
+   "reference": "无氨水"
+  },
+  "retired": true,
+  "retiredReason": "097 总氮：车间现行在用为保留定容体积版(0093)，本『去除定容体积』版停用（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-097",
+  "name": "总氮",
+  "analyte": "总氮",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "097-新总氮分光光度法原始记录表",
+  "file": "0093.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质总氮的测定碱性过硫酸钾消解紫外分光光度法",
+   "wavelength": "220nm、275nm",
+   "basis": "HJ636-2012",
+   "detectionLimit": "0.05mg/L",
+   "opticalPath": "10mm",
+   "reference": "无氨水"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-099",
+  "name": "总磷",
+  "analyte": "总磷",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "099总磷分光光度法原始记录表 - 去掉定容体积",
+  "file": "0094.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：30mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质总磷的测定钼酸铵分光光度法测定",
+   "wavelength": "700nm参比溶液：蒸馏水b=",
+   "basis": "GB/T11893-1989",
+   "detectionLimit": "0.01mg/L"
+  },
+  "retired": true,
+  "retiredReason": "099 总磷：车间现行在用为保留定容体积版(0095)，本『去掉定容体积』版停用（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-099",
+  "name": "总磷",
+  "analyte": "总磷",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "099总磷分光光度法原始记录表",
+  "file": "0095.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：30mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质总磷的测定钼酸铵分光光度法测定",
+   "wavelength": "700nm参比溶液：蒸馏水b=",
+   "basis": "GB/T11893-1989",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-100",
+  "name": "总磷",
+  "analyte": "总磷",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "100-总磷-校准曲线记录表",
+  "file": "0096.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计标准使用溶液浓度：2ug/ml",
+   "instrumentNo": "TC-005定容体积：50ml",
+   "methodFull": "水质总磷的测定钼酸铵分光光度法",
+   "basis": "GB/T11893-1989"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-101",
+  "name": "溶解性总固体",
+  "analyte": "溶解性总固体",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "101-1溶解性总固体原始记录",
+  "file": "0097.pdf",
+  "meta": {
+   "instrument": "ME204E/02电子分析天平",
+   "instrumentNo": "TC-006",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-102",
+  "name": "高锰酸盐指数 · 地表水",
+  "analyte": "高锰酸盐指数",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "102-高锰酸盐指数地表水--测量原始记录表",
+  "file": "0098.pdf",
+  "meta": {
+   "methodFull": "水质高锰酸盐指数的测定",
+   "basis": "GB/T11892-1989",
+   "detectionLimit": "0.5mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-103",
+  "name": "硫酸亚铁铵标准溶液标定记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "103-1硫酸亚铁铵标准溶液标定记录",
+  "file": "0099.pdf",
+  "meta": {
+   "detectionLimit": "4mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-103",
+  "name": "化学需氧量(CODcr)",
+  "analyte": "化学需氧量",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "103-化学需氧量（CODcr）--测量原始记录）",
+  "file": "0100.pdf",
+  "meta": {
+   "methodFull": "水质化学需氧量的测定重铬酸盐法",
+   "basis": "HJ828-2017",
+   "detectionLimit": "4mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-104",
+  "name": "挥发酚 · 废水",
+  "analyte": "挥发酚",
+  "matrix": "废水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "104-挥发酚废水--分光光度法原始记录表",
+  "file": "0101.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质挥发酚的测定4-氨基安替比林分光光度法",
+   "wavelength": "510nm",
+   "basis": "HJ503-2009",
+   "detectionLimit": "0.01mg/L",
+   "lightPath": "20mm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-105",
+  "name": "挥发酚 · 废水",
+  "analyte": "挥发酚",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "105-挥发酚废水--校准曲线绘制及回归方程原始记录表",
+  "file": "0102.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质挥发酚的测定4-氨基安替比林分光光度法",
+   "basis": "HJ503-2009",
+   "wavelength": "510nm",
+   "cuvette": "20mm",
+   "standardIntermediateConc": "10.0mg/L",
+   "prepVolume": "50ml",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-106",
+  "name": "氰化物标准溶液稀释记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "106-1标准溶液稀释记录-106-1",
+  "file": "0103.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计 光程：10mm",
+   "instrumentNo": "TC-005",
+   "wavelength": "638nm",
+   "methodFull": "水质 氰化物的测定 容量法和分光光度法（异烟酸-吡唑啉酮分光光度法）"
+  },
+  "retired": true,
+  "retiredReason": "106 该号保留氰化物地表水测定表(0104)；本通用『标准溶液稀释记录』非106项目表，停用留痕，如需另编QTCYT/JL106号再恢复（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-106",
+  "name": "氰化物 · 地表水",
+  "analyte": "氰化物",
+  "matrix": "地表水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "106-氰化物地表水--分光光度法原始记录表",
+  "file": "0104.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计 光程：10mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 氰化物的测定 容量法和分光光度法（异烟酸-吡唑啉酮分光光度法）",
+   "wavelength": "638nm",
+   "basis": "HJ484-2009",
+   "detectionLimit": "0.004mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-106",
+  "name": "氰化物标准物质稀释记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "106标准物质稀释记录-106",
+  "file": "0105.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计 光程：10mm",
+   "instrumentNo": "TC-005",
+   "wavelength": "638nm",
+   "methodFull": "水质 氰化物的测定 容量法和分光光度法（异烟酸-吡唑啉酮分光光度法）"
+  },
+  "retired": true,
+  "retiredReason": "106 该号保留氰化物地表水测定表(0104)；本通用『标准物质稀释记录』停用留痕，如需另编号再恢复（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-107",
+  "name": "氰化物 · 地表水",
+  "analyte": "氰化物",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "107-氰化物地表水--校准曲线绘制及回归方程原始记录表",
+  "file": "0106.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质氰化物的测定容量法和分光光度法（2.2）异烟酸-吡唑啉酮分光光度法",
+   "basis": "HJ484-2009",
+   "wavelength": "638nm",
+   "standardSolutionConc": "1.00mg/L",
+   "detectionLimit": "0.004mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-108",
+  "name": "氰化物 · 地下水",
+  "analyte": "氰化物",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "108-氰化物地下水--分光光度法原始记录表",
+  "file": "0107.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：3cm",
+   "instrumentNo": "TC-005V*V2V2：比色所用馏出液体积，10ml",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "638nm参比溶液：",
+   "basis": "GB/T5750.5-2023",
+   "detectionLimit": "0.002mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-109",
+  "name": "氰化物 · 地下水",
+  "analyte": "氰化物",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "109-氰化物地下水--校准曲线绘制及回归方程原始记录表",
+  "file": "0108.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-110",
+  "name": "硝基苯",
+  "analyte": "硝基苯",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "110-硝基苯--分光光度法原始记录表-",
+  "file": "0109.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "水和废水监测分析方法第四篇：第二章三硝基苯类（一）还原-偶氮光度法b=",
+   "wavelength": "545nm",
+   "basis": "国家环保总局（2002）第四版",
+   "detectionLimit": "0.2mg/L参比溶液：纯水A1:硝基苯类吸光度A2：苯胺类吸光度"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-111",
+  "name": "硝基苯校准曲线",
+  "analyte": "硝基苯",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "111-硝基苯--校准曲线绘制及回归方程原始记录表--",
+  "file": "0110.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水和废水监测分析方法第四篇：第二章三硝基苯类（一）还原-偶氮光度法",
+   "basis": "国家环保总局（2002）第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-112",
+  "name": "色度",
+  "analyte": "色度",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "112-1色度原始记录-本地-20190624142414",
+  "file": "0111.pdf",
+  "meta": {
+   "basis": "HJ1182-2021",
+   "detectionLimit": "2倍"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-113",
+  "name": "甲醛",
+  "analyte": "甲醛",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "113-甲醛--分光光度法原始记录",
+  "file": "0112.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气质量甲醛的测定乙酰丙酮分光光度法b=",
+   "wavelength": "413nm光程:10mm",
+   "basis": "GB/T15516-1995",
+   "detectionLimit": "0.1mg/m3V1:定容体积50mlb*V2"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-114",
+  "name": "甲醛",
+  "analyte": "甲醛",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "114-甲醛--标准曲线绘制级回归方程",
+  "file": "0113.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气质量甲醛的测定乙酰丙酮分光光度法",
+   "basis": "GB/T15516-1995"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-115",
+  "name": "氨（10ml,环境空气/废气）",
+  "analyte": "氨",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "115-10ml氨--分光光度法原始记录",
+  "file": "0114.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气和废气氨的测定纳氏试剂分光光度法",
+   "wavelength": "420nm",
+   "basis": "HJ533-2009",
+   "detectionLimit": "0.01mg/m3",
+   "opticalPath": "10mm",
+   "vs": "10ml"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-116",
+  "name": "氨（50ml折算,环境空气/废气）",
+  "analyte": "氨",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "116-1 50ml氨（折算）--分光光度计原始记录",
+  "file": "0115.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气和废气氨的测定纳氏试剂分光光度法",
+   "wavelength": "420nm",
+   "basis": "HJ533-2009",
+   "detectionLimit": "0.25mg/m3",
+   "opticalPath": "10mm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-116",
+  "name": "氨（50ml,环境空气/废气）",
+  "analyte": "氨",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "116-50ml氨--分光光度计原始记录",
+  "file": "0116.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气和废气氨的测定纳氏试剂分光光度法",
+   "wavelength": "420nm",
+   "basis": "HJ533-2009",
+   "detectionLimit": "0.25mg/m3",
+   "opticalPath": "10mm"
+  },
+  "retired": true,
+  "retiredReason": "116 氨：车间现行在用为含折算浓度列版(0115)，本版停用（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-118",
+  "name": "二氧化氮(NO₂)",
+  "analyte": "二氧化氮",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "118-1-10ml-二氧化氮-分光光度法原始记录",
+  "file": "0117.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005参比溶液:纯水r=",
+   "methodFull": "环境空气 氮氧化物（一氧化氮和二氧化氮）的测定 盐酸萘乙二胺分光光度法",
+   "wavelength": "540nm",
+   "detectionLimit": "0.005mg/m3",
+   "pathLength": "10mm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-118",
+  "name": "氮氧化物(NOx)",
+  "analyte": "氮氧化物",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "118-10ml-氮氧化物-分光光度法原始记录",
+  "file": "0118.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气 氮氧化物（一氧化氮和二氧化氮）的测定 盐酸萘乙二胺分光光度法",
+   "wavelength": "540nm",
+   "basis": "HJ479-2009",
+   "detectionLimit": "0.005mg/m3",
+   "pathLength": "10mm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-119",
+  "name": "PM10和PM2.5（环境空气）",
+  "analyte": "颗粒物（PM10、PM2.5）",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "119-环境空气 PM10和PM2.5的测定原始记录表",
+  "file": "0119.pdf",
+  "meta": {
+   "methodFull": "环境空气PM10和PM2.5的测定重量法",
+   "basis": "HJ618-2011",
+   "detectionLimit": "0.010mg/m³",
+   "instrument": "ME204E/02电子分析天平"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-120",
+  "name": "二氧化氮校准曲线",
+  "analyte": "二氧化氮",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "120-二氧化氮--校准曲线--绘制及回归方程原始记录表",
+  "file": "0120.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气氮氧化物（一氧化氮和二氧化氮）的测定盐酸萘乙二胺分光光度法",
+   "basis": "HJ479-2009",
+   "wavelength": "540nm",
+   "detectionLimit": "0.005mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-121",
+  "name": "氯化氢",
+  "analyte": "氯化氢",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "121-10ml氯化氢-分光光度法原始记录",
+  "file": "0121.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中氯化氢的测定 硫氰酸汞分光光度法",
+   "wavelength": "460nm",
+   "basis": "HJ/T27-1999",
+   "detectionLimit": "0.05mg/m3",
+   "opticalPath": "20mm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-122",
+  "name": "氯化氢",
+  "analyte": "氯化氢",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "122-50ml氯化氢-分光光度计原始记录",
+  "file": "0122.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中氯化氢的测定硫氰酸汞分光光度法",
+   "wavelength": "460nm",
+   "basis": "HJ/T27-1999",
+   "detectionLimit": "0.9mg/m3",
+   "pathLength": "20mm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-123",
+  "name": "氯化氢",
+  "analyte": "氯化氢",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "123-氯化氢--校准曲线--绘制及回归方程原始记录表",
+  "file": "0123.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中氯化氢的测定硫氰酸汞分光光度法",
+   "basis": "HJ/T27-1999",
+   "wavelength": "460nm",
+   "vdef": "5",
+   "detectionLimit": "0.9mg/m³（有组织，采气10L）"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-124",
+  "name": "硫酸盐 · 地下水",
+  "analyte": "硫酸盐",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "124-1硫酸盐地下水--分光光度法原始记录表",
+  "file": "0124.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "440nm参比溶液：纯水b=",
+   "basis": "GB/T5750.5-2023",
+   "detectionLimit": "5mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-124",
+  "name": "硫酸盐 · 地下水",
+  "analyte": "硫酸盐",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "124-硫酸盐地下水--分光光度法原始记录表",
+  "file": "0125.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "440nm参比溶液：纯水b=",
+   "basis": "GB/T5750.5-2006",
+   "detectionLimit": "5mg/L"
+  },
+  "retired": true,
+  "retiredReason": "124 硫酸盐：采用 GB/T5750.5-2006 旧版，被2023版(0124)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-125",
+  "name": "氯化物 · 地下水",
+  "analyte": "氯化物",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "125氯化物原始记录表 - 地下水 - 2023",
+  "file": "0126.pdf",
+  "meta": {
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023",
+   "detectionLimit": "1.0mg/L空白值"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-126",
+  "name": "硫酸盐 · 地下水",
+  "analyte": "硫酸盐",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "126-1-地下水硫酸盐校准曲线绘制及回归方程原始记录表",
+  "file": "0127.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-126",
+  "name": "硫酸盐 · 地下水",
+  "analyte": "硫酸盐",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "126-地下水硫酸盐校准曲线绘制及回归方程原始记录表",
+  "file": "0128.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2006"
+  },
+  "retired": true,
+  "retiredReason": "126 硫酸盐校准曲线：采用 GB/T5750.5-2006 旧版，被2023版(0127)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-127",
+  "name": "粪大肠菌群",
+  "analyte": "粪大肠菌群",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "127-1微生物检验原始记录粪大肠菌群纸片法（052-5）",
+  "file": "0129.pdf",
+  "retired": true,
+  "retiredReason": "127 该号保留粪大肠菌群多管发酵法(0130)；本纸片快速法版停用留痕，如需另编号再恢复（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-127",
+  "name": "粪大肠菌群",
+  "analyte": "粪大肠菌群",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "127微生物检验原始记录粪大肠菌群（052-5）",
+  "file": "0130.pdf",
+  "meta": {
+   "instrumentNo": "TC-070 样品制备： 2、粪大肠菌群"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-128",
+  "name": "氟化物（废气）",
+  "analyte": "氟化物",
+  "matrix": "废气",
+  "method": "电极法",
+  "sheetType": "原始记录",
+  "raw": "128-废气离子选择电极法测量原始记录表",
+  "file": "0131.pdf",
+  "meta": {
+   "instrumentNo": "TC-016",
+   "detectionLimit": "2mg/m3折算系数"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-129",
+  "name": "氟化物",
+  "analyte": "氟化物",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "129-校准曲线绘制及回归方程原始记录表-气氟化物1",
+  "file": "0132.pdf",
+  "meta": {
+   "instrument": "PXJ-1B型数字式离子计",
+   "instrumentNo": "TC-016",
+   "methodFull": "大气固定污染源氟化物的测定离子选择电极法",
+   "basis": "HJ/T67-2001",
+   "settingVolume": "40.00ml",
+   "detectionLimit": "6×10⁻²mg/m³(采样150L)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-135",
+  "name": "废水样品交接记录",
+  "analyte": "",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "135-废水样品交接记录表-新.docx委托",
+  "file": "0133.pdf",
+  "stage": "样品交接"
+ },
+ {
+  "code": "HJ-TC-138",
+  "name": "总硬度",
+  "analyte": "总硬度",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "138总硬度测量原始记录表 - 2023",
+  "file": "0134.pdf",
+  "meta": {
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.4-2023",
+   "detectionLimit": "1.0mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-139",
+  "name": "总悬浮颗粒物（环境空气）",
+  "analyte": "总悬浮颗粒物",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "139-1-空气中原始记录表总悬浮",
+  "file": "0136.pdf",
+  "meta": {
+   "methodFull": "环境空气总悬浮颗粒物的测定重量法",
+   "basis": "HJ1263-2022"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-140",
+  "name": "颗粒物 · 废气",
+  "analyte": "颗粒物",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "140-烟尘（颗粒物）烟气监测原始记录表",
+  "file": "0137.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-142",
+  "name": "噪声 · 噪声",
+  "analyte": "噪声",
+  "matrix": "噪声",
+  "method": "声级",
+  "sheetType": "原始记录",
+  "raw": "142-工业企业厂界（昼夜）噪声测量原始记录表",
+  "file": "0138.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-143",
+  "name": "有组织废气采样单",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "143-有组织废气采样单",
+  "file": "0139.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-145",
+  "name": "环境空气采样记录",
+  "analyte": "",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "145-环境空气采样单",
+  "file": "0140.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-154",
+  "name": "硝酸盐氮 · 地表水",
+  "analyte": "硝酸盐氮",
+  "matrix": "地表水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "154-地表水-亚硝酸盐氮分光光度法原始记录表",
+  "file": "0141.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：10mm",
+   "instrumentNo": "TC-005b=",
+   "methodFull": "水质亚硝酸盐氮的测定分光光度法测定",
+   "wavelength": "540mm参比溶液：纯水",
+   "basis": "GB/T7493-1987",
+   "detectionLimit": "0.003mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-155",
+  "name": "硝酸盐氮 · 地表水",
+  "analyte": "硝酸盐氮",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "155-亚硝酸盐氮地表水-校准曲线绘制及回归方程原始记录表",
+  "file": "0142.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质亚硝酸盐氮的测定分光光度法标准使用溶液浓度：1.00ug/ml配置溶液体积：50ml",
+   "basis": "GB/T7493-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-172",
+  "name": "挥发酚 · 地下水",
+  "analyte": "挥发酚",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "172-挥发酚地下水--分光光度法原始记录",
+  "file": "0143.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005参比溶液：三氯甲烷",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.4-2023",
+   "detectionLimit": "0.002mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-173",
+  "name": "挥发酚 · 地下水",
+  "analyte": "挥发酚",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "173-挥发酚地下水--标准曲线绘制及回归方程原始记录表",
+  "file": "0144.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-174",
+  "name": "全盐量",
+  "analyte": "全盐量",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "174-全盐量原始记录",
+  "file": "0145.pdf",
+  "meta": {
+   "instrument": "ME204E电子天平",
+   "methodFull": "水质全盐量的测定重量法",
+   "basis": "HJ51-2024",
+   "detectionLimit": "25mg/L（取样体积100mL）；测定下限100mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-175",
+  "name": "苯胺类（环境空气/废气）",
+  "analyte": "苯胺类",
+  "matrix": "环境空气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "175-环境空气监测分光光度法原始记录表--苯胺",
+  "file": "0146.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "空气质量苯胺类的测定盐酸萘乙二胺分光光度法测定",
+   "wavelength": "550nmb=",
+   "basis": "GB/T15502-1995",
+   "detectionLimit": "0.1mg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-176",
+  "name": "苯胺类",
+  "analyte": "苯胺类",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "176-校准曲线绘制及回归方程原始记录表-大气苯胺类",
+  "file": "0147.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气质量苯胺类的测定盐酸萘乙二胺分光光度法",
+   "basis": "GB/T15502-1995"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-179",
+  "name": "高锰酸盐指数（地下水）",
+  "analyte": "高锰酸盐指数",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "179-耗氧量地下水生活饮用水--测量原始记录表",
+  "file": "0148.pdf",
+  "meta": {
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.7-2023",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-180",
+  "name": "硝酸盐氮 · 地表水",
+  "analyte": "硝酸盐氮",
+  "matrix": "地表水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "180-地表水-硝酸盐氮分光光度法原始记录表1",
+  "file": "0149.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 硝酸盐氮的测定 紫外分光光度法",
+   "wavelength": "220nm和275nm",
+   "basis": "HJ/T346-2007",
+   "detectionLimit": "0.08mg/L",
+   "opticalPath": "10mm",
+   "referenceSolution": "经树脂吸附的新鲜去离子水50ml+1ml盐酸溶液"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-181",
+  "name": "硝酸盐氮 · 地表水",
+  "analyte": "硝酸盐氮",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "181-硝酸盐氮地表水-校准曲线绘制及回归方程原始记录表",
+  "file": "0150.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质硝酸盐氮的测定紫外分光光度法",
+   "basis": "HJ/T346-2007",
+   "detectionLimit": "0.08mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-184",
+  "name": "非甲烷总烃 · 废气",
+  "analyte": "非甲烷总烃",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "184-1非甲烷总烃（有组织）HJ-38",
+  "file": "0151.pdf",
+  "meta": {
+   "instrument": "SP-2100A气相色谱仪",
+   "instrumentNo": "TC-002",
+   "methodFull": "固定污染源废气 总烃、甲烷和非甲烷总烃的测定 气相色谱法",
+   "basis": "HJ 38-2017",
+   "detectionLimit": "0.07mg/m³（以碳计，进样体积1.0ml时），测定下限0.28mg/m³（以碳计）",
+   "corrThreshold": "≥0.995",
+   "resultDigits": "＜1mg/m³保留两位小数；≥1mg/m³保留三位有效数字"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-185",
+  "name": "臭气",
+  "analyte": "臭气",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "185-2环境臭气测定结果登记表（新）改",
+  "file": "0152.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-186",
+  "name": "臭气",
+  "analyte": "臭气",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "186-2污染源臭气浓度记录表(新）",
+  "file": "0153.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-187",
+  "name": "苯系物",
+  "analyte": "苯系物",
+  "matrix": "",
+  "method": "气相色谱",
+  "sheetType": "原始记录",
+  "raw": "187-苯系物2019.10.17新版",
+  "file": "0154.pdf",
+  "meta": {
+   "instrument": "SP-3400气相色谱仪",
+   "instrumentNo": "TC-003",
+   "methodFull": "环境空气苯系物的测定活性炭吸附/二硫化碳解吸-气相色谱法",
+   "basis": "HJ584-2010",
+   "detectionLimit": "1.5×10⁻³mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-188",
+  "name": "苯系物",
+  "analyte": "苯系物",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "188-苯系物--校准曲线--绘制及回归方程原始记录表",
+  "file": "0155.pdf",
+  "meta": {
+   "instrument": "SP-3400气相色谱仪",
+   "instrumentNo": "TC-003",
+   "methodFull": "环境空气苯系物的测定活性炭吸附/二硫化碳解吸-气相色谱法标准品溶液浓度：100ug/ml定容体积： 10.00ml"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-190",
+  "name": "氯气（废气）",
+  "analyte": "氯气",
+  "matrix": "环境空气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "190-环境空气监测分光光度法原始记录表--氯气",
+  "file": "0156.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中氯气的测定甲基橙分光光度法",
+   "wavelength": "507nm",
+   "basis": "HJ/T30-1999",
+   "detectionLimit": "0.03mg/m³（无组织30L）；0.2mg/m³（有组织5.0L）",
+   "opticalPath": "10mm",
+   "reference": "蒸馏水"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-191",
+  "name": "氯气校准曲线",
+  "analyte": "氯气",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "191-校准曲线绘制及回归方程原始记录表-氯气",
+  "file": "0157.pdf",
+  "meta": {
+   "instrument": "UV-1801型紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中氯气的测定甲基橙分光光度法",
+   "basis": "HJ/T30-1999",
+   "wavelength": "507nm",
+   "detectionLimit": "0.2mg/m³(有组织5L)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-194",
+  "name": "总大肠菌群 · 纸片法",
+  "analyte": "总大肠菌群",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "194-1微生物检验原始记录总大肠菌群（052-5）",
+  "file": "0158.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-194",
+  "name": "总大肠菌群 · 多管发酵法",
+  "analyte": "总大肠菌群",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "194微生物检验原始记录总大肠菌群（052-5）",
+  "file": "0159.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-195",
+  "name": "氨氮 · 地下水",
+  "analyte": "氨氮",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "195-1-氨氮地下水--分光光度法原始记录表",
+  "file": "0160.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：10mm30mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "420nmb=",
+   "basis": "GB/T5750.5-2023",
+   "detectionLimit": "0.02mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-195",
+  "name": "氨氮 · 地下水",
+  "analyte": "氨氮",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "195-氨氮地下水--分光光度法原始记录表",
+  "file": "0161.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：20mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "420nmb=",
+   "basis": "GB/T5750.5-2006",
+   "detectionLimit": "0.02mg/L"
+  },
+  "retired": true,
+  "retiredReason": "195 氨氮：采用 GB/T5750.5-2006 旧版，被2023版(0160)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-196",
+  "name": "氨氮 · 地下水",
+  "analyte": "氨氮",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "196-1-氨氮-校准曲线原始记录 地下水",
+  "file": "0162.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005定容体积：50ml",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-196",
+  "name": "氨氮 · 地下水",
+  "analyte": "氨氮",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "196-氨氮-校准曲线原始记录 地下水",
+  "file": "0163.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2006"
+  },
+  "retired": true,
+  "retiredReason": "196 氨氮校准曲线：采用 GB/T5750.5-2006 旧版，被2023版(0162)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-197",
+  "name": "六价铬 · 生活饮用水",
+  "analyte": "六价铬",
+  "matrix": "生活饮用水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "197-1新六价铬生活饮用水",
+  "file": "0164.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：30mm测定",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "540nm",
+   "basis": "GB/T5750.6-2023",
+   "detectionLimit": "0.004mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-199",
+  "name": "阴离子表面活性剂（地下水）",
+  "analyte": "阴离子表面活性剂",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "199-地下水原始记录表--阴离子",
+  "file": "0165.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度法光程：30mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "GB/T5750.4-2023参比溶液：氯仿r=",
+   "wavelength": "650nmb=",
+   "basis": "生活饮用水标准",
+   "detectionLimit": "0.050mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-200",
+  "name": "阴离子表面活性剂校准曲线（地下水）",
+  "analyte": "阴离子表面活性剂",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "200-校准曲线绘制及回归方程原始记录表--地下水阴离子",
+  "file": "0166.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-202",
+  "name": "苯系物",
+  "analyte": "苯系物",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "202-水质苯系物--校准曲线--绘制及回归方程原始记录表",
+  "file": "0167.pdf",
+  "meta": {
+   "instrument": "GC-6800气相色谱仪",
+   "methodFull": "水质 苯系物的测定 顶空/气相色谱法",
+   "basis": "HJ1067-2019",
+   "stdConc": "100μg/ml",
+   "vdef": "10",
+   "detectionLimit": "苯/甲苯/乙苯/对/间/邻二甲苯:检出限2μg/L 测定下限8μg/L；异丙苯/苯乙烯:检出限3μg/L 测定下限12μg/L",
+   "corrThreshold": "≥0.995",
+   "components": [
+    "苯",
+    "甲苯",
+    "乙苯",
+    "对二甲苯",
+    "间二甲苯",
+    "邻二甲苯",
+    "异丙苯",
+    "苯乙烯"
+   ]
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-203",
+  "name": "苯系物",
+  "analyte": "苯系物",
+  "matrix": "",
+  "method": "气相色谱",
+  "sheetType": "原始记录",
+  "raw": "203-水质苯系物2022.07.22新版",
+  "file": "0168.pdf",
+  "meta": {
+   "instrument": "3420A气相色谱仪",
+   "instrumentNo": "TC-121",
+   "methodFull": "水质 苯系物的测定 顶空/气相色谱法",
+   "basis": "HJ1067-2019",
+   "detectionLimit": "苯/甲苯/乙苯/对/间/邻二甲苯:检出限2μg/L 测定下限8μg/L；异丙苯/苯乙烯:检出限3μg/L 测定下限12μg/L",
+   "corrThreshold": "≥0.995",
+   "components": [
+    "苯",
+    "甲苯",
+    "乙苯",
+    "对二甲苯",
+    "间二甲苯",
+    "邻二甲苯",
+    "异丙苯",
+    "苯乙烯"
+   ]
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-204",
+  "name": "挥发酚 · 地表水",
+  "analyte": "挥发酚",
+  "matrix": "地表水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "204-挥发酚地表水--分光光度法原始记录表",
+  "file": "0169.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质挥发酚的测定4-氨基安替比林萃取分光光度法",
+   "wavelength": "460nm",
+   "basis": "HJ503-2009",
+   "detectionLimit": "0.0003mg/L",
+   "lightPath": "30mm",
+   "reference": "三氯甲烷"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-205",
+  "name": "挥发酚 · 地表水",
+  "analyte": "挥发酚",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "205-挥发酚地表水--标准曲线绘制及回归方程",
+  "file": "0170.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质挥发酚的测定4-氨基安替比林萃取分光光度法",
+   "basis": "HJ503-2009",
+   "wavelength": "460nm",
+   "cuvettePath": "30mm",
+   "detectionLimit": "0.0003mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-206",
+  "name": "pH · 土壤",
+  "analyte": "pH",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "206-土壤（沉积物）pH测量原始记录表",
+  "file": "0171.pdf",
+  "meta": {
+   "instrument": "PHS-3C型实验室pH计",
+   "instrumentNo": "TC-119",
+   "methodFull": "土壤pH的测定",
+   "basis": "HJ962-2018",
+   "calibrationTolerance": "0.02pH单位（第二种标准缓冲液示值与理论值之差判定阈值，超出应重新校准，HJ962-2018第7.1条c）",
+   "qcParallelLimit": "0.3个pH单位（每批≥10%平行双样，不足10个样品至少测1组，HJ962-2018第10条）",
+   "resultPrecision": "结果保留2位小数；读数<2.00记为pH<2.00，>12.00记为pH>12.00（HJ962-2018第8条）"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-207",
+  "name": "氰化氢（废气）",
+  "analyte": "氰化氢",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "207-氰化氢分光光度计原始记录",
+  "file": "0172.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中氰化氢的测定异烟酸-吡唑啉酮分光光度法",
+   "wavelength": "638nm",
+   "basis": "HJ/T28-1999",
+   "detectionLimit": "0.002mg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-208",
+  "name": "氰化氢校准曲线（废气）",
+  "analyte": "氰化氢",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "208-氰化氢--校准曲线--绘制及回归方程原始记录表",
+  "file": "0173.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中氰化氢的测定异烟酸-吡唑啉酮分光光度法",
+   "basis": "HJ/T28-1999",
+   "wavelength": "638nm",
+   "detectionLimit": "0.09mg/m³(有组织5L)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-212",
+  "name": "丁基黄原酸",
+  "analyte": "丁基黄原酸",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "212水质-丁基黄原酸分光光度法原始记录表",
+  "file": "0174.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 丁基黄原酸的测定 紫外分光光度法",
+   "wavelength": "301nm",
+   "basis": "HJ756-2015",
+   "detectionLimit": "0.004mg/L",
+   "opticalPath": "30mm",
+   "referenceSolution": "水（新制备去离子水或蒸馏水）",
+   "formula": "A=A1-(A2-A0)；ρ(mg/L)=m/V",
+   "quantitationLimit": "0.016mg/L",
+   "resultPrecision": "测定结果<0.1mg/L时保留小数点后三位；≥0.1mg/L时保留三位有效数字",
+   "analyte": "丁基黄原酸",
+   "pathLength": "30mm",
+   "reference": "纯水"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-213",
+  "name": "丁基黄原酸校准曲线",
+  "analyte": "丁基黄原酸",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "213-水质丁基黄原酸-校准曲线绘制及回归方程原始记录表",
+  "file": "0175.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 丁基黄原酸的测定 紫外分光光度法",
+   "basis": "HJ756-2015",
+   "analyte": "丁基黄原酸",
+   "wavelength": "301nm",
+   "detectionLimit": "0.004mg/L",
+   "vdef": "25ml"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-216",
+  "name": "甲醛",
+  "analyte": "甲醛",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "216-水中甲醛--分光光度法原始记录表",
+  "file": "0176.pdf",
+  "meta": {
+   "instrument": "uv-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质甲醛的测定乙酰丙酮分光光度法",
+   "wavelength": "414nm",
+   "basis": "HJ601-2011",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-217",
+  "name": "甲醛",
+  "analyte": "甲醛",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "217-水中甲醛--校准曲线绘制及回归方程原始记录表",
+  "file": "0177.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质甲醛的测定乙酰丙酮分光光度法",
+   "basis": "HJ601-2011",
+   "wavelength": "414nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-218",
+  "name": "铅",
+  "analyte": "铅",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "218-校准曲线绘制及回归方程原始记录表--铅及化合物",
+  "file": "0178.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "固定污染源废气铅的测定火焰原子吸收分光光度法",
+   "basis": "HJ538-2009",
+   "vdef": "50",
+   "wavelength": "283.3nm",
+   "detectionLimit": "5µg/50ml"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-219",
+  "name": "铅 · 废气",
+  "analyte": "铅",
+  "matrix": "废气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "219-废气原子吸收分光光度法原始记录表--铅及化合物",
+  "file": "0179.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "固定污染源废气铅的测定火焰原子吸收分光光度法",
+   "wavelength": "283.3nm",
+   "basis": "HJ538-2009",
+   "slit": "0.8nm",
+   "detectionLimit": "0.013mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-220",
+  "name": "镍 · 废气",
+  "analyte": "镍",
+  "matrix": "废气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "220-废气原子吸收分光光度法原始记录表--镍及化合物",
+  "file": "0180.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "大气固定污染源镍的测定火焰原子吸收分光光度法",
+   "wavelength": "232.0nm",
+   "basis": "HJ/T63.1-2001",
+   "slit": "0.09nm",
+   "detectionLimit": "3×10⁻⁵mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-221",
+  "name": "镍 · 废气",
+  "analyte": "镍",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "221-校准曲线绘制及回归方程原始记录表--废气镍",
+  "file": "0181.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "大气固定污染源镍的测定火焰原子吸收分光光度法",
+   "basis": "HJ/T63.1-2001",
+   "wavelength": "232.0nm",
+   "slit": "0.09nm",
+   "detectionLimit": "3×10⁻⁵mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-222",
+  "name": "镉 · 废气",
+  "analyte": "镉",
+  "matrix": "废气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "222-废气原子吸收分光光度法原始记录表--镉及化合物",
+  "file": "0182.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "大气固定汚染源镉的测定火焰原子吸收分光光度法",
+   "wavelength": "228.8nm",
+   "basis": "HJ/T64.1-2001",
+   "slit": "0.4nm",
+   "detectionLimit": "3×10⁻⁶mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-223",
+  "name": "镉 · 环境空气",
+  "analyte": "镉",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "223-校准曲线绘制及回归方程原始记录表--空气镉及化合物",
+  "file": "0183.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "大气固定污染源镉的测定火焰原子吸收分光光度法",
+   "basis": "HJ/T 64.1-2001",
+   "wavelength": "228.8nm",
+   "slit": "1.3nm",
+   "detectionLimit": "3×10⁻⁸mg/m³"
+  },
+  "retired": true,
+  "retiredReason": "本所已停用该方法（2026-07-16 技术负责人确认不再开展此项目）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-224",
+  "name": "镁 · 校准曲线",
+  "analyte": "镁",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "224-2镁-校准曲线绘制及回归方程原始记录表",
+  "file": "0184.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "methodFull": "水质钙和镁的测定原子吸收分光光度法",
+   "basis": "GB11905-89"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-224",
+  "name": "镁 · 地下水",
+  "analyte": "镁",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "224-原子吸收分光光度法原始记录表-地下水镁",
+  "file": "0185.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质钙和镁的测定原子吸收分光光度法",
+   "wavelength": "285.2nm",
+   "basis": "GB11905-89",
+   "slit": "0.2nm",
+   "detectionLimit": "0.002mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-225",
+  "name": "钙 · 校准曲线",
+  "analyte": "钙",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "225-2钙-校准曲线绘制及回归方程原始记录表",
+  "file": "0186.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "methodFull": "水质钙和镁的测定原子吸收分光光度法",
+   "basis": "GB11905-89"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-225",
+  "name": "钙 · 地下水",
+  "analyte": "钙",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "225-原子吸收分光光度法原始记录表-地下水钙",
+  "file": "0187.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质钙和镁的测定原子吸收分光光度法",
+   "wavelength": "422.7nm",
+   "basis": "GB11905-89",
+   "slit": "0.4nm",
+   "detectionLimit": "0.02mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-228",
+  "name": "林格曼 · 废气",
+  "analyte": "林格曼",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "228林格曼烟气黑度",
+  "file": "0188.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-230",
+  "name": "非甲烷总烃 · 废气",
+  "analyte": "非甲烷总烃",
+  "matrix": "废气",
+  "method": "气相色谱",
+  "sheetType": "原始记录",
+  "raw": "230-非甲烷总烃（无组织）",
+  "file": "0189.pdf",
+  "meta": {
+   "instrument": "SP-2100A气相色谱仪",
+   "instrumentNo": "TC-002",
+   "methodFull": "环境空气和废气 总烃、甲烷和非甲烷总烃的测定 气相色谱法",
+   "basis": "HJ604-2017",
+   "detectionLimit": "0.07mg/m³(以碳计,填充柱)",
+   "analyte": "非甲烷总烃",
+   "column": "总烃柱(硅烷化玻璃微珠)+甲烷柱(GDX)",
+   "detector": "柱温80℃/FID 200℃"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-232",
+  "name": "浊度",
+  "analyte": "浊度",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "232-2浑浊度原始记录",
+  "file": "0190.pdf",
+  "meta": {
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-233",
+  "name": "臭和味",
+  "analyte": "臭和味",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "233-1臭和味原始记录",
+  "file": "0191.pdf",
+  "meta": {
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-234",
+  "name": "肉眼可见物",
+  "analyte": "肉眼可见物",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "234-1肉眼可见物原始记录",
+  "file": "0192.pdf",
+  "meta": {
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-235",
+  "name": "钠 · 地下水",
+  "analyte": "钠",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "235-3原子吸收分光光度法原始记录表-地下水钠330.2nm",
+  "file": "0193.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "330.2nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.2nm",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-237",
+  "name": "钾 · 地下水",
+  "analyte": "钾",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "237-3-原子吸收分光光度法原始记录表-地下水钾404.5nm",
+  "file": "0194.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "404.5nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.2nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-239",
+  "name": "铁 · 地下水",
+  "analyte": "铁",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "239-1原子吸收分光光度法原始记录表-地下水铁",
+  "file": "0195.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "248.3nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.2nm",
+   "detectionLimit": "0.07mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-240",
+  "name": "六价铬 · 固废",
+  "analyte": "六价铬",
+  "matrix": "固废",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "240-固体废物 六价铬分光光度法原始记录表",
+  "file": "0196.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计光程：10mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "固体废物六价铬的测定二苯碳酰二肼分光光度法测定",
+   "wavelength": "540nm参比溶液：蒸馏水b=",
+   "basis": "GB/T15555.4-1995",
+   "detectionLimit": "0.004mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-241",
+  "name": "六价铬 · 固废",
+  "analyte": "六价铬",
+  "matrix": "固废",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "241-固废六价铬-校准曲线原始记录",
+  "file": "0197.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固体废物六价铬的测定二苯碳酰二肼分光光度法",
+   "basis": "GB/T15555.4-1995"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-246",
+  "name": "挥发酚 · 海水",
+  "analyte": "挥发酚",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "246海水挥发酚分光光度法原始记录",
+  "file": "0198.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计光程：20mm测定",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（19）4-氨基安替比林分光光度法参比溶液：三氯甲烷b=",
+   "wavelength": "460nm",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "1.0µg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-247",
+  "name": "挥发酚 · 海水",
+  "analyte": "挥发酚",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "247-挥发酚海水--标准曲线绘制及回归方程原始记录表",
+  "file": "0199.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（19）4-氨基安替比林三氯甲烷萃取分光光度法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-265",
+  "name": "余氯",
+  "analyte": "余氯",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "265-分光光度法原始记录表--总余氯",
+  "file": "0200.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计 光程：50mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 游离氯和总氯的测定 N,N-二乙基-1,4-苯二胺分光光度法 测定波长：515nm 参比溶液：蒸馏水",
+   "basis": "HJ586-2010",
+   "detectionLimit": "0.004mg/L",
+   "wavelength": "515nm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-266",
+  "name": "余氯",
+  "analyte": "余氯",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "266-校准曲线原始记录余氯",
+  "file": "0201.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质游离氯和总氯的测定N,N-二乙基-1,4苯二胺分光光度法",
+   "basis": "HJ586-2010",
+   "vdef": "100",
+   "wavelength": "515nm",
+   "detectionLimit": "0.03mg/L(10mm)/0.004mg/L(50mm)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-267",
+  "name": "氨氮 · 海水",
+  "analyte": "氨氮",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "267-分光光度法原始记录表--海水氨氮",
+  "file": "0202.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度法光程：50mm",
+   "instrumentNo": "TC-005b",
+   "methodFull": "GB17378.4-2007",
+   "wavelength": "543nm参比溶液：无氨蒸馏水b=",
+   "basis": "海洋监测规范第4部分：海水分析（36.2）次溴酸"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-268",
+  "name": "氨氮 · 海水",
+  "analyte": "氨氮",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "268-校准曲线绘制及回归方程原始记录表--海水氨氮",
+  "file": "0203.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计标准使用溶液浓度：10mg/L",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（36.2）次溴酸盐氧化法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-269",
+  "name": "汞 · 海水",
+  "analyte": "汞",
+  "matrix": "海水",
+  "method": "原子荧光",
+  "sheetType": "原始记录",
+  "raw": "269-冷原子吸收（荧光）测汞原始记录表--海水汞",
+  "file": "0204.pdf",
+  "meta": {
+   "instrument": "JKG-205型冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "海洋监测规范第4部分：海水分析（5.2）冷原子分光光度法",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "0.001ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-270",
+  "name": "汞 · 海水",
+  "analyte": "汞",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "270 校准曲线绘制及回归方程原始记录表--海水汞",
+  "file": "0205.pdf",
+  "meta": {
+   "instrument": "JKG-205型冷原子吸收分光光度计",
+   "instrumentNo": "TC-032",
+   "methodFull": "海洋监测规范第4部分：海水分析（5.2）冷原子分光光度法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-272",
+  "name": "硝酸盐氮 · 海水",
+  "analyte": "硝酸盐氮",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "272-海水-亚硝酸盐氮分光光度法原始记录表",
+  "file": "0206.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：50mm测定",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（37）奈乙二胺分光光度法参比溶液：纯水b=",
+   "wavelength": "543mm",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-273",
+  "name": "硝酸盐氮 · 海水",
+  "analyte": "硝酸盐氮",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "273-亚硝酸盐氮海水-校准曲线绘制及回归方程原始记录表",
+  "file": "0207.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计标准使用溶液浓度：5ug/ml",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（37）奈乙二胺分光光度法配置溶液体积：50ml",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-275",
+  "name": "沉积物采样记录",
+  "analyte": "",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "275 沉积物采样原始记录表",
+  "file": "0208.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-278",
+  "name": "硫酸雾",
+  "analyte": "硫酸雾",
+  "matrix": "",
+  "method": "离子色谱",
+  "sheetType": "原始记录",
+  "raw": "278-离子色谱  硫酸雾",
+  "file": "0209.pdf",
+  "meta": {
+   "instrument": "PIC-10型离子色谱仪",
+   "instrumentNo": "TC-060",
+   "methodFull": "固定污染源废气 硫酸雾的测定 离子色谱法",
+   "basis": "HJ544-2025",
+   "filterTreatment": "超声波萃取法",
+   "detectionLimit": "0.06mg/m³（测定下限0.24mg/m³，有组织排放废气）",
+   "sampleVolumeStd": "0.4m³（标准状态，有组织排放）",
+   "absorbent": "c(OH⁻)=30mmol/L碱性吸收液，加1%甲醛消除SO₂干扰"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-279",
+  "name": "废气无组织采样记录",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "279-废气无组织采样单-空白",
+  "file": "0210.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-346",
+  "name": "悬浮物 · 海水",
+  "analyte": "悬浮物",
+  "matrix": "海水",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "346-海水重量测量原始记录表悬浮物",
+  "file": "0211.pdf",
+  "meta": {
+   "instrument": "ME204/02E电子天平DHG-9070A电热鼓风干燥箱",
+   "instrumentNo": "TC-006TC-010",
+   "methodFull": "海洋监测规范第4部分：海水分析（27）重量法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-355",
+  "name": "化学需氧量（海水）",
+  "analyte": "化学需氧量",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "355海水COD原始记录",
+  "file": "0212.pdf",
+  "meta": {
+   "methodFull": "海洋监测规范第4部分：海水分析（32）碱性高锰酸钾法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-356",
+  "name": "石油类 · 地下水",
+  "analyte": "石油类",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "356-石油类-校准曲线原始记录 地表水、地下水",
+  "file": "0213.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 石油类的测定 紫外分光光度法",
+   "basis": "HJ970-2018",
+   "analyte": "石油类",
+   "wavelength": "225nm",
+   "cell": "2cm石英",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-357",
+  "name": "石油类",
+  "analyte": "石油类",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "357-石油类分光光度法原始记录表",
+  "file": "0214.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 石油类的测定 紫外分光光度法",
+   "wavelength": "225nm",
+   "basis": "HJ970-2018",
+   "detectionLimit": "0.01mg/L",
+   "opticalPath": "20mm",
+   "referenceSolution": "正己烷",
+   "quantitationLimit": "0.04mg/L",
+   "extractVolume": "25ml",
+   "formula": "绝对量(µg)=(A-A0-a)/b×V1×K；ρ(mg/L)=绝对量/V（即HJ970-2018式(1)：ρ=(A-A0-a)×V1/(b×V)）",
+   "corrThreshold": "≥0.999",
+   "resultPrecision": "保留小数位数与检出限(0.01mg/L)一致，最多保留三位有效数字",
+   "analyte": "石油类",
+   "reference": "正己烷",
+   "pathlength": "20mm",
+   "quantLimit": "0.04mg/L",
+   "vdef": "V₁=萃取液体积(ml,标准25.0)；V=水样体积(ml,标准500,实测)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-358",
+  "name": "磷酸盐 · 海水",
+  "analyte": "磷酸盐",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "358-海水磷酸盐分光光度法原始记录表",
+  "file": "0215.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：50mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析(39.1)磷钼蓝分光光度法测定",
+   "wavelength": "882nm参比溶液：纯水b=",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-359",
+  "name": "磷酸盐 · 海水",
+  "analyte": "磷酸盐",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "359-海水磷酸盐校准曲线绘制及回归方程原始记录表",
+  "file": "0216.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-360",
+  "name": "石油类 · 海水",
+  "analyte": "石油类",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "360-海水石油类分光光度法原始记录表",
+  "file": "0217.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：10mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（13.2）紫外分光光度法测定",
+   "wavelength": "225nm参比溶液：正己烷b=",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "0.0035mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-361",
+  "name": "石油类 · 海水",
+  "analyte": "石油类",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "361-海水石油类-校准曲线原始记录",
+  "file": "0218.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（13.2）紫外分光光度法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-363",
+  "name": "硝酸盐氮 · 地表水",
+  "analyte": "硝酸盐氮",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "363-海水硝酸盐氮地表水-校准曲线绘制及回归方程原始记录表",
+  "file": "0219.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005 配置溶液体积",
+   "methodFull": "海洋监测规范第4部分：海水分析（38.1）镉柱还原法标准使用溶液浓度",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-365",
+  "name": "滤筒使用记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "365-滤筒使用原始记录表",
+  "file": "0220.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-366",
+  "name": "滤膜使用记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "366-滤膜使用原始记录表",
+  "file": "0221.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-367",
+  "name": "总铬 · 海水",
+  "analyte": "总铬",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "367-海水总铬分光光度法原始记录表",
+  "file": "0222.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：30mm",
+   "instrumentNo": "TC-005参比溶液：纯水",
+   "methodFull": "海洋监测规范第4部分：海水分析(10.2)二苯碳酰二肼分光光度法测定",
+   "wavelength": "540nm",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "0.3ug/Lb="
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-368",
+  "name": "总铬 · 海水",
+  "analyte": "总铬",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "368-海水总铬校准曲线绘制及回归方程原始记录表",
+  "file": "0223.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "methodFull": "海洋监测规范第4部分：海水分析(10.2)二苯碳酰二肼分光光度法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-369",
+  "name": "镍 · 海水",
+  "analyte": "镍",
+  "matrix": "海水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "369-海水镍原子吸收分光光度法原始记录表--镍",
+  "file": "0224.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "海洋监测规范第4部分：海水分析(42)无火焰原子吸收分光光度法",
+   "wavelength": "232.0nm",
+   "basis": "GB/T17378.4-2007",
+   "slit": "0.2nm",
+   "detectionLimit": "0.3ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-370",
+  "name": "嗅和味（海水）",
+  "analyte": "嗅和味",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "370-嗅和味原始记录",
+  "file": "0225.pdf",
+  "meta": {
+   "basis": "GB/T17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-371",
+  "name": "漂浮物质（海水）",
+  "analyte": "漂浮物质",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "371-漂浮物原始记录",
+  "file": "0226.pdf",
+  "meta": {
+   "methodFull": "海水水质标准目测法",
+   "basis": "GB3097-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-373",
+  "name": "砷 · 海水",
+  "analyte": "砷",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "373-分光光度法原始记录表--海水砷",
+  "file": "0227.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "海洋监测规范第4部分海水分析11.2砷化氢-硝酸银分光光度法测定",
+   "wavelength": "406nm参比溶液：吸收液b=",
+   "basis": "GB/T17378.4-2007",
+   "detectionLimit": "0.4ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-374",
+  "name": "砷 · 海水",
+  "analyte": "砷",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "374-校准曲线绘制及回归方程原始记录表-海水砷",
+  "file": "0228.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分海水分析11.2砷化氢-硝酸银分光光度法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-376",
+  "name": "氰化氢",
+  "analyte": "氰化氢",
+  "matrix": "环境空气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "376-环境空气氰化氢分光光度计原始记录",
+  "file": "0229.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气和废气监测分析方法第三篇第一章九异烟酸-吡唑啉酮分光光度法b=",
+   "wavelength": "638nm光程:10mm参比溶液:蒸馏水",
+   "basis": "国家环保局（2003）第四版",
+   "detectionLimit": "0.004mg/Lb*Vnd"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-386",
+  "name": "粪大肠菌群 · 海水",
+  "analyte": "粪大肠菌群",
+  "matrix": "海水",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "386海水微生物检验原始记录粪大肠菌群（052-5）",
+  "file": "0230.pdf",
+  "meta": {
+   "instrumentNo": "TC-070 样品制备： 2、粪大肠菌群"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-387",
+  "name": "铜 · 海水",
+  "analyte": "铜",
+  "matrix": "海水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "387-海水cu原子吸收分光光度法原始记录表--铜",
+  "file": "0231.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "海洋监测规范第4部分：海水分析(6)无火焰原子吸收分光光度法",
+   "wavelength": "324.7nm",
+   "basis": "GB/T17378.4-2007",
+   "slit": "0.2nm",
+   "detectionLimit": "0.2ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-388",
+  "name": "铅 · 海水",
+  "analyte": "铅",
+  "matrix": "海水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "388-1海水铅原子吸收分光光度法原始记录表--铅",
+  "file": "0232.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "海洋监测规范第4部分：海水分析(6)无火焰原子吸收分光光度法",
+   "wavelength": "283.3nm",
+   "basis": "GB/T17378.4-2007",
+   "slit": "0.2nm",
+   "detectionLimit": "0.03ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-389",
+  "name": "废气无组织采样记录",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "389废气无组织采样单2-一天4次杠死",
+  "file": "0233.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-390",
+  "name": "镉 · 海水",
+  "analyte": "镉",
+  "matrix": "海水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "390-1海水镉原子吸收分光光度法原始记录表--镉",
+  "file": "0234.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "海洋监测规范第4部分：海水分析(6)无火焰原子吸收分光光度法",
+   "wavelength": "228.8nm",
+   "basis": "GB/T17378.4-2007",
+   "slit": "0.2nm",
+   "detectionLimit": "0.01ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-392",
+  "name": "锌 · 海水",
+  "analyte": "锌",
+  "matrix": "海水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "392-海水锌原子吸收分光光度法原始记录表--海水锌",
+  "file": "0235.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "海洋监测规范第4部分：海水分析(9)火焰原子吸收分光光度法",
+   "wavelength": "213.9nm",
+   "basis": "GB17378.4-2007",
+   "slit": "0.4nm",
+   "detectionLimit": "3.1ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-393",
+  "name": "锌 · 海水",
+  "analyte": "锌",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "393-校准曲线绘制及回归方程原始记录表--海水锌",
+  "file": "0236.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "海洋监测规范第4部分：海水分析(9)火焰原子吸收分光光度法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-394",
+  "name": "碳酸根/碳酸氢根/氢氧根",
+  "analyte": "碳酸根、碳酸氢根和氢氧根",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "394-地下水碳酸根，碳酸氢根和氢氧根原始记录表",
+  "file": "0237.pdf",
+  "meta": {
+   "methodFull": "地下水质分析方法第49部分：碳酸根、碳酸氢根",
+   "basis": "DZ/T0064.49-2021",
+   "detectionLimit": "3mg/LρHCO3－(mg/L)="
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-395",
+  "name": "银 · 地下水",
+  "analyte": "银",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "395-原子吸收分光光度法原始记录表-地下水银",
+  "file": "0238.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "328.1nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.4nm",
+   "detectionLimit": "2.5ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-396",
+  "name": "银",
+  "analyte": "银",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "396-校准曲线绘制及回归方程原始记录表--银",
+  "file": "0239.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-401",
+  "name": "铜 · 废气",
+  "analyte": "铜",
+  "matrix": "废气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "401废气铜的测定 石墨炉法",
+  "file": "0240.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "山东省固定污染源废气颗粒物中铜的测定石墨炉原子吸收分光光度法",
+   "basis": "DB37/T3460-2018"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-402",
+  "name": "铜 · 废气",
+  "analyte": "铜",
+  "matrix": "废气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "402废气铜的测定  火焰法",
+  "file": "0241.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "山东省固定污染源废气颗粒物中铜、锌的测定火焰原子吸收分光光度法",
+   "basis": "DB37/T3460-2018",
+   "slit": "0.4nm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-403",
+  "name": "锌 · 废气",
+  "analyte": "锌",
+  "matrix": "废气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "403废气锌的测定  火焰法",
+  "file": "0242.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "山东省固定污染源废气颗粒物中铜、锌的测定火焰原子吸收分光光度法",
+   "basis": "DB37/T3460-2018",
+   "slit": "0.4nm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-404",
+  "name": "铜 · 废气",
+  "analyte": "铜",
+  "matrix": "废气",
+  "method": "原子吸收",
+  "sheetType": "校准曲线",
+  "raw": "404废气铜的测定 石墨炉法 校准曲线",
+  "file": "0243.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法",
+   "basis": "GB/T7475-1987"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-407",
+  "name": "铜 · 土壤",
+  "analyte": "铜",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "407-土壤（沉积物）原子吸收分光光度法原始记录表--铜",
+  "file": "0244.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "wavelength": "324.7nm",
+   "basis": "HJ491-2019",
+   "slit": "0.5nm",
+   "detectionLimit": "1mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-408",
+  "name": "铜 · 土壤",
+  "analyte": "铜",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "408-校准曲线绘制及回归方程原始记录表--土壤铜",
+  "file": "0245.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "basis": "HJ491-2019",
+   "wavelength": "324.7nm",
+   "slit": "0.5nm",
+   "detectionLimit": "1mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-409",
+  "name": "锌 · 土壤",
+  "analyte": "锌",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "409土壤（沉积物）原子吸收分光光度法原始记录表--锌",
+  "file": "0246.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "wavelength": "213.0nm",
+   "basis": "HJ491-2019",
+   "slit": "1.0nm",
+   "detectionLimit": "1mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-410",
+  "name": "锌 · 土壤",
+  "analyte": "锌",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "410-校准曲线绘制及回归方程原始记录表--土壤锌",
+  "file": "0247.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "basis": "HJ491-2019",
+   "wavelength": "213.0nm",
+   "slit": "1.0nm",
+   "lampCurrent": "5.0mA",
+   "flame": "中性",
+   "analyte": "锌",
+   "detectionLimit": "1mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-411",
+  "name": "铅 · 土壤",
+  "analyte": "铅",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "411土壤（沉积物）原子吸收分光光度法原始记录表--铅",
+  "file": "0248.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "wavelength": "283.3nm",
+   "basis": "HJ491-2019",
+   "slit": "0.5nm",
+   "detectionLimit": "10mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-412",
+  "name": "铅 · 土壤",
+  "analyte": "铅",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "412-校准曲线绘制及回归方程原始记录表--土壤铅",
+  "file": "0249.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "basis": "HJ491-2019",
+   "analyte": "铅",
+   "wavelength": "283.3nm",
+   "slit": "0.5nm",
+   "lampCurrent": "8.0mA",
+   "detectionLimit": "10mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-413",
+  "name": "镍 · 土壤",
+  "analyte": "镍",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "413土壤（沉积物）原子吸收分光光度法原始记录表--镍",
+  "file": "0250.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "wavelength": "232.0nm",
+   "basis": "HJ491-2019",
+   "slit": "0.2nm",
+   "detectionLimit": "3mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-414",
+  "name": "镍 · 土壤",
+  "analyte": "镍",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "414-校准曲线绘制及回归方程原始记录表--土壤镍",
+  "file": "0251.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物铜、锌、铅、镍、铬的测定火焰原子吸收分光光度法",
+   "basis": "HJ491-2019",
+   "analyte": "镍",
+   "wavelength": "232.0nm",
+   "slit": "0.2nm",
+   "lampCurrent": "4.0mA",
+   "detectionLimit": "3mg/kg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-415",
+  "name": "臭氧",
+  "analyte": "臭氧",
+  "matrix": "环境空气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "415-环境空气监测分光光度法原始记录表--臭氧",
+  "file": "0252.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气 臭氧的测定 靛蓝二磺酸钠分光光度法",
+   "wavelength": "610nm",
+   "basis": "HJ504-2009",
+   "detectionLimit": "0.010mg/m³",
+   "opticalPath": "20mm",
+   "referenceSolution": "蒸馏水"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-417",
+  "name": "土壤水分",
+  "analyte": "水分",
+  "matrix": "土壤",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "417-重量测量原始记录表土壤水分",
+  "file": "0253.pdf",
+  "meta": {
+   "instrument": "ME204/02E电子天平；DHG-9070A电热鼓风干燥箱",
+   "instrumentNo": "TC-006；TC-010",
+   "methodFull": "土壤 干物质和水分的测定 重量法",
+   "basis": "HJ613-2011",
+   "dryingTemp": "(105±5)℃"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-419",
+  "name": "硒 · 海水",
+  "analyte": "硒",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "419硒海水--分光光度法原始记录",
+  "file": "0254.pdf",
+  "meta": {
+   "instrument": "uv-1801紫外可见分光光度计光程：30mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "海水硒标准",
+   "basis": "GB/17378.4-2007",
+   "detectionLimit": "0.4ug/Lr="
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-420",
+  "name": "硒 · 海水",
+  "analyte": "硒",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "420硒海水--标准曲线绘制及回归方程原始记录表",
+  "file": "0255.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海水硒标准",
+   "basis": "GB/T17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-421",
+  "name": "汞 · 固废",
+  "analyte": "汞",
+  "matrix": "固废",
+  "method": "原子荧光",
+  "sheetType": "原始记录",
+  "raw": "421-固体废物总汞冷原子吸收分光度法测汞原始记录表-固体废物汞",
+  "file": "0256.pdf",
+  "meta": {
+   "instrument": "JKG—205型冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "固体废物总汞的测定冷原子吸收分光光度法",
+   "basis": "GB/T15555.1-1995",
+   "detectionLimit": "0.05ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-422",
+  "name": "总汞校准曲线（固废）",
+  "analyte": "汞",
+  "matrix": "固废",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "422-校准曲线绘制及回归方程原始记录表--固体废物",
+  "file": "0257.pdf",
+  "meta": {
+   "instrument": "JKG-205型冷原子吸收测汞仪",
+   "instrumentNo": "TC-032",
+   "methodFull": "固体废物总汞的测定冷原子吸收分光光度法",
+   "basis": "GB/T15555.1-1995"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-423",
+  "name": "盐度 · 海水",
+  "analyte": "盐度",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "423-海水盐度原始记录",
+  "file": "0258.pdf",
+  "meta": {
+   "instrument": "TY-31SA型盐度 室温",
+   "instrumentNo": "TC-096",
+   "methodFull": "海洋监测规范第四部分：海水分析（29.1）盐度",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-424",
+  "name": "矿化度",
+  "analyte": "矿化度",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "424-矿化度重量测量原始记录",
+  "file": "0259.pdf",
+  "meta": {
+   "instrument": "ME204/02E 电子天平 DHG-9070A 电热鼓风干燥箱",
+   "instrumentNo": "TC-006 TC-010",
+   "methodFull": "水和废水监测分析方法第三篇第一章八矿化度重量法",
+   "basis": "国家环保局（2002）第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-425",
+  "name": "硫酸盐 · 地表水",
+  "analyte": "硫酸盐",
+  "matrix": "地表水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "425-硫酸盐地表水--分光光度法原始记录表",
+  "file": "0260.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质硫酸盐的测定铬酸钡分光光度法（试行）",
+   "wavelength": "420nm",
+   "basis": "HJ/T342-2007",
+   "detectionLimit": "8mg/L",
+   "opticalPath": "10mm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-426",
+  "name": "砷 · 固废",
+  "analyte": "砷",
+  "matrix": "固废",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "426-固体废物 砷分光光度法原始记录表",
+  "file": "0261.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计光程：10mm",
+   "instrumentNo": "TC-005bV",
+   "methodFull": "固体废物砷的测定二乙基二硫代氨基甲酸银分光光度法测定",
+   "wavelength": "530nm参比溶液：氯仿b=",
+   "basis": "GB/T15555.3-1995",
+   "detectionLimit": "0.007mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-427",
+  "name": "砷 · 固废",
+  "analyte": "砷",
+  "matrix": "固废",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "427-固废砷-校准曲线原始记录",
+  "file": "0262.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固体废物砷的测定二乙基二硫代氨基甲酸银分光光度法",
+   "basis": "GB/T15555.3-1995"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-429",
+  "name": "密度",
+  "analyte": "密度",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "429-密度原始记录",
+  "file": "0263.pdf",
+  "meta": {
+   "instrument": "液体密度计YM-3型",
+   "methodFull": "泥浆比重计法"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-431",
+  "name": "生化需氧量 · 海水",
+  "analyte": "生化需氧量",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "431-海水五日生化需氧量（BOD5）测量原始记录表-整理",
+  "file": "0264.pdf",
+  "meta": {
+   "instrument": "250-B型生化培养箱",
+   "instrumentNo": "TC-020",
+   "methodFull": "海洋监测规范第4部分海水分析（33.1）五日培养法",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "0.5mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-432",
+  "name": "氰化物 · 海水",
+  "analyte": "氰化物",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "432-海水氰化物--分光光度法原始记录表",
+  "file": "0265.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：3cm",
+   "instrumentNo": "TC-005V*V2V2：比色所用馏出液体积，25ml",
+   "methodFull": "海洋监测规范第4部分：海水分析（20.1）异烟酸-吡唑酮分光光度法测定",
+   "wavelength": "638nm参比溶液：水",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "0.002mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-433",
+  "name": "氰化物 · 海水",
+  "analyte": "氰化物",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "433-海水氰化物--校准曲线绘制及回归方程原始记录表",
+  "file": "0266.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（20.1）异烟酸-吡唑酮分光光度法标准使用溶液浓度：1.00ug/ml",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-435",
+  "name": "嗅辨",
+  "analyte": "嗅辨",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "435-4嗅辨员日常培训管理结果登记表.2",
+  "file": "0267.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-436",
+  "name": "溶解性固体",
+  "analyte": "溶解性固体",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "436-溶解性固体原始记录--水质",
+  "file": "0268.pdf",
+  "meta": {
+   "instrument": "ME204E/02电子分析天平",
+   "instrumentNo": "TC-006",
+   "methodFull": "城镇污水水质标准",
+   "basis": "CJ/T51-2018式中：W1-总重，W2-容"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-437",
+  "name": "氯化物 · 地表水",
+  "analyte": "氯化物",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "437-氯化物原始记录表 - 地表水",
+  "file": "0269.pdf",
+  "meta": {
+   "methodFull": "水质氯化物的测定硝酸银滴定法",
+   "basis": "GB/T11896-1989",
+   "detectionLimit": "10mg/L空白值：mL"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-438",
+  "name": "总硬度",
+  "analyte": "总硬度",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "438-总硬度测量原始记录表-水质",
+  "file": "0270.pdf",
+  "meta": {
+   "methodFull": "水质钙和镁总量的测定EDTA滴定法",
+   "basis": "GB/T7477-1987",
+   "detectionLimit": "5mgl/L ） 01 "
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-439",
+  "name": "硫酸盐 · 地表水",
+  "analyte": "硫酸盐",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "439-地表水硫酸盐校准曲线绘制及回归方程原始记录表",
+  "file": "0271.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质硫酸盐的测定铬酸钡分光光度法（试行）",
+   "wavelength": "420nm",
+   "basis": "HJ/T342-2007",
+   "detectionLimit": "8mg/L(适用下限)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-440",
+  "name": "砷 · 废气",
+  "analyte": "砷",
+  "matrix": "废气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "440砷废气--分光光度法原始记录表",
+  "file": "0272.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源废气 砷的测定 二乙基二硫代氨基甲酸银分光光度法",
+   "wavelength": "510nm",
+   "basis": "HJ540-2016",
+   "detectionLimit": "0.004mg/m³（测定下限0.016mg/m³，均以As计）",
+   "vdef": "50",
+   "sampleVolumeStd": "0.4m³（标准状态）",
+   "corrThreshold": "≥0.999"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-441",
+  "name": "砷 · 废气",
+  "analyte": "砷",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "441-校准曲线绘制及回归方程原始记录表--砷废气",
+  "file": "0273.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源废气砷的测定二乙基二硫代氨基甲酸银分光光度法",
+   "basis": "HJ540-2016",
+   "analyte": "砷",
+   "wavelength": "510nm",
+   "vdef": "50ml",
+   "detectionLimit": "0.004mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-442",
+  "name": "硝基苯类（环境空气）",
+  "analyte": "硝基苯类",
+  "matrix": "环境空气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "442-环境空气监测分光光度法原始记录表--硝基苯",
+  "file": "0274.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm",
+   "methodFull": "空气质量硝基苯类（一硝基和二硝基化合物）的测定锌还原-盐酸萘乙二胺分光光度法测定",
+   "wavelength": "550nmb=",
+   "basis": "GB/T15501-1995",
+   "detectionLimit": "1.5mg/m3bV2V1定容体积：50mlV2测定取样体积"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-443",
+  "name": "硝基苯类校准曲线",
+  "analyte": "硝基苯类",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "443-校准曲线绘制及回归方程原始记录表-硝基苯类",
+  "file": "0275.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气质量硝基苯类（一硝基和二硝基化合物）的测定锌还原-盐酸萘乙二胺分光光度法",
+   "basis": "GB/T15501-1995"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-444",
+  "name": "硝基苯类（有组织废气）",
+  "analyte": "硝基苯类",
+  "matrix": "废气",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "444硝基苯有组织--分光光度计原始记录",
+  "file": "0276.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm测定",
+   "methodFull": "空气质量硝基苯类（一硝基和二硝基化合物）的测定锌还原-盐酸萘乙二胺分光光度法b=",
+   "wavelength": "550nm",
+   "basis": "GB/T15502-1995",
+   "detectionLimit": "1.5mg/m3bV2V1定容体积：50mlV2测定取样体积"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-446",
+  "name": "总氮 · 海水",
+  "analyte": "总氮",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "446海水总氮分光光度法原始记录表",
+  "file": "0277.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：20mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "海水调查规范第4部分海水化学要素调查（15）总氮测定过硫酸钾氧化法测定",
+   "wavelength": "543nmb=",
+   "detectionLimit": "0.01mg/L参比溶液：蒸馏水"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-447",
+  "name": "海水总氮校准曲线",
+  "analyte": "总氮",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "447海水氮-校准曲线记录表",
+  "file": "0278.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海水调查规范第4部分海水化学要素调查水质总氮测定过硫酸钾氧化",
+   "basis": "GB/T12763.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-448",
+  "name": "总磷 · 海水",
+  "analyte": "总磷",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "448海水总磷分光光度法原始记录表",
+  "file": "0279.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：50mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "海水调查规范第4部分海水化学要素调查水质（14）总磷的测定过硫酸钾氧化测定",
+   "wavelength": "882nmb=",
+   "basis": "GB/T12763.4-2007",
+   "detectionLimit": "0.01mg/L参比溶液：蒸馏水"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-449",
+  "name": "海水",
+  "analyte": "",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "449海水磷-校准曲线记录表",
+  "file": "0280.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海水调查规范第4部分海水化学要素调查水质活性磷酸盐测定抗坏血酸还原磷钼蓝法",
+   "basis": "GB/T12763.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-450",
+  "name": "苯胺类（地下水）",
+  "analyte": "苯胺类",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "450分光光度法原始记录-地下水苯胺",
+  "file": "0281.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光 光度计 光程：20mm 参比溶液：蒸馏水",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "560nm",
+   "basis": "GB/T5750.8-2023",
+   "detectionLimit": "0.08mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-457",
+  "name": "六价铬",
+  "analyte": "六价铬",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "457-校准曲线绘制及回归方程原始记录表-气六价铬",
+  "file": "0282.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "二苯基碳酰二肼分光光度法",
+   "basis": "空气和废气监测分析方法第三篇第二章八铬（六价）二"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-458",
+  "name": "硫化物 · 地下水",
+  "analyte": "硫化物",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "458-1地下水硫化物原始记录",
+  "file": "0283.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：30mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质硫化物的测定N,N-二乙基对苯二胺分光光度法测定",
+   "wavelength": "665nm参比溶液：蒸馏水b=",
+   "basis": "GB/T5750.5-2023",
+   "detectionLimit": "0.02mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-458",
+  "name": "硫化物 · 地下水",
+  "analyte": "硫化物",
+  "matrix": "地下水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "458-分光光度法原始记录表--硫化物 -地下水",
+  "file": "0284.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：30mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质硫化物的测定N,N-二乙基对苯二胺分光光度法测定",
+   "wavelength": "665nm参比溶液：蒸馏水b=",
+   "basis": "GB/T5750.6-2006",
+   "detectionLimit": "0.02mg/L"
+  },
+  "retired": true,
+  "retiredReason": "458 硫化物地下水：采用 GB/T5750.6-2006 旧版，被2023版(0283)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-459",
+  "name": "硫化物 · 地下水",
+  "analyte": "硫化物",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "459-1校准曲线绘制及回归方程原始记录表--硫化物 - 地下水",
+  "file": "0285.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质硫化物的测定N,N-二乙基对苯二胺分光光度法",
+   "basis": "GB/T5750.5-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-459",
+  "name": "硫化物 · 地下水",
+  "analyte": "硫化物",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "459-校准曲线绘制及回归方程原始记录表--硫化物 - 地下水",
+  "file": "0286.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质硫化物的测定N,N-二乙基对苯二胺分光光度法",
+   "basis": "GB/T5750.6-2006"
+  },
+  "retired": true,
+  "retiredReason": "459 硫化物地下水校准曲线：采用 GB/T5750.6-2006 旧版，被2023版(0285)替代（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-463",
+  "name": "锌 · 废水",
+  "analyte": "锌",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "463-原子吸收分光光度法原始记录表--污水锌",
+  "file": "0287.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "城镇污水水质标准",
+   "wavelength": "213.9nm",
+   "basis": "CJ/T51-2018",
+   "slit": "0.4nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-464",
+  "name": "铅 · 废水",
+  "analyte": "铅",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "464-原子吸收分光光度法原始记录表--污水铅",
+  "file": "0288.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "城镇污水水质标准",
+   "wavelength": "283.3nm",
+   "basis": "CJ/T51-2018",
+   "slit": "0.4nm",
+   "detectionLimit": "0.2mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-465",
+  "name": "镉 · 废水",
+  "analyte": "镉",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "465-原子吸收分光光度法原始记录表--污水镉",
+  "file": "0289.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "城镇污水水质标准",
+   "wavelength": "228.8nm",
+   "basis": "CJ/T51-2018",
+   "slit": "0.4nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-466",
+  "name": "铊 · 地下水",
+  "analyte": "铊",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "466-2原子吸收分光光度法原始记录表--地下水铊",
+  "file": "0290.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 铊的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "276.8nm",
+   "basis": "HJ748-2015",
+   "detectionLimit": "0.03μg/L",
+   "analyte": "铊",
+   "slit": "0.7nm"
+  },
+  "retired": true,
+  "retiredReason": "466 该号保留铊测定表(0291)；本地下水铊版停用留痕，如需另编号再恢复（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-466",
+  "name": "铊",
+  "analyte": "铊",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "466-原子吸收分光光度法原始记录表--铊",
+  "file": "0291.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 铊的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "276.8nm",
+   "basis": "HJ748-2015",
+   "detectionLimit": "0.03μg/L",
+   "slit": "0.7nm",
+   "analyte": "铊"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-467",
+  "name": "铍 · 地下水",
+  "analyte": "铍",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "467-1原子吸收分光光度法原始记录表--地下水铍",
+  "file": "0292.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "234.9nm",
+   "basis": "GB/T5750.6-2023",
+   "detectionLimit": "0.2ug/L"
+  },
+  "retired": true,
+  "retiredReason": "467 该号保留铍测定表(0293)；本地下水铍版停用留痕，如需另编号再恢复（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-467",
+  "name": "铍",
+  "analyte": "铍",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "467-原子吸收分光光度法原始记录表--铍",
+  "file": "0293.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质铍的测定石墨炉原子吸收分光光度法",
+   "wavelength": "234.9nm",
+   "basis": "HJ/T59-2000",
+   "detectionLimit": "0.02ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-468",
+  "name": "镍 · 地下水",
+  "analyte": "镍",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "468-无火焰原子吸收分光光度法原始记录表-地下水镍",
+  "file": "0294.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "232.0nm",
+   "basis": "GB/T5750.6-2023",
+   "detectionLimit": "5ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-469",
+  "name": "铁",
+  "analyte": "铁",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "469-原子吸收分光光度法原始记录表--铁",
+  "file": "0295.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "城镇污水水质标准",
+   "wavelength": "248.3nm",
+   "basis": "CJ/T51-2018",
+   "slit": "0.4nm",
+   "detectionLimit": "0.3mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-470",
+  "name": "银 · 废水",
+  "analyte": "银",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "470-原子吸收分光光度法原始记录表--污水银",
+  "file": "0296.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质银的测定火焰原子吸收分光光度法",
+   "wavelength": "328.1nm",
+   "basis": "GB11907-89",
+   "slit": "0.4nm",
+   "detectionLimit": "0.03mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-472",
+  "name": "工业固体废物采样记录",
+  "analyte": "",
+  "matrix": "固废",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "472-工业固体废物采样原始记录表",
+  "file": "0297.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-475",
+  "name": "降尘",
+  "analyte": "降尘",
+  "matrix": "环境空气",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "475空气中降尘测定原始记录表",
+  "file": "0298.pdf",
+  "meta": {
+   "basis": "HJ1221-2021",
+   "detectionLimit": "0.3t/km²·30d",
+   "quantitationLimit": "1.2t/km²·30d",
+   "methodFull": "环境空气 降尘的测定 重量法",
+   "instrument": "ME204E/02 电子分析天平",
+   "formula": "M=(W1-Wa-Wc)/(A×t)×30×10^4",
+   "resultPrecision": "测定结果小数点后保留位数与方法检出限(0.3t/km²·30d)一致，最多保留3位有效数字",
+   "analyte": "降尘",
+   "vdef": "0.1mg",
+   "quantLimit": "1.2t/km²·30d"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-52",
+  "name": "硝酸盐氮 · 生活饮用水",
+  "analyte": "硝酸盐氮",
+  "matrix": "生活饮用水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "52-1新硝酸盐氮生活饮用水",
+  "file": "0299.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：10mm参比溶液：纯水",
+   "instrumentNo": "TC-005 KbAAa*0−−",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "220nm和275nmb=",
+   "basis": "GB/T5750.5-2023",
+   "detectionLimit": "0.2mg/LA=A220-2A275"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-550",
+  "name": "pH · 废水",
+  "analyte": "pH",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "550-废水和地表水   PH值-",
+  "file": "0300.pdf",
+  "meta": {
+   "instrument": "SX-620酸度计",
+   "instrumentNo": "TC-138、139、140、141、142、192、193、194",
+   "methodFull": "水质pH值的测定电极法",
+   "basis": "HJ1147-2020"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-551",
+  "name": "pH",
+  "analyte": "pH",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "551-PH 第四版",
+  "file": "0301.pdf",
+  "meta": {
+   "instrument": "PHS-3C型实验室PH计标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
+   "instrumentNo": "TC-014",
+   "methodFull": "水质pH的测定电极法标准缓冲溶液II测定值",
+   "basis": "国家环保总局（2002）第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-552",
+  "name": "pH · 固废",
+  "analyte": "pH",
+  "matrix": "固废",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "552-固废 PH",
+  "file": "0302.pdf",
+  "meta": {
+   "instrument": "PHS-3C型实验室PH计标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
+   "instrumentNo": "TC-014",
+   "methodFull": "固体废物腐蚀性的测定玻璃电极法标准缓冲溶液II测定值",
+   "basis": "GB/T15555.12-1995"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-553",
+  "name": "pH",
+  "analyte": "pH",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "553-便携式 PH",
+  "file": "0303.pdf",
+  "meta": {
+   "instrument": "标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
+   "methodFull": "水质pH的测定电极法标准缓冲溶液II测定值",
+   "basis": "国家环保总局（2002）第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-562",
+  "name": "pH · 大气降水",
+  "analyte": "pH",
+  "matrix": "大气降水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "562-大气降水PH",
+  "file": "0304.pdf",
+  "meta": {
+   "instrument": "PHS-3C型实验室PH计标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
+   "instrumentNo": "TC-119",
+   "methodFull": "大气降水pH的测定电极法标准缓冲溶液II测定值",
+   "basis": "GB/T13580.4-1992"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-563",
+  "name": "电导率 · 大气降水",
+  "analyte": "电导率",
+  "matrix": "大气降水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "563-大气降水电导率",
+  "file": "0305.pdf",
+  "meta": {
+   "instrument": "DDS-12A精密数字式电导率仪",
+   "instrumentNo": "TC-015 校正公式",
+   "methodFull": "大气降水电导率的测定方法式中：KS—25℃时电导率，µS/cmKt—测定时t温度时电导率，µs/ cm",
+   "basis": "GB/T13580.3-1992"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-565",
+  "name": "氰化物 · 土壤",
+  "analyte": "氰化物",
+  "matrix": "土壤",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "565-氰化物土壤--分光光度法原始记录表",
+  "file": "0306.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "土壤 氰化物和总氰化物的测定 分光光度法",
+   "wavelength": "638nm",
+   "basis": "HJ745-2015",
+   "detectionLimit": "0.04mg/kg",
+   "opticalPath": "10mm(1cm)",
+   "referenceSolution": "水",
+   "quantitationLimit": "0.16mg/kg",
+   "formula": "ω(mg/kg)=(A－A0－a)×V1×K/(b×m×wdm×V2)（HJ745-2015式(1)；V1=100ml、V2=10.0ml为标准固定值，K为稀释倍数，未稀释时K=1）",
+   "corrThreshold": "≥0.999",
+   "resultPrecision": "测定结果<1mg/kg时保留小数点后两位；≥1mg/kg时保留三位有效数字",
+   "analyte": "氰化物/总氰化物"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-566",
+  "name": "氰化物 · 土壤",
+  "analyte": "氰化物",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "566-校准曲线绘制及回归方程原始记录表--土壤氰化物",
+  "file": "0307.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "土壤 氰化物和总氰化物的测定 分光光度法",
+   "basis": "HJ745-2015",
+   "analyte": "氰化物/总氰化物",
+   "wavelength": "600nm（异烟酸-巴比妥酸法）/638nm（异烟酸-吡唑啉酮法）",
+   "detectionLimit": "0.01mg/kg（异烟酸-巴比妥酸法）/0.04mg/kg（异烟酸-吡唑啉酮法，取样10g）"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-569",
+  "name": "钒",
+  "analyte": "钒",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "569-原子吸收分光光度法原始记录表--水质钒",
+  "file": "0308.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 钒的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "318.4nm",
+   "basis": "HJ673-2013",
+   "detectionLimit": "0.003mg/L",
+   "quantitationLimit": "0.012mg/L",
+   "formula": "ρ=k×(ρ1-ρ0)×V1/(V×1000)",
+   "resultPrecision": "结果大于1mg/L时取3位有效数字，小于1mg/L时小数点后数字最多保留到第3位",
+   "analyte": "钒",
+   "slit": "1.3nm",
+   "lampCurrent": "12.5mA"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-570",
+  "name": "钴 · 地下水",
+  "analyte": "钴",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "570-1原子吸收分光光度法原始记录表--地下水钴",
+  "file": "0309.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "240.7nm",
+   "basis": "GB/T5750.6-2023",
+   "detectionLimit": "5ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-571",
+  "name": "钡 · 地下水",
+  "analyte": "钡",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "571-1原子吸收分光光度法原始记录表--地下水钡",
+  "file": "0310.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "553.6nm",
+   "basis": "GB/T5750.6-2023",
+   "detectionLimit": "10ug/L",
+   "slit": "0.2nm"
+  },
+  "retired": true,
+  "retiredReason": "571 该号保留水质钡(0311)；本地下水钡版停用留痕，如需另编号再恢复（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-571",
+  "name": "钡",
+  "analyte": "钡",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "571-原子吸收分光光度法原始记录表--水质钡",
+  "file": "0311.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质钡的测定石墨炉原子吸收分光光度法",
+   "wavelength": "553.6nm",
+   "basis": "HJ602-2011",
+   "detectionLimit": "2.5ug/L",
+   "slit": "0.2nm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-572",
+  "name": "钼",
+  "analyte": "钼",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "572-1原子吸收分光光度法原始记录表--水质钼",
+  "file": "0312.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 钼和钛的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "313.3nm",
+   "basis": "HJ807-2016",
+   "detectionLimit": "0.6μg/L",
+   "analyte": "钼",
+   "slit": "0.5nm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-572",
+  "name": "钼 · 地下水",
+  "analyte": "钼",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "572-原子吸收分光光度法原始记录表--地下水钼",
+  "file": "0313.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 钼和钛的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "313.3nm",
+   "basis": "HJ807-2016",
+   "detectionLimit": "0.6μg/L",
+   "analyte": "钼",
+   "slit": "0.5nm"
+  },
+  "retired": true,
+  "retiredReason": "572 该号保留水质钼(0312 HJ807-2016)；本地下水钼版停用留痕，如需另编号再恢复（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-573",
+  "name": "铝 · 地下水",
+  "analyte": "铝",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "573-1-铝-校准曲线原始记录 地表水、地下水",
+  "file": "0314.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-574",
+  "name": "沥青烟",
+  "analyte": "沥青烟",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "574l沥青烟原始记录表",
+  "file": "0315.pdf",
+  "meta": {
+   "instrument": "AUW120D",
+   "methodFull": "固定污染源排气中沥青烟的测定重量法",
+   "basis": "HJ/T45-1999",
+   "detectionLimit": "5.1mg"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-575",
+  "name": "碘化物",
+  "analyte": "碘化物",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "575碘化物原始记录表",
+  "file": "0316.pdf",
+  "meta": {
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023",
+   "detectionLimit": "0.025mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-576",
+  "name": "铝",
+  "analyte": "铝",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "576-1-铝-原始记录",
+  "file": "0317.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：20mm",
+   "instrumentNo": "TC-005参比溶液：空白 10)(bVVaAA−−",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "620nm",
+   "basis": "GB/T5750.6-2023",
+   "detectionLimit": "0.008mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-577",
+  "name": "汞",
+  "analyte": "汞",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "577汞",
+  "file": "0318.pdf",
+  "meta": {
+   "instrument": "AF-7500原子荧光分光光度计",
+   "instrumentNo": "TC-122",
+   "methodFull": "水质 汞、砷、硒、铋和锑的测定 原子荧光法",
+   "basis": "HJ694-2014",
+   "detectionLimit": "0.04μg/L",
+   "analyte": "汞",
+   "negHV": "240~280V",
+   "lampCurrent": "15~30mA",
+   "negativeHighVoltage": "240~280V",
+   "atomizerTemp": "200℃",
+   "carrierGasFlow": "400ml/min",
+   "shieldGasFlow": "900~1000ml/min",
+   "integration": "峰面积",
+   "vdef": "A—样品峰面积;a、b—回归方程截距/斜率;ρ1=(A-a)/b—曲线查得测定浓度μg/L;K—稀释倍数f;V1—定容体积ml;V—取样体积ml"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-578",
+  "name": "砷",
+  "analyte": "砷",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "578砷",
+  "file": "0319.pdf",
+  "meta": {
+   "instrument": "AF-7500原子荧光分光光度计",
+   "instrumentNo": "TC-122",
+   "methodFull": "水质 汞、砷、硒、铋和锑的测定 原子荧光法",
+   "basis": "HJ694-2014",
+   "detectionLimit": "0.3μg/L",
+   "analyte": "砷",
+   "negHV": "260~300V",
+   "lampCurrent": "40~60mA",
+   "atomizerTemp": "200℃",
+   "carrierGas": "400ml/min",
+   "shieldGas": "900~1000ml/min"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-579",
+  "name": "硒",
+  "analyte": "硒",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "579硒",
+  "file": "0320.pdf",
+  "meta": {
+   "instrument": "AF-7500原子荧光分光光度计",
+   "instrumentNo": "TC-122",
+   "methodFull": "水质 汞、砷、硒、铋和锑的测定 原子荧光法",
+   "basis": "HJ694-2014",
+   "detectionLimit": "0.4μg/L",
+   "analyte": "硒",
+   "negHV": "260~300V",
+   "lampCurrent": "80~100mA",
+   "negativeHighVoltage": "260~300V",
+   "atomizerTemp": "200℃",
+   "carrierGas": "400ml/min",
+   "shieldGas": "900~1000ml/min",
+   "integration": "峰面积"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-580",
+  "name": "锑",
+  "analyte": "锑",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "580-原始记录表--锑",
+  "file": "0321.pdf",
+  "meta": {
+   "instrument": "AF-7500原子荧光分光光度计",
+   "instrumentNo": "TC-122",
+   "methodFull": "水质 汞、砷、硒、铋和锑的测定 原子荧光法",
+   "basis": "HJ694-2014",
+   "detectionLimit": "0.2μg/L",
+   "analyte": "锑",
+   "negHV": "260~300V",
+   "lampCurrent": "60~80mA",
+   "atomizerTemp": "200℃",
+   "carrierGas": "400ml/min",
+   "shieldGas": "900~1000ml/min",
+   "integration": "峰面积"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-581",
+  "name": "六价铬 · 土壤",
+  "analyte": "六价铬",
+  "matrix": "土壤",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "581-原子吸收分光光度法原始记录表--土壤六价铬",
+  "file": "0322.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "土壤和沉积物 六价铬的测定 碱溶液提取-火焰原子吸收分光光度法",
+   "wavelength": "357.9nm",
+   "basis": "HJ1082-2019",
+   "slit": "0.2nm",
+   "detectionLimit": "0.5mg/kg",
+   "quantitationLimit": "2.0mg/kg",
+   "formula": "w=ρ×V×D/(m×Wdm)",
+   "resultPrecision": "测定结果小数点后位数与方法检出限一致，最多保留3位有效数字",
+   "analyte": "六价铬"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-586",
+  "name": "挥发性卤代烃校准曲线",
+  "analyte": "挥发性卤代烃",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "586水质卤代烃--校准曲线--绘制及回归方程原始记录表",
+  "file": "0323.pdf",
+  "meta": {
+   "instrument": "GC-7280气相色谱仪",
+   "methodFull": "水质 挥发性卤代烃的测定 顶空气相色谱法",
+   "basis": "HJ620-2011",
+   "detectionLimit": "0.02~6.13μg/L(见附录A)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-588",
+  "name": "汞 · 环境空气",
+  "analyte": "汞",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "588环境空气汞表",
+  "file": "0324.pdf",
+  "meta": {
+   "instrument": "AF-7500 原子荧光分光光度计",
+   "instrumentNo": "TC-122",
+   "methodFull": "空气和废气监测分析方法 第五篇 第三章 七（二）原子荧光分光光度法（B）",
+   "basis": "国家环保总局（2003）第四版",
+   "detectionLimit": "3*10-3 μg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-590",
+  "name": "甲醇",
+  "analyte": "甲醇",
+  "matrix": "",
+  "method": "气相色谱",
+  "sheetType": "原始记录",
+  "raw": "590甲醇HJ-33",
+  "file": "0325.pdf",
+  "meta": {
+   "instrument": "GC7280气相色谱仪",
+   "instrumentNo": "TC-120",
+   "methodFull": "固定污染源排气中甲醇的测定气相色谱法",
+   "basis": "HJ/T33-1999",
+   "detectionLimit": "2mg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-592",
+  "name": "地表水样品交接记录",
+  "analyte": "",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "592地表水-交接记录",
+  "file": "0326.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-593",
+  "name": "海水采样记录",
+  "analyte": "",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "593-海水采样记录",
+  "file": "0327.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-594",
+  "name": "海水样品交接记录",
+  "analyte": "",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "594--海水交接记录",
+  "file": "0328.pdf",
+  "stage": "样品交接"
+ },
+ {
+  "code": "HJ-TC-595",
+  "name": "臭气",
+  "analyte": "臭气",
+  "matrix": "",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "595-臭气采样单--2023.1.1启用",
+  "file": "0329.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-596",
+  "name": "环境空气/废气样品交接单",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "596-废气交接记录",
+  "file": "0330.pdf",
+  "stage": "样品交接"
+ },
+ {
+  "code": "HJ-TC-598",
+  "name": "水温测定原始记录",
+  "analyte": "水温",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "598-水温记录",
+  "file": "0331.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-599",
+  "name": "水和废水样品交接记录表",
+  "analyte": "",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "599-废水交接记录",
+  "file": "0332.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-601",
+  "name": "叶绿素a测定原始记录",
+  "analyte": "叶绿素a",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "601-叶绿素a原始记录表1 -",
+  "file": "0333.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 叶绿素a的测定 分光光度法",
+   "basis": "HJ897-2017",
+   "detectionLimit": "2μg/L",
+   "wavelength": "750nm、664nm、647nm、630nm",
+   "analyte": "叶绿素a"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-602",
+  "name": "溴化氢测定原始记录",
+  "analyte": "溴化氢",
+  "matrix": "",
+  "method": "气相色谱",
+  "sheetType": "原始记录",
+  "raw": "602溴化氢-分光光度法原始记录",
+  "file": "0334.pdf",
+  "meta": {
+   "instrument": "PIC-10型离子色谱仪",
+   "instrumentNo": "TC-060",
+   "methodFull": "固定污染源废气溴化氢的测定离子色谱法",
+   "basis": "HJ1040-2019",
+   "detectionLimit": "0.05mg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-603",
+  "name": "气液比检测原始记录（油气回收）",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "603气液比检测原始记录",
+  "file": "0335.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-604",
+  "name": "液阻检测原始记录（油气回收）",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "604液阻检测原始记录表",
+  "file": "0336.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-606",
+  "name": "密闭性检测原始记录（油气回收）",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "606密闭性原始记录表",
+  "file": "0337.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-607",
+  "name": "油气回收系统密闭点位油气泄漏原始记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "607油气回收系统密闭点位油气泄露原始记录",
+  "file": "0338.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-608",
+  "name": "油烟",
+  "analyte": "油烟",
+  "matrix": "",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "608      油烟采样单",
+  "file": "0339.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-610",
+  "name": "非甲烷总烃",
+  "analyte": "非甲烷总烃",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "610非甲烷总烃-校准曲线--绘制及回归方程原始记录表",
+  "file": "0340.pdf",
+  "meta": {
+   "instrument": "SP-2100A气相色谱仪",
+   "instrumentNo": "TC-002",
+   "methodFull": "固定污染源废气非甲烷总烃的测定气相色谱法"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-611",
+  "name": "苯系物 · 废气",
+  "analyte": "苯系物",
+  "matrix": "废气",
+  "method": "气相色谱",
+  "sheetType": "原始记录",
+  "raw": "611苯系物（有组织）HJ-1261",
+  "file": "0341.pdf",
+  "meta": {
+   "instrument": "GC7280气相色谱仪",
+   "instrumentNo": "TC-120",
+   "methodFull": "固定污染源废气 苯系物的测定 气袋采样/直接进样-气相色谱法",
+   "basis": "HJ1261-2022",
+   "detectionLimit": "苯/甲苯/乙苯/间-邻二甲苯/异丙苯0.2、对二甲苯0.3、苯乙烯0.6 mg/m³",
+   "components": [
+    "苯",
+    "甲苯",
+    "乙苯",
+    "对二甲苯",
+    "间二甲苯",
+    "异丙苯",
+    "邻二甲苯",
+    "苯乙烯"
+   ],
+   "molarVolume": "标准状态下22.4L/mol，参比状态下24.5L/mol，按相应排放标准要求选取",
+   "resultPrecision": "测定结果小于1mg/m³时保留至小数点后一位；大于1mg/m³时小数位数与方法检出限保持一致",
+   "method": "气相色谱",
+   "vdef": "A₁—峰面积或峰高,mV；a—回归方程截距；b—回归方程斜率；M—目标物摩尔质量,g/mol（纠正纸质表g/L错误）；Vm—摩尔体积,L/mol（标准状态22.4/参比状态24.5，按排放标准选取）；D—稀释倍数",
+   "gcConditions": "进样口200℃;检测器280℃;柱温65℃(保持10min)→10℃/min→100℃(保持5min);载气5.0ml/min;燃烧气30ml/min;助燃气300ml/min;分流比2:1;进样量1.0ml",
+   "analyte": "苯系物(8组分)",
+   "Vm": "24.5 L/mol(参比状态25℃)",
+   "mNote": "苯78.11 / 甲苯92.14 / 乙苯·对·间·邻二甲苯106.17 / 异丙苯120.19 / 苯乙烯104.15 g/mol"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-614",
+  "name": "苯系物 · 废气",
+  "analyte": "苯系物",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "614苯系物（有组织）HJ1261-校准曲线--绘制及回归方程原始记录表",
+  "file": "0342.pdf",
+  "meta": {
+   "instrument": "GC7280气相色谱仪",
+   "instrumentNo": "TC-120",
+   "methodFull": "固定污染源废气 苯系物的测定 气袋采样/直接进样-气相色谱法",
+   "basis": "HJ1261-2022",
+   "analyte": "苯、甲苯、乙苯、对二甲苯、间二甲苯、邻二甲苯、异丙苯、苯乙烯（8种苯系物）",
+   "detectionLimit": "0.2~0.6 mg/m³（进样体积1.0 ml）"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-615",
+  "name": "磷酸盐",
+  "analyte": "磷酸盐",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "615磷酸盐分光光度法原始记录表",
+  "file": "0343.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：30mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水和废水监测方法第三篇第三章七磷（三）钼锑抗分光光度法测定",
+   "wavelength": "700nmb=",
+   "basis": "国家环保总局（2002）第四版",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-616",
+  "name": "磷酸盐",
+  "analyte": "磷酸盐",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "616磷酸盐-校准曲线记录表",
+  "file": "0344.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水和废水监测方法第三篇第三章七磷（三）钼锑抗分光光度法",
+   "basis": "国家环保总局（2002）第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-617",
+  "name": "碳酸根、碳酸氢根测定原始记录（废水）",
+  "analyte": "碳酸根、碳酸氢根和氢氧根",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "617废水碳酸根，碳酸氢根和氢氧根原始记录表",
+  "file": "0345.pdf",
+  "meta": {
+   "methodFull": "水和废水分析方法第三篇第一章十二碱度（总碱度、重碳酸盐和碳酸盐）（一）酸碱指示剂滴定法（B）",
+   "basis": "国家环保总局（2002）第四版",
+   "detectionLimit": "3mg/LρHCO3－(mg/L)="
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-618",
+  "name": "磷酸盐 · 海水",
+  "analyte": "磷酸盐",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "618海水活性磷酸盐分光光度法原始记录表",
+  "file": "0346.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：50mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（39.1）b= 测定方法：磷钼蓝法分光度法测定",
+   "wavelength": "882nm参比溶液：蒸馏水r=",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "0.010mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-619",
+  "name": "磷酸盐 · 海水",
+  "analyte": "磷酸盐",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "619海水活性磷酸盐-校准曲线记录表",
+  "file": "0347.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海洋监测规范第4部分：海水分析（39.1）测定方法：磷钼蓝法分光度法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-620",
+  "name": "嗅辨 · 废气",
+  "analyte": "嗅辨",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "620无组织嗅辨表格",
+  "file": "0348.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-622",
+  "name": "嗅辨 · 废气",
+  "analyte": "嗅辨",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "622有组织嗅辨表格",
+  "file": "0349.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-625",
+  "name": "嗅辨 · 废气",
+  "analyte": "嗅辨",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "625无组织嗅辨表格100倍",
+  "file": "0350.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-626",
+  "name": "pH · 地下水",
+  "analyte": "pH",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "626PH值地下水 原始记录表 -2023",
+  "file": "0351.pdf",
+  "meta": {
+   "instrument": "PHS-3C型实验室PH计标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
+   "instrumentNo": "TC-119",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-627",
+  "name": "pH",
+  "analyte": "pH",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "627-新PH值",
+  "file": "0352.pdf",
+  "meta": {
+   "instrument": "PHS-3C型实验室pH计",
+   "instrumentNo": "TC-119",
+   "methodFull": "水质 pH值的测定 电极法",
+   "basis": "HJ1147-2020"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-630",
+  "name": "废气（无组织）采样原始记录",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "630-废气无组织采样单1-一天4次",
+  "file": "0353.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-631",
+  "name": "废气（无组织）采样原始记录",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "631-废气无组织采样单1-一天一次",
+  "file": "0354.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-636",
+  "name": "浊度 · 废水",
+  "analyte": "浊度",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "636-浊度原始记录-废水",
+  "file": "0355.pdf",
+  "meta": {
+   "basis": "水和废水监测分析方法（第四版）增补版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-639",
+  "name": "溶解氧 · 海水",
+  "analyte": "溶解氧",
+  "matrix": "海水",
+  "method": "容量滴定",
+  "sheetType": "原始记录",
+  "raw": "639-海水容量测量原始记录表-溶解氧",
+  "file": "0356.pdf",
+  "meta": {
+   "methodFull": "海洋监测规范第4部分：海水分析（31）碘量法",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "0.042mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-640",
+  "name": "臭（嗅和味）测定原始记录（废水）",
+  "analyte": "臭",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "640-嗅和味原始记录废水",
+  "file": "0357.pdf",
+  "meta": {
+   "basis": "水和废水监测分析方法（第四版） 增补版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-641",
+  "name": "pH · 海水",
+  "analyte": "pH",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "641-海水PH值 原始记录表",
+  "file": "0358.pdf",
+  "meta": {
+   "instrument": "PHS-3C型实验室PH计标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
+   "instrumentNo": "TC-119",
+   "methodFull": "海洋监测规范第4部分：海水分析（26）PH-PH计法标准缓冲溶液II测定值",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-643",
+  "name": "氯化氢 · 环境空气",
+  "analyte": "氯化氢",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "643-环境空气氯化氢",
+  "file": "0359.pdf",
+  "meta": {
+   "instrument": "PIC-10型离子色谱仪",
+   "instrumentNo": "TC-060",
+   "methodFull": "环境空气和废气 氯化氢的测定 离子色谱法",
+   "basis": "HJ549-2016",
+   "detectionLimit": "0.02mg/m³",
+   "analyte": "氯化氢（以氯离子Cl⁻计）",
+   "vdef": "10.0ml"
+  },
+  "retired": true,
+  "retiredReason": "643 氯化氢：留环境空气(废气)含排放速率完整版(0360)，本版停用（2026-07-28 林工程师确认）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-643",
+  "name": "氯化氢",
+  "analyte": "氯化氢",
+  "matrix": "",
+  "method": "离子色谱",
+  "sheetType": "原始记录",
+  "raw": "643-离子色谱 氯化氢doc",
+  "file": "0360.pdf",
+  "meta": {
+   "instrument": "PIC-10型离子色谱仪",
+   "instrumentNo": "TC-060",
+   "methodFull": "环境空气和废气 氯化氢的测定 离子色谱法",
+   "basis": "HJ549-2016",
+   "detectionLimit": "0.02mg/m³",
+   "formula": "ρ(氯化氢，mg/m³)=(ρ1+ρ2−2ρ0)×Vt/Vn(d)×(36.45/35.45)×DF",
+   "corrThreshold": "≥0.999",
+   "absorbent": "环境空气/无组织排放：水（新制备去离子水或蒸馏水）；固定污染源废气：c(NaOH)=30mmol/L或c(KOH)=30mmol/L碱性吸收液",
+   "analyte": "氯化氢（以氯离子Cl⁻计）",
+   "vdef": "10.0ml"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-644",
+  "name": "锰 · 废水",
+  "analyte": "锰",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "644-原子吸收分光光度法原始记录表--污水锰",
+  "file": "0361.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "城镇污水水质标准",
+   "wavelength": "279.5nm",
+   "basis": "CJ/T51-2018",
+   "slit": "0.4nm",
+   "detectionLimit": "0.03mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-645",
+  "name": "铁 · 废水",
+  "analyte": "铁",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "645-原子吸收分光光度法原始记录表--污水铁",
+  "file": "0362.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "城镇污水水质标准",
+   "wavelength": "248.3nm",
+   "basis": "CJ/T51-2018",
+   "slit": "0.4nm",
+   "detectionLimit": "0.3mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-646",
+  "name": "铝 · 地下水",
+  "analyte": "铝",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "646铝-校准曲线原始记录 地表水、地下水",
+  "file": "0363.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2006"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-647",
+  "name": "铝",
+  "analyte": "铝",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "647铝分光光度法原始记录表",
+  "file": "0364.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：20mm",
+   "instrumentNo": "TC-005 1*)a(bVVA−",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "620nm参比溶液：空白b=",
+   "basis": "GB/T5750.6-2006",
+   "detectionLimit": "0.008mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-648",
+  "name": "色度",
+  "analyte": "色度",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "648-色度原始记录-本地-20190624142414",
+  "file": "0365.pdf",
+  "meta": {
+   "basis": "GB/T5750.4-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-649",
+  "name": "粪大肠菌群",
+  "analyte": "粪大肠菌群",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "649-微生物检验原始记录粪大肠菌群（052-5）",
+  "file": "0366.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-650",
+  "name": "臭（嗅和味）测定原始记录（废水）",
+  "analyte": "臭",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "650-嗅和味原始记录废水",
+  "file": "0367.pdf",
+  "meta": {
+   "basis": "水和废水监测分析方法（第四版） 增补版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-651",
+  "name": "钠",
+  "analyte": "钠",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "651---硫代硫酸钠标定记录",
+  "file": "0368.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-652",
+  "name": "钠",
+  "analyte": "钠",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "652--硫代硫酸钠标准溶液标定记录",
+  "file": "0369.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-653",
+  "name": "烟尘、烟气及废气采样原始记录",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "653-烟气监测原始记录表 - 比对",
+  "file": "0370.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-654",
+  "name": "氯化氢",
+  "analyte": "氯化氢",
+  "matrix": "",
+  "method": "容量滴定",
+  "sheetType": "原始记录",
+  "raw": "654-50ml-氯化氢--容量法原始记录表",
+  "file": "0371.pdf",
+  "meta": {
+   "methodFull": "固定污染源废气 氯化氢的测定 硝酸银容量法",
+   "basis": "HJ548-2016",
+   "detectionLimit": "2mg/m³",
+   "quantitationLimit": "8.0mg/m³",
+   "formula": "ρ(HCl)=(V1+V2-2V0)×c2×36.46×1000/Vnd",
+   "analyte": "氯化氢",
+   "measureLowerLimit": "8.0mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-658",
+  "name": "硫化物 · 海水",
+  "analyte": "硫化物",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "658-海水硫化物--分光光度法原始记录表",
+  "file": "0372.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计光程：1cm",
+   "instrumentNo": "TC-005参比溶液：纯水v2:吸收液定容体积",
+   "methodFull": "海水监测规范第4部分：海水分析（18.1）亚甲基蓝分光光度法测定",
+   "wavelength": "650nmb=",
+   "basis": "GB17378.4-2007",
+   "detectionLimit": "0.2ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-659",
+  "name": "硫化物 · 海水",
+  "analyte": "硫化物",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "659-海水硫化物--校准曲线绘制及回归方程原始记录表",
+  "file": "0373.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "海水监测规范第4部分：海水分析（18.1）亚甲基蓝分光光度法",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-660",
+  "name": "溶液配制记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "660溶液配制记录",
+  "file": "0374.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-700",
+  "name": "镉 · 环境空气",
+  "analyte": "镉",
+  "matrix": "环境空气",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "700-环境空气原子吸收分光光度法原始记录表--镉及化合物",
+  "file": "0375.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "methodFull": "大气固定污染源镉的测定火焰原子吸收分光光度法",
+   "wavelength": "228.8nm",
+   "basis": "HJ/T64.1-2001",
+   "slit": "0.4nm",
+   "detectionLimit": "3×10⁻⁸mg/m³"
+  },
+  "retired": true,
+  "retiredReason": "本所已停用该方法（2026-07-16 技术负责人确认不再开展此项目）",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-701",
+  "name": "钠 · 地表水",
+  "analyte": "钠",
+  "matrix": "地表水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "701原子吸收分光光度法原始记录表-地表水钠330.2nm",
+  "file": "0376.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质钾和钠的测定火焰原子吸收分光光度法",
+   "wavelength": "330.2nm",
+   "basis": "GB/T11904-1989",
+   "slit": "0.2nm",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-702",
+  "name": "钾 · 地表水",
+  "analyte": "钾",
+  "matrix": "地表水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "702原子吸收分光光度法原始记录表-地表水钾404.4nm",
+  "file": "0377.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质钾和钠的测定火焰原子吸收分光光度法",
+   "wavelength": "404.4nm",
+   "basis": "GB/T11904-1989",
+   "slit": "0.2nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-703",
+  "name": "铅 · 废水",
+  "analyte": "铅",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "703原子吸收分光光度法原始记录表--污水铅.doc（螯合法）",
+  "file": "0378.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法第二部分螯合萃取法",
+   "wavelength": "283.3nm",
+   "basis": "GB/T7475-1987",
+   "slit": "0.4nm",
+   "detectionLimit": "0.01mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-704",
+  "name": "镉 · 废水",
+  "analyte": "镉",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "前处理",
+  "raw": "704原子吸收分光光度法原始记录表--污水镉.doc（螯合萃取法）",
+  "file": "0379.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质铜、锌、铅、镉的测定原子吸收分光光度法第二部分螯合萃取法",
+   "wavelength": "228.8nm",
+   "basis": "GB/T7475-1987",
+   "slit": "0.4nm",
+   "detectionLimit": "0.001mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-708",
+  "name": "颗粒物 · 废气",
+  "analyte": "颗粒物",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "708-废气无组织采样单-----------------------------------------一天1次 -带颗粒物",
+  "file": "0380.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-709",
+  "name": "颗粒物 · 废气",
+  "analyte": "颗粒物",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "709-烟尘（颗粒物）烟气监测原始记录表",
+  "file": "0381.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-711",
+  "name": "余氯",
+  "analyte": "余氯",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "711-校准曲线原始记录余氯.doc",
+  "file": "0382.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 游离氯和总氯的测定 N,N-二乙基-1,4-苯二胺分光光度法",
+   "basis": "HJ586-2010",
+   "wavelength": "515nm",
+   "detectionLimit": "0.03mg/L（10mm比色皿，高浓度曲线）/0.004mg/L（50mm比色皿，低浓度曲线）"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-712",
+  "name": "余氯",
+  "analyte": "余氯",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "712-分光光度法原始记录表--总余氯",
+  "file": "0383.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计 光程：50mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 游离氯和总氯的测定 N,N-二乙基-1,4-苯二胺分光光度法",
+   "basis": "HJ586-2010",
+   "detectionLimit": "0.004mg/L",
+   "wavelength": "515nm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-715",
+  "name": "海水浴场采样记录",
+  "analyte": "",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "715海水浴场采样记录",
+  "file": "0384.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-719",
+  "name": "粪大肠菌群",
+  "analyte": "粪大肠菌群",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "719-- 粪大肠菌群测试原始记录-多管发酵法",
+  "file": "0385.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-720",
+  "name": "菌落总数",
+  "analyte": "菌落总数",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "720- 水质细菌菌落总数测试原始记录",
+  "file": "0386.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-721",
+  "name": "大肠菌群",
+  "analyte": "大肠菌群",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "721-水质总大肠菌群测试原始记录-多管发酵法",
+  "file": "0387.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-722",
+  "name": "粪大肠菌群 · 海水",
+  "analyte": "粪大肠菌群",
+  "matrix": "海水",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "722-- 粪大肠菌群测试原始记录-多管发酵法 - 海水",
+  "file": "0388.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-723",
+  "name": "粪大肠菌群",
+  "analyte": "粪大肠菌群",
+  "matrix": "",
+  "method": "微生物",
+  "sheetType": "原始记录",
+  "raw": "723--总大肠菌群、粪大肠菌群测试原始记录-纸片快速法",
+  "file": "0389.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-724",
+  "name": "地下水采样洗井记录表",
+  "analyte": "",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "724--地下水采样洗井记录表（2024.7.31修订）",
+  "file": "0390.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-725",
+  "name": "铜 · 废水",
+  "analyte": "铜",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "725-无火焰原子吸收分光光度法原始记录表-地下水地表水废水铜-",
+  "file": "0391.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 铜、铅、镉、镍、铬的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "324.7nm",
+   "basis": "HJ1453-2026",
+   "detectionLimit": "0.9μg/L",
+   "analyte": "铜",
+   "slit": "0.4nm",
+   "lampCurrent": "2.0mA"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-726",
+  "name": "铅 · 废水",
+  "analyte": "铅",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "726-无火焰原子吸收分光光度法原始记录表-地下水地表水废水铅-",
+  "file": "0392.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 铜、铅、镉、镍、铬的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "283.3nm",
+   "basis": "HJ1453-2026",
+   "detectionLimit": "0.7μg/L",
+   "analyte": "铅",
+   "slit": "0.8nm",
+   "lampCurrent": "4.0mA"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-727",
+  "name": "镉 · 废水",
+  "analyte": "镉",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "727-无火焰原子吸收分光光度法原始记录表-地下水地表水废水镉-",
+  "file": "0393.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 铜、铅、镉、镍、铬的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "228.8nm",
+   "basis": "HJ1453-2026",
+   "detectionLimit": "0.09μg/L",
+   "analyte": "镉",
+   "slit": "0.2nm",
+   "lampCurrent": "2.0mA"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-728",
+  "name": "镍 · 废水",
+  "analyte": "镍",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "728-无火焰原子吸收分光光度法原始记录表-地下水地表水废水镍-",
+  "file": "0394.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 铜、铅、镉、镍、铬的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "232.0nm",
+   "basis": "HJ1453-2026",
+   "detectionLimit": "1μg/L",
+   "analyte": "镍",
+   "slit": "0.2nm",
+   "lampCurrent": ""
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-729",
+  "name": "铬 · 废水",
+  "analyte": "铬",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "729-无火焰原子吸收分光光度法原始记录表-地下水地表水废水铬-",
+  "file": "0395.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 铜、铅、镉、镍、铬的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "357.9nm",
+   "basis": "HJ1453-2026",
+   "detectionLimit": "0.6μg/L",
+   "analyte": "铬",
+   "slit": "0.2nm",
+   "lampCurrent": "25mA"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-730",
+  "name": "银 · 废水",
+  "analyte": "银",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "730-无火焰原子吸收分光光度法原始记录表-地下水地表水废水银- -",
+  "file": "0396.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水质 银的测定 石墨炉原子吸收分光光度法",
+   "wavelength": "328.1nm",
+   "basis": "HJ1451-2026",
+   "detectionLimit": "0.4µg/L",
+   "quantitationLimit": "1.6ug/L",
+   "formula": "ρ=ρ1×D",
+   "resultPrecision": "测定结果<100μg/L时保留小数点后1位，≥100μg/L时保留3位有效数字",
+   "analyte": "银",
+   "slit": "0.5nm",
+   "lampCurrent": "6.0mA"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-731",
+  "name": "铬",
+  "analyte": "铬",
+  "matrix": "",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "731-原子吸收分光光度法原始记录表--铬",
+  "file": "0397.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质 铬的测定 火焰原子吸收分光光度法",
+   "wavelength": "357.9nm",
+   "basis": "HJ757-2015",
+   "slit": "0.2nm",
+   "detectionLimit": "0.03mg/L",
+   "quantitationLimit": "0.12mg/L",
+   "formula": "ρ=(ρ1-ρ0)×V1×f/V",
+   "resultPrecision": "测定结果小于1mg/L时保留小数点后两位，测定结果大于等于1mg/L时保留三位有效数字",
+   "analyte": "铬"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-732",
+  "name": "银 · 废水",
+  "analyte": "银",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "732-原子吸收分光光度法原始记录表--污水银",
+  "file": "0398.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "水质银的测定火焰原子吸收分光光度法",
+   "wavelength": "328.1nm",
+   "basis": "HJ1443-2026",
+   "slit": "0.4nm",
+   "detectionLimit": "0.02mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-053",
+  "name": "硝酸盐氮 · 地下水",
+  "analyte": "硝酸盐氮",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "053-1-硝酸盐氮地下水-校准曲线绘制及回归方程空白原始记录表 (2)",
+  "file": "0399.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.5-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-098",
+  "name": "总氮",
+  "analyte": "总氮",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "098-1-总氮校准曲线绘制及回归方程空白原始记录表 (2)",
+  "file": "0400.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质总氮的测定碱性过硫酸钾消解紫外分光光度法",
+   "basis": "HJ636-2012",
+   "standardSolutionConc": "10µg/ml",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-117",
+  "name": "氨校准曲线原始记录",
+  "analyte": "氨",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "117-氨--校准曲线--绘制及回归方程原始记录表 - 副本",
+  "file": "0401.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气和废气氨的测定纳氏试剂分光光度法",
+   "basis": "HJ533-2009",
+   "standardUseConc": "20µg/ml",
+   "wavelength": "420nm",
+   "cuvette": "10mm",
+   "detectionLimit": "0.5μg/10mL吸收液"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-136",
+  "name": "水和废水采样原始记录",
+  "analyte": "",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "136-废水（污水）采样原始记录表2.21更改",
+  "file": "0403.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-146",
+  "name": "地下水采样记录",
+  "analyte": "",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "146-水质采样原始记录-地下水2",
+  "file": "0402.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-182",
+  "name": "酚类",
+  "analyte": "酚类",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "182-大气酚类-分光光度计原始记录 - 副本",
+  "file": "0404.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中酚类化合物的测定4-氨基安替比林分光光度法",
+   "wavelength": "510nm",
+   "basis": "HJ/T32-1999",
+   "detectionLimit": "0.3mg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-183",
+  "name": "酚类",
+  "analyte": "酚类",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "183-酚类大气--标准曲线绘制及回归方程原始记录表 - 副本",
+  "file": "0405.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中酚类化合物的4-氨基安替比林分光光度法",
+   "basis": "HJ/T32-1999",
+   "wavelength": "510nm",
+   "vdef": "10",
+   "detectionLimit": "0.3mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-189",
+  "name": "气和废气样品交接记录",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "189气和废气样品交接记录",
+  "file": "0406.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-192",
+  "name": "滤筒称量记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "192滤筒称量记录表",
+  "file": "0407.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-193",
+  "name": "氰化物",
+  "analyte": "氰化物",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "193-氰化物大气--校准曲线绘制及回归方程原始记录表 - 副本",
+  "file": "0408.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中氰化氢的测定异烟酸-吡唑啉酮分光光度法",
+   "basis": "HJ/T28-1999",
+   "wavelength": "638nm",
+   "vdef": "25",
+   "detectionLimit": "0.09mg/m³(有组织5L)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-198",
+  "name": "六价铬 · 地下水",
+  "analyte": "六价铬",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "198-1-六价铬-校准曲线原始记录 地下水 (2)",
+  "file": "0409.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.6-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-201",
+  "name": "土壤采样记录",
+  "analyte": "",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "201土壤采样记录",
+  "file": "0410.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-214",
+  "name": "铬",
+  "analyte": "铬",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "214-铬酸雾-分光光度计原始记录 - 副本",
+  "file": "0411.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中铬酸雾的测定二苯基碳酰二肼分光光度法",
+   "wavelength": "540nm",
+   "basis": "HJ/T29-1999",
+   "lightPath": "10mm",
+   "detectionLimit": "5×10⁻³mg/m³"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-215",
+  "name": "铬",
+  "analyte": "铬",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "215-铬酸雾--标准曲线绘制及回归方程原始记录表 - 副本",
+  "file": "0412.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "固定污染源排气中铬酸雾的测定二苯基碳酰二肼分光光度法",
+   "basis": "HJ/T29-1999",
+   "wavelength": "540nm",
+   "vdef": "25",
+   "detectionLimit": "5×10⁻³mg/m³(有组织30L)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-231",
+  "name": "地下水样品交接记录",
+  "analyte": "",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "231-水质交接记录-地下水-新版",
+  "file": "0413.pdf",
+  "stage": "样品交接"
+ },
+ {
+  "code": "HJ-TC-258",
+  "name": "阴离子 · 海水",
+  "analyte": "阴离子",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "258-分光光度法原始记录表--海水阴离子 - 副本",
+  "file": "0414.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度法光程：20mm",
+   "instrumentNo": "TC-005",
+   "methodFull": "GB17378.4-2007",
+   "wavelength": "650nm参比溶液：氯仿b=",
+   "basis": "水质阴离子洗涤剂的测定亚甲基蓝分光光度法测定",
+   "detectionLimit": "10.0ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-259",
+  "name": "阴离子 · 海水",
+  "analyte": "阴离子",
+  "matrix": "海水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "259-校准曲线绘制及回归方程原始记录表--海水阴离子 - 副本",
+  "file": "0415.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质阴离子洗涤剂的测定亚甲基蓝分光光度法标准使用溶液浓度：10ug/ml",
+   "basis": "GB17378.4-2007"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-353",
+  "name": "硫化氢",
+  "analyte": "硫化氢",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "353-污染源监测分光光度法原始记录表--硫化氢 - 副本",
+  "file": "0416.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气和废气监测分析方法第五篇第四章十（三）硫化氢亚甲基蓝分光光度法",
+   "wavelength": "665nm光程：20mm",
+   "basis": "国家环保总局（2003）版第四版",
+   "detectionLimit": "0.01mg/m3"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-354",
+  "name": "硫化氢校准曲线",
+  "analyte": "硫化氢",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "354-校准曲线绘制及回归方程原始记录表-H2S - 副本",
+  "file": "0417.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气和废气监测分析方法第五篇第四章十（三）硫化氢亚甲基蓝分光光度法",
+   "basis": "国家环保总局（2003）版第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-372",
+  "name": "非离子氨（海水）",
+  "analyte": "非离子氨",
+  "matrix": "海水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "372-海水中非离子氨--分光光度法原始记录表 - 副本",
+  "file": "0418.pdf",
+  "meta": {
+   "methodFull": "海水水质标准附录B非离子氨换算方法",
+   "basis": "GB3097-1997"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-377",
+  "name": "氰化物 · 环境空气",
+  "analyte": "氰化物",
+  "matrix": "环境空气",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "377-氰化物空气废气--校准曲线绘制及回归方程原始记录表 - 副本",
+  "file": "0419.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "空气和废气监测分析方法第三篇第一章九异烟酸-吡唑啉酮分光光度法",
+   "basis": "国家环保局（2003）第四版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-378",
+  "name": "仪器流量核查记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "378---流量核查记录表",
+  "file": "0420.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-397",
+  "name": "铅 · 地下水",
+  "analyte": "铅",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "397-无火焰原子吸收分光光度法原始记录表-地下水铅- 副本",
+  "file": "0421.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "283.3nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.4nm",
+   "detectionLimit": "2.5ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-398",
+  "name": "镉 · 地下水",
+  "analyte": "镉",
+  "matrix": "地下水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "398-无火焰原子吸收分光光度法原始记录表-地下水镉 - 副本",
+  "file": "0422.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "生活饮用水标准",
+   "wavelength": "228.8nm",
+   "basis": "GB/T5750.6-2023",
+   "slit": "0.4nm",
+   "detectionLimit": "0.5ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-405",
+  "name": "二氧化氯 · 地下水",
+  "analyte": "二氧化氯",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "405二氧化氯的测定 地下水",
+  "file": "0423.pdf",
+  "meta": {
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.11-2023",
+   "detectionLimit": "0.02mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-406",
+  "name": "二氧化氯 · 废水",
+  "analyte": "二氧化氯",
+  "matrix": "废水",
+  "method": "容量滴定",
+  "sheetType": "原始记录",
+  "raw": "406二氧化氯的测定 废水",
+  "file": "0424.pdf",
+  "meta": {
+   "methodFull": "水质 二氧化氯和亚氯酸盐的测定 连续滴定碘量法",
+   "basis": "HJ551-2016",
+   "detectionLimit": "0.09mg/L",
+   "quantitationLimit": "0.36mg/L",
+   "resultPrecision": "测定结果≥1mg/L时保留三位有效数字；<1mg/L时保留小数点后两位",
+   "analyte": "二氧化氯"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-416",
+  "name": "臭氧",
+  "analyte": "臭氧",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "416-臭氧--校准曲线--绘制及回归方程原始记录表 - 副本",
+  "file": "0425.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "环境空气臭氧的测定靛蓝二磺酸钠分光光度法",
+   "basis": "HJ504-2009",
+   "wavelength": "610nm",
+   "vdef": "10",
+   "detectionLimit": "0.010mg/m³（采样体积30L）"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-428",
+  "name": "硫化物 · 地下水",
+  "analyte": "硫化物",
+  "matrix": "地下水",
+  "method": "容量滴定",
+  "sheetType": "原始记录",
+  "raw": "428-地下水容量测量原始记录表-硫化物 - 副本",
+  "file": "0426.pdf",
+  "meta": {
+   "methodFull": "地下水硫化物的测定碘量法",
+   "basis": "GB/T5750.5-2006",
+   "detectionLimit": "1㎎/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-451",
+  "name": "苯胺类 · 地下水",
+  "analyte": "苯胺类",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "451校准曲线绘制及回归方程原始记录表-地下水苯胺类 (1)",
+  "file": "0427.pdf",
+  "meta": {
+   "instrument": "UV-1801型紫外分光光度计标准使用溶液浓度：10.0ug/ml配置溶液体积：25ml",
+   "instrumentNo": "TC-005",
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.8-2023"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-456",
+  "name": "六价铬",
+  "analyte": "六价铬",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "456气六价铬-分光光度计原始记录 - 副本",
+  "file": "0428.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005VnSa",
+   "methodFull": "二苯基碳酰二肼分光光度法参比溶液:蒸馏水b=",
+   "wavelength": "540nm光程:30mm",
+   "basis": "空气和废气监测分析方法第三篇第二章八铬（六价）二",
+   "detectionLimit": "0.3ug/25ml"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-460",
+  "name": "铜 · 废水",
+  "analyte": "铜",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "460-原子吸收分光光度法原始记录表--污水铜 - 副本",
+  "file": "0429.pdf",
+  "meta": {
+   "instrument": "WFX-130B原子吸收分光光度计",
+   "instrumentNo": "TC-004",
+   "methodFull": "城镇污水水质标准",
+   "wavelength": "324.7nm",
+   "basis": "CJ/T51-2018",
+   "slit": "0.4nm",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-476",
+  "name": "噪声 · 噪声",
+  "analyte": "噪声",
+  "matrix": "噪声",
+  "method": "声级",
+  "sheetType": "原始记录",
+  "raw": "476-交通噪声测量原始记录表----------使用这个 (1)",
+  "file": "0430.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-567",
+  "name": "硝酸盐氮 · 废水",
+  "analyte": "硝酸盐氮",
+  "matrix": "废水",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "567-城镇污水硝酸盐氮分光光度法原始记录-副本",
+  "file": "0431.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005光程：10mm参比溶液纯水+1.0ml盐酸",
+   "methodFull": "城镇污水水质标准",
+   "wavelength": "220nm和275nm",
+   "basis": "CJ/T51-2018"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-568",
+  "name": "硝酸盐氮 · 废水",
+  "analyte": "硝酸盐氮",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "568-硝酸盐氮城镇污水-校准曲线绘制及回归方程 - 副本",
+  "file": "0432.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计标准使用溶液浓度：100ug/mL",
+   "instrumentNo": "TC-005",
+   "methodFull": "城镇污水水质标准",
+   "basis": "CJ/T51-2018"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-585",
+  "name": "功能区声环境24小时监测记录",
+  "analyte": "",
+  "matrix": "噪声",
+  "method": "声级",
+  "sheetType": "原始记录",
+  "raw": "585-功能区声环境 24 小时监测记录表----------使用这个 (2)",
+  "file": "0433.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-591",
+  "name": "地表水采样记录",
+  "analyte": "",
+  "matrix": "地表水",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "591地表水-采样记录 (1)",
+  "file": "0434.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-597",
+  "name": "土壤样品交接记录",
+  "analyte": "",
+  "matrix": "土壤",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "597-土壤样品交接记录",
+  "file": "0435.pdf",
+  "stage": "样品交接"
+ },
+ {
+  "code": "HJ-TC-600",
+  "name": "固体废物样品交接记录",
+  "analyte": "",
+  "matrix": "固废",
+  "method": "",
+  "sheetType": "样品交接",
+  "raw": "600-固废交接记录",
+  "file": "0436.pdf",
+  "stage": "样品交接"
+ },
+ {
+  "code": "HJ-TC-628",
+  "name": "铅 · 废水",
+  "analyte": "铅",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "628-无火焰原子吸收分光光度法原始记录表-废水铅- 副本",
+  "file": "0437.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水和废水监测分析方法第三篇第四章十六（五）石墨炉原子吸收法（B）",
+   "wavelength": "283.3nm",
+   "basis": "国家环保总局（2002）第四版",
+   "detectionLimit": "1ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-629",
+  "name": "镉 · 废水",
+  "analyte": "镉",
+  "matrix": "废水",
+  "method": "原子吸收",
+  "sheetType": "原始记录",
+  "raw": "629-无火焰原子吸收分光光度法原始记录表-废水镉- 副本",
+  "file": "0438.pdf",
+  "meta": {
+   "instrument": "TAS-990AFG型原子吸收分光光度计",
+   "instrumentNo": "TC-059",
+   "methodFull": "水和废水监测分析方法第三篇第四章七（四）石墨炉原子吸收法测定镉、铜和铅（B）",
+   "wavelength": "228.8nm",
+   "basis": "国家环保总局（2002）第四版",
+   "detectionLimit": "0.1ug/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-633",
+  "name": "滤筒称量记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "633滤筒称量记录表",
+  "file": "0439.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-634",
+  "name": "滤膜称量记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "634滤膜称量记录表",
+  "file": "0440.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-635",
+  "name": "滤筒称量记录",
+  "analyte": "",
+  "matrix": "",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "635滤筒称量记录表",
+  "file": "0441.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-637",
+  "name": "浊度 · 废水",
+  "analyte": "浊度",
+  "matrix": "废水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "637-浊度原始记录-废水 - 副本",
+  "file": "0442.pdf",
+  "meta": {
+   "instrument": "TN100便携式浊度计",
+   "instrumentNo": "Tc-130",
+   "basis": "水和废水监测分析方法（第四版）增补版"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-638",
+  "name": "溶解氧",
+  "analyte": "溶解氧",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "638-溶解氧仪测量原始记录表-溶解氧(1)",
+  "file": "0443.pdf",
+  "meta": {
+   "instrument": "便携式溶解氧仪",
+   "instrumentNo": "TC-057",
+   "methodFull": "水质溶解氧的测定电化学探头法",
+   "basis": "HJ506-2009"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-642",
+  "name": "颗粒物 · 废气",
+  "analyte": "颗粒物",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "642-烟尘（颗粒物）烟气监测原始记录表 - 副本",
+  "file": "0444.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-655",
+  "name": "颗粒物 · 废气",
+  "analyte": "颗粒物",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "655-烟尘（颗粒物）烟气监测原始记录表 - 副本",
+  "file": "0445.pdf",
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-657",
+  "name": "阴离子",
+  "analyte": "阴离子",
+  "matrix": "",
+  "method": "离子色谱",
+  "sheetType": "原始记录",
+  "raw": "657水质无机阴离子的测定doc",
+  "file": "0446.pdf",
+  "meta": {
+   "instrument": "PIC-10型离子色谱仪",
+   "instrumentNo": "TC-060",
+   "methodFull": "水质无机阴离子的测定离子色谱法",
+   "basis": "HJ84-2016",
+   "detectionLimit": "0.018mg/L",
+   "analyte": "硫酸盐"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-705",
+  "name": "高锰酸盐指数 · 地下水",
+  "analyte": "高锰酸盐指数",
+  "matrix": "地下水",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "705-高锰酸盐指数地下水生活饮用水（碱性）--测量原始记录表(1)",
+  "file": "0447.pdf",
+  "meta": {
+   "methodFull": "生活饮用水标准",
+   "basis": "GB/T5750.7-2023",
+   "detectionLimit": "0.05mg/L"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-706",
+  "name": "干物质 · 土壤",
+  "analyte": "干物质",
+  "matrix": "土壤",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "706-土壤  干物质和水分的测定 重量法",
+  "file": "0448.pdf",
+  "meta": {
+   "instrument": "ME204/02E电子天平DHG-9070A电热鼓风干燥箱",
+   "instrumentNo": "TC-006TC- 010",
+   "methodFull": "土壤干物质和水分的测定重量法"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-707",
+  "name": "颗粒物 · 废气",
+  "analyte": "颗粒物",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "707-烟尘（颗粒物）烟气监测原始记录表 - 副本 - 副本",
+  "file": "0449.pdf",
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-713",
+  "name": "余氯",
+  "analyte": "余氯",
+  "matrix": "",
+  "method": "",
+  "sheetType": "校准曲线",
+  "raw": "713-校准曲线原始记录余氯 - 副本",
+  "file": "0450.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外可见分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质游离氯和总氯的测定N,N-二乙基-1,4-苯二胺分光光度法",
+   "basis": "HJ586-2010",
+   "wavelength": "515nm",
+   "detectionLimit": "0.03mg/L(以Cl₂计)"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-714",
+  "name": "余氯",
+  "analyte": "余氯",
+  "matrix": "",
+  "method": "分光光度",
+  "sheetType": "原始记录",
+  "raw": "714-分光光度法原始记录表--总余氯 - 副本",
+  "file": "0451.pdf",
+  "meta": {
+   "instrument": "UV-1801紫外分光光度计",
+   "instrumentNo": "TC-005",
+   "methodFull": "水质 游离氯和总氯的测定 N,N-二乙基-1,4-苯二胺分光光度法",
+   "basis": "HJ586-2010",
+   "detectionLimit": "0.004mg/L",
+   "wavelength": "515nm"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-716",
+  "name": "溶解氧",
+  "analyte": "溶解氧",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "716-便携式溶解氧测定原始记录",
+  "file": "0452.pdf",
+  "meta": {
+   "instrumentNo": "TC-212 采样依据方法： 样品编号： 备注 采样人"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-717",
+  "name": "电导率",
+  "analyte": "电导率",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "717-电导率检测原始记录",
+  "file": "0453.pdf",
+  "meta": {
+   "instrumentNo": "样品测定 样品编号 采样人"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-718",
+  "name": "透明度检测记录",
+  "analyte": "透明度",
+  "matrix": "",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "718-透明度检测原始记录",
+  "file": "0454.pdf",
+  "meta": {
+   "instrument": "透明度盘",
+   "instrumentNo": "TC-276 样品测定 样品编号 采样人"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-471",
+  "name": "热灼减率 · 固废",
+  "analyte": "热灼减率",
+  "matrix": "固废",
+  "method": "重量法",
+  "sheetType": "原始记录",
+  "raw": "471-热灼减率重量法",
+  "file": "0455.pdf",
+  "meta": {
+   "instrumentNo": "TC-006/TC-009/TC-010",
+   "methodFull": "固体废物热灼减率的测定重量法",
+   "basis": "HJ1024-2019",
+   "detectionLimit": "0.2%",
+   "vdef": "取样量，g（称取试样应不少于20g，干燥恒重）",
+   "resultPrecision": "计算结果最多保留3位有效数字；结果小于1%时，保留至小数点后1位",
+   "instrument": "马弗炉/电子天平/电热鼓风干燥箱",
+   "analyte": "热灼减率",
+   "dryTemp": "110℃±5℃",
+   "igniteTemp": "600℃±25℃",
+   "igniteTime": "3h",
+   "constantWeight": "连续两次称量之差≤0.02g",
+   "roundingRule": "最多3位有效数字；<1%保留小数点后1位"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-133",
+  "name": "油烟分析原始记录",
+  "analyte": "油烟",
+  "matrix": "废气",
+  "method": "红外分光光度法",
+  "sheetType": "原始记录",
+  "raw": "133-饮食业油烟分析原始记录表(红外分光光度法)",
+  "file": "0456.pdf",
+  "meta": {
+   "methodFull": "饮食业油烟红外分光光度法",
+   "basis": "GB18483-2001",
+   "instrument": "JKY-3A红外测油仪"
+  },
+  "stage": "样品制备分析"
+ },
+ {
+  "code": "HJ-TC-141",
+  "name": "燃烧设备现场信息调查表",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "141-燃烧设备现场信息调查表",
+  "file": "0457.pdf",
+  "meta": {},
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-147",
+  "name": "无组织排放气象参数记录表",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "147-无组织排放监测气象参数原始记录(云量/风速/风向/气压/温度)",
+  "file": "0458.pdf",
+  "meta": {},
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-461",
+  "name": "烟气CEMS比对/验收监测记录",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "461-烟气连续在线监测系统(CEMS)比对／验收监测原始记录(另有颗粒物版)",
+  "file": "0459.pdf",
+  "meta": {
+   "basis": "HJ/T 397、GB/T 16157"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-561",
+  "name": "烟气CEMS比对监测记录·其他项目",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "原始记录",
+  "raw": "561-烟气CEMS比对监测原始记录·其他项目(流速/水分/温度/含氧量/压力)",
+  "file": "0460.pdf",
+  "meta": {
+   "basis": "HJ/T 397、GB/T 16157"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-564",
+  "name": "区域声环境监测记录表",
+  "analyte": "噪声",
+  "matrix": "噪声",
+  "method": "声级",
+  "sheetType": "原始记录",
+  "raw": "564-区域声环境(网格法)监测原始记录表",
+  "file": "0461.pdf",
+  "meta": {
+   "methodFull": "声环境质量标准 城市区域环境噪声",
+   "basis": "HJ 640-2012"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-605",
+  "name": "加油站基本情况调查表",
+  "analyte": "",
+  "matrix": "油气回收",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "605-油气回收 加油站基本情况调查表",
+  "file": "0462.pdf",
+  "meta": {},
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-609",
+  "name": "加油站油气回收现场信息调查表",
+  "analyte": "",
+  "matrix": "油气回收",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "609-加油站油气回收现场信息调查表",
+  "file": "0463.pdf",
+  "meta": {},
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-632",
+  "name": "燃烧设备现场信息调查表·环保局报送版",
+  "analyte": "",
+  "matrix": "废气",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "632-燃烧设备现场信息调查表(环保局报送版,与141同版式)",
+  "file": "0464.pdf",
+  "meta": {
+   "note": "与HJ-TC-141同版式,环保局报送用;如重复可停用其一"
+  },
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-710",
+  "name": "污泥/底泥采样记录表",
+  "analyte": "",
+  "matrix": "污泥",
+  "method": "",
+  "sheetType": "采样记录",
+  "raw": "710-污泥/底泥采样记录表",
+  "file": "0465.pdf",
+  "meta": {},
+  "stage": "采样记录"
+ },
+ {
+  "code": "HJ-TC-733",
+  "name": "铁路边界噪声检测原始记录",
+  "analyte": "噪声",
+  "matrix": "噪声",
+  "method": "声级",
+  "sheetType": "原始记录",
+  "raw": "733-铁路边界噪声检测原始记录(原件误标709,709已占用故另编733)",
+  "file": "0466.pdf",
+  "meta": {
+   "methodFull": "铁路边界噪声限值及测量方法",
+   "basis": "GB 12525-1990"
+  },
+  "stage": "采样记录"
+ }
+]

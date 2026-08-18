@@ -1,0 +1,5962 @@
+{
+ "HJ77.12025": {
+  "code": "HJ77.1—2025",
+  "name": "水质 二噁英类的测定 同位素稀释/高分辨气相色谱-高分辨质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202601/t20260108_1140227.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14252025": {
+  "code": "HJ1425—2025",
+  "name": "土壤和沉积物 11种元素的测定 能量色散X射线荧光光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202601/t20260108_1140225.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14282025": {
+  "code": "HJ1428—2025",
+  "name": "固体废物 甲基汞和乙基汞的测定 液相色谱-原子荧光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202601/t20260108_1140224.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ702025": {
+  "code": "HJ70—2025",
+  "name": "水质 化学需氧量的测定 氯气校正法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202512/t20251226_1139046.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14232025": {
+  "code": "HJ1423—2025",
+  "name": "水质 16种多环芳烃的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202512/t20251226_1139044.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ5442025": {
+  "code": "HJ544—2025",
+  "name": "固定污染源废气 硫酸雾的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202512/t20251226_1139042.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ932026": {
+  "code": "HJ93—2026",
+  "name": "环境空气颗粒物（PM10和PM2.5）采样器技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260228_1145108.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1662026": {
+  "code": "HJ166—2026",
+  "name": "土壤环境监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260228_1145106.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14582026": {
+  "code": "HJ1458—2026",
+  "name": "固定污染源废气 30种挥发性有机物的测定 气袋采样/便携式气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260205_1143722.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14602026": {
+  "code": "HJ1460—2026",
+  "name": "固体废物 氰化物的测定 硝酸银滴定法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260205_1143721.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14572026": {
+  "code": "HJ1457—2026",
+  "name": "固定污染源废气 低浓度颗粒物的测定 便携式β射线法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260205_1143720.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14542026": {
+  "code": "HJ1454—2026",
+  "name": "水质 2,4-二氯酚、2,4,6-三氯酚、五氯酚和双酚A的测定 直接进样/高效液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260205_1143719.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14462026": {
+  "code": "HJ1446—2026",
+  "name": "水质 高锰酸盐指数的测定 草酸钠还原碱性滴定法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260205_1143718.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14452026": {
+  "code": "HJ1445—2026",
+  "name": "水质 高锰酸盐指数的测定 草酸钠还原酸性滴定法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260205_1143717.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14472026": {
+  "code": "HJ1447—2026",
+  "name": "水质 高锰酸盐指数的测定 碘化钾还原碱性滴定法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260205_1143716.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14492026": {
+  "code": "HJ1449—2026",
+  "name": "水质 氨氮的测定 水杨酸-便携式光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143766.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14522026": {
+  "code": "HJ1452—2026",
+  "name": "水质 铝的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143759.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14512026": {
+  "code": "HJ1451—2026",
+  "name": "水质 银的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143758.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14482026": {
+  "code": "HJ1448—2026",
+  "name": "水质 氨氮的测定 纳氏试剂-便携式光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143757.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14502026": {
+  "code": "HJ1450—2026",
+  "name": "水质 六价铬的测定 二苯碳酰二肼-便携式光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143756.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14552026": {
+  "code": "HJ1455—2026",
+  "name": "水质 急性毒性的测定 斑马鱼法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143755.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14562026": {
+  "code": "HJ1456—2026",
+  "name": "水质 急性毒性的测定 大型溞活动抑制法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143753.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14532026": {
+  "code": "HJ1453—2026",
+  "name": "水质 铜、铅、镉、镍、铬的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143752.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14592026": {
+  "code": "HJ1459—2026",
+  "name": "土壤和沉积物 硫化物的测定 碘量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260206_1143751.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14402026": {
+  "code": "HJ1440—2026",
+  "name": "固定污染源废气苯系物气相色谱-氢火焰离子化检测器法自动监测系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260213_1144134.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14422026": {
+  "code": "HJ1442—2026",
+  "name": "固定污染源废气颗粒物（PM10和PM2.5）稀释通道采样技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260213_1144133.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14412026": {
+  "code": "HJ1441—2026",
+  "name": "固定污染源废气二噁英类自动采样系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260213_1144132.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14392026": {
+  "code": "HJ1439—2026",
+  "name": "固定污染源废气气态汞自动监测系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260213_1144131.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14192025": {
+  "code": "HJ1419—2025",
+  "name": "环境空气非甲烷总烃自动监测系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202509/t20250912_1127323.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7322025": {
+  "code": "HJ732—2025",
+  "name": "固定污染源废气 挥发性有机物的采样 气袋法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202509/t20250912_1127322.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14182025": {
+  "code": "HJ1418—2025",
+  "name": "水质 丙烯酰胺的测定 高效液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202509/t20250912_1127321.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ6632026": {
+  "code": "HJ663—2026",
+  "name": "环境空气质量评价技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260225_1144459.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ6332026": {
+  "code": "HJ633—2026",
+  "name": "环境空气质量指数（AQI）技术规定",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202602/t20260225_1144441.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14162025": {
+  "code": "HJ1416—2025",
+  "name": "环境空气和废气 臭气的测定 动态稀释嗅辨法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202507/t20250711_1123259.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ2122025": {
+  "code": "HJ212—2025",
+  "name": "污染物自动监测监控系统数据传输技术要求",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202507/t20250711_1123257.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14042024": {
+  "code": "HJ1404—2024",
+  "name": "地表水自动监测系统通信协议技术要求",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101554.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ915.32024": {
+  "code": "HJ915.3—2024",
+  "name": "地表水水质自动监测站（常规五参数、 CODMn、NH3⁃N、TP、TN）运行维护技术规范 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101553.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ915.22024": {
+  "code": "HJ915.2—2024",
+  "name": "地表水水质自动监测站（常规五参数、 CODMn、NH3⁃N、TP、TN）安装验收技术规范 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101552.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ915.12024": {
+  "code": "HJ915.1—2024",
+  "name": "地表水水质自动监测站选址与基础设施建设技术要求 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101551.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14032024": {
+  "code": "HJ1403—2024",
+  "name": "固定污染源废气一氧化碳和氯化氢自动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101548.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14022024": {
+  "code": "HJ1402—2024",
+  "name": "建筑施工噪声自动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101546.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14012024": {
+  "code": "HJ1401—2024",
+  "name": "水质镍自动监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101545.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ14002024": {
+  "code": "HJ1400—2024",
+  "name": "水质铜自动监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101544.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13992024": {
+  "code": "HJ1399—2024",
+  "name": "水质 17 种氟喹诺酮类抗生素的测定 高效液相色谱⁃三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101543.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13982024": {
+  "code": "HJ1398—2024",
+  "name": "水质 18 种磺胺类抗生素和甲氧苄氨嘧啶的测定 高效液相色谱⁃三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101542.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1972024": {
+  "code": "HJ197—2024",
+  "name": "水质 亚硝酸盐氮的测定 气相分子吸收光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101540.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1982024": {
+  "code": "HJ198—2024",
+  "name": "水质 硝酸盐氮的测定 气相分子吸收光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101538.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13972024": {
+  "code": "HJ1397—2024",
+  "name": "水质 锶的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101537.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13962024": {
+  "code": "HJ1396—2024",
+  "name": "水质 水温的测定 传感器法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101535.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13952024": {
+  "code": "HJ1395—2024",
+  "name": "水质 17 种杂环类农药的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101534.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ512024": {
+  "code": "HJ51—2024",
+  "name": "水质 全盐量的测定 重量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101533.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13942024": {
+  "code": "HJ1394—2024",
+  "name": "环境空气气态污染物（氨、硫化氢） 自动监测系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101532.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13932024": {
+  "code": "HJ1393—2024",
+  "name": "环境空气气态污染物（氨、硫化氢） 自动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101531.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13922024": {
+  "code": "HJ1392—2024",
+  "name": "环境空气和废气 三氟甲烷、四氟 甲烷、六氟乙烷和六氟化硫的测定 气相色谱⁃质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101530.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13912024": {
+  "code": "HJ1391—2024",
+  "name": "固定污染源废气 9 种卤代乙酸类化合物的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101529.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13902024": {
+  "code": "HJ1390—2024",
+  "name": "固定污染源废气 氯甲基甲醚和二氯甲基醚的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101528.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13892024": {
+  "code": "HJ1389—2024",
+  "name": "固定污染源废气 12 种多氯联苯的测定 同位素稀释/高分辨气相色谱⁃高分辨质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101526.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13882024": {
+  "code": "HJ1388—2024",
+  "name": "固定污染源废气 硫化氢的测定 亚甲基蓝分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101525.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13642024": {
+  "code": "HJ1364—2024",
+  "name": "水质 阿维菌素B1a 和阿维菌素B1b 的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202411/t20241121_1095821.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13632024": {
+  "code": "HJ1363—2024",
+  "name": "水质 苯甲醚和甲基叔丁基醚的测定 吹扫捕集/气相色谱⁃质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202411/t20241121_1095819.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13612024": {
+  "code": "HJ1361—2024",
+  "name": "固定污染源废气 硝酸雾的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202411/t20241121_1095818.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13622024": {
+  "code": "HJ1362—2024",
+  "name": "固定污染源废气 磷酸雾的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202411/t20241121_1095816.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13342023": {
+  "code": "HJ1334—2023",
+  "name": "土壤和沉积物 全氟辛基磺酸和全氟辛酸及其盐类的测定 同位素稀释/液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231229_1060275.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13332023": {
+  "code": "HJ1333—2023",
+  "name": "水质 全氟辛基磺酸和全氟辛酸及其盐类的测定 同位素稀释/液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231229_1060273.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13322023": {
+  "code": "HJ1332—2023",
+  "name": "固定污染源废气 总烃、甲烷和非甲烷总烃的测定 便携式气相色谱-氢火焰离子化检测器法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231229_1060272.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13312023": {
+  "code": "HJ1331—2023",
+  "name": "固定污染源废气 总烃、甲烷和非甲烷总烃的测定 便携式催化氧化-氢火焰离子化检测器法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231229_1060271.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13302023": {
+  "code": "HJ1330—2023",
+  "name": "固定污染源废气 氨和氯化氢的测定 便携式傅立叶变换红外光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231229_1060270.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13292023": {
+  "code": "HJ1329—2023",
+  "name": "环境空气颗粒物（PM2.5）中无机元素连续自动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231229_1060269.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13282023": {
+  "code": "HJ1328—2023",
+  "name": "环境空气颗粒物（PM2.5）中水溶性离子连续自动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231229_1060266.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13272023": {
+  "code": "HJ1327—2023",
+  "name": "环境空气颗粒物（PM2.5）中有机碳和元素碳连续自动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231229_1060265.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13202023": {
+  "code": "HJ1320—2023",
+  "name": "生态遥感地面观测与验证技术导则",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058571.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13192023": {
+  "code": "HJ1319—2023",
+  "name": "环境空气监测臭氧传递标准校准技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058569.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13182023": {
+  "code": "HJ1318—2023",
+  "name": "区域环境空气臭氧自动监测质量评估技术要求",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058568.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13172023": {
+  "code": "HJ1317—2023",
+  "name": "环境空气和废气 6种丙烯酸酯类化合物的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058567.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13162023": {
+  "code": "HJ1316—2023",
+  "name": "固定污染源废气 丙烯酸和甲基丙烯酸的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058566.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ2002023": {
+  "code": "HJ200—2023",
+  "name": "水质 硫化物的测定 气相分子吸收光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058565.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1992023": {
+  "code": "HJ199—2023",
+  "name": "水质 总氮的测定 气相分子吸收光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058564.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1952023": {
+  "code": "HJ195—2023",
+  "name": "水质 氨氮的测定 气相分子吸收光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058563.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ13152023": {
+  "code": "HJ1315—2023",
+  "name": "土壤和沉积物 19种金属元素总量的测定 电感耦合等离子体质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202312/t20231208_1058562.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12902023": {
+  "code": "HJ1290—2023",
+  "name": "土壤和沉积物 毒杀芬的测定 气相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202303/t20230314_1019454.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12892023": {
+  "code": "HJ1289—2023",
+  "name": "土壤和沉积物 15种酮类和6种醚类化合物的测定 顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202303/t20230314_1019453.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12882023": {
+  "code": "HJ1288—2023",
+  "name": "水质 丙烯酸的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202303/t20230314_1019451.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12862023": {
+  "code": "HJ1286—2023",
+  "name": "固定污染源废气 非甲烷总烃连续监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202303/t20230314_1019450.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12872023": {
+  "code": "HJ1287—2023",
+  "name": "固定污染源废气 烟气黑度的测定 林格曼望远镜法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202303/t20230314_1019449.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7592023": {
+  "code": "HJ759—2023",
+  "name": "环境空气 65 种挥发性有机物的测定 罐采样/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202303/t20230314_1019446.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12712022": {
+  "code": "HJ1271—2022",
+  "name": "环境空气 颗粒物中甲酸、乙酸和乙二酸的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202301/t20230128_1014029.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12702022": {
+  "code": "HJ1270—2022",
+  "name": "环境空气 26 种多溴二苯醚的测定 高分辨气相色谱-高分辨质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202301/t20230128_1014027.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12692022": {
+  "code": "HJ1269—2022",
+  "name": "土壤和沉积物 甲基汞和乙基汞的测定 吹扫捕集/气相色谱-冷原子荧光光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202301/t20230128_1014026.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12682022": {
+  "code": "HJ1268—2022",
+  "name": "水质 甲基汞和乙基汞的测定 液相色谱-原子荧光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202301/t20230128_1014031.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12672022": {
+  "code": "HJ1267—2022",
+  "name": "水质 6种苯氧羧酸类除草剂和麦草畏的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202301/t20230128_1014030.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12642022": {
+  "code": "HJ1264—2022",
+  "name": "卫星遥感细颗粒物（PM2.5）监测技术指南",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202209/t20220909_993645.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12632022": {
+  "code": "HJ1263—2022",
+  "name": "环境空气 总悬浮颗粒物的测定 重量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202209/t20220909_993628.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12622022": {
+  "code": "HJ1262—2022",
+  "name": "环境空气和废气 臭气的测定 三点比较式臭袋法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202209/t20220909_993623.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12612022": {
+  "code": "HJ1261—2022",
+  "name": "固定污染源废气 苯系物的测定 气袋采样/直接进样-气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202209/t20220909_993619.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12432022": {
+  "code": "HJ1243—2022",
+  "name": "土壤和沉积物 20 种多溴联苯的测定 气相色谱-高分辨质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220506_977069.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12422022": {
+  "code": "HJ1242—2022",
+  "name": "水质 6 种邻苯二甲酸酯类化合物的测定 液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220506_977068.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ91.22022": {
+  "code": "HJ91.2—2022",
+  "name": "地表水环境质量监测技术规范 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220506_977066.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12562022": {
+  "code": "HJ1256—2022",
+  "name": "排污单位自行监测技术指南 中药、生物药品制品、化学药品制剂制造业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982354.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12552022": {
+  "code": "HJ1255—2022",
+  "name": "排污单位自行监测技术指南 陶瓷工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982353.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12542022": {
+  "code": "HJ1254—2022",
+  "name": "排污单位自行监测技术指南 砖瓦工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982352.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12522022": {
+  "code": "HJ1252—2022",
+  "name": "排污单位自行监测技术指南 畜禽养殖行业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982349.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12512022": {
+  "code": "HJ1251—2022",
+  "name": "排污单位自行监测技术指南 金属铸造工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982348.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12502022": {
+  "code": "HJ1250—2022",
+  "name": "排污单位自行监测技术指南 工业固体废物和危险废物治理",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982346.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12492022": {
+  "code": "HJ1249—2022",
+  "name": "排污单位自行监测技术指南 储油库、加油站",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982340.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12482022": {
+  "code": "HJ1248—2022",
+  "name": "排污单位自行监测技术指南 陆上石油天然气开采工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982335.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12472022": {
+  "code": "HJ1247—2022",
+  "name": "排污单位自行监测技术指南 煤炭加工—合成气和液体燃料生产",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982333.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12462022": {
+  "code": "HJ1246—2022",
+  "name": "排污单位自行监测技术指南 印刷工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982331.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12452022": {
+  "code": "HJ1245—2022",
+  "name": "排污单位自行监测技术指南 聚氯乙烯工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982326.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12442022": {
+  "code": "HJ1244—2022",
+  "name": "排污单位自行监测技术指南 稀有稀土金属冶炼",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202205/t20220517_982325.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ6532021": {
+  "code": "HJ653—2021",
+  "name": "环境空气颗粒物（PM10和 PM2.5）连续自动监测系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202201/t20220129_968586.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12402021": {
+  "code": "HJ1240—2021",
+  "name": "固定污染源废气 气态污染物（SO2、NO、NO2、CO、CO2）的测定 便携式傅立叶变换红外光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202201/t20220129_968585.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12222021": {
+  "code": "HJ1222—2021",
+  "name": "固体废物 水分和干物质含量的测定 重量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970089.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12212021": {
+  "code": "HJ1221—2021",
+  "name": "环境空气 降尘的测定 重量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970088.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12202021": {
+  "code": "HJ1220—2021",
+  "name": "环境空气 6种挥发性羧酸类化合物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970087.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12192021": {
+  "code": "HJ1219—2021",
+  "name": "环境空气和废气 吡啶的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970085.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12162021": {
+  "code": "HJ1216—2021",
+  "name": "水质 浮游植物的测定 0.1 ml 计数框-显微镜计数法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202201/t20220121_967907.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12152021": {
+  "code": "HJ1215—2021",
+  "name": "水质 浮游植物的测定 滤膜-显微镜计数",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202201/t20220121_967902.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12142021": {
+  "code": "HJ1214—2021",
+  "name": "水质 可吸附有机卤素（AOX）的测定 微库仑法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202201/t20220121_967900.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1210-2021": {
+  "code": "HJ1210-2021",
+  "name": "土壤和沉积物 13 种苯胺类和 2 种联苯 胺类化合物的测定 液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202201/t20220121_967887.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11922021": {
+  "code": "HJ1192—2021",
+  "name": "水质 9 种烷基酚类化合物和双酚A 的测定 固相萃取/高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211109_959669.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11912021": {
+  "code": "HJ1191—2021",
+  "name": "水质 叠氮化物的测定 分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211109_959662.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11902021": {
+  "code": "HJ1190—2021",
+  "name": "水质 灭菌生物指示物（枯草芽孢杆菌 黑色变种）的鉴定 生物学检测法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211109_959661.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11892021": {
+  "code": "HJ1189—2021",
+  "name": "水质 28 种有机磷农药的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211109_959640.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12112021": {
+  "code": "HJ1211—2021",
+  "name": "固体废物 无机元素的测定 波长色散 X 射线荧光光谱",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202201/t20220121_967892.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12252021": {
+  "code": "HJ1225—2021",
+  "name": "环境空气 臭氧的自动测定 化学发光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970092.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12242021": {
+  "code": "HJ1224—2021",
+  "name": "环境空气 有机氯农药的测定 高分辨气相色谱-高分辨质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970091.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12232021": {
+  "code": "HJ1223—2021",
+  "name": "环境空气 挥发性有机物的应急测定 便携式气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970090.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12272021": {
+  "code": "HJ1227—2021",
+  "name": "水质 挥发性有机物的应急测定 便携式顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970082.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12262021": {
+  "code": "HJ1226—2021",
+  "name": "水质 硫化物的测定 亚甲基蓝分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202202/t20220228_970081.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12132021": {
+  "code": "HJ1213—2021",
+  "name": "滨海核电厂温排水卫星遥感监测技术规范（试行）",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202112/t20211210_963695.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12122021": {
+  "code": "HJ1212—2021",
+  "name": "环境空气中氡的测量方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202112/t20211210_963685.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12092021": {
+  "code": "HJ1209—2021",
+  "name": "工业企业土壤和地下水自行监测 技术指南",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202112/t20211206_963131.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12082021": {
+  "code": "HJ1208—2021",
+  "name": "排污单位自行监测技术指南 有色金属工业—再生金属",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202112/t20211206_963128.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12072021": {
+  "code": "HJ1207—2021",
+  "name": "排污单位自行监测技术指南 橡胶和塑料制品",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202112/t20211206_963127.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12062021": {
+  "code": "HJ1206—2021",
+  "name": "排污单位自行监测技术指南 人造板工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202112/t20211206_963123.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12052021": {
+  "code": "HJ1205—2021",
+  "name": "排污单位自行监测技术指南 固体废物焚烧",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202112/t20211206_963120.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ12042021": {
+  "code": "HJ1204—2021",
+  "name": "排污单位自行监测技术指南 电池工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202112/t20211206_963114.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11932021": {
+  "code": "HJ1193—2021",
+  "name": "水质 铟的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211109_959671.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11832021": {
+  "code": "HJ1183—2021",
+  "name": "水质 氧化乐果、甲胺磷、乙酰甲胺磷、辛硫磷的测定 液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202107/t20210708_845873.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11972021": {
+  "code": "HJ1197—2021",
+  "name": "工业用化学产品中消耗臭氧层物质监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211123_961395.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11962021": {
+  "code": "HJ1196—2021",
+  "name": "工业清洗剂 HCFC-141b、CFC-113、TCA 和CTC 的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211123_961378.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11942021": {
+  "code": "HJ1194—2021",
+  "name": "液态制冷剂 CFC-11和HCFC-123 的测定 顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211123_961380.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11952021": {
+  "code": "HJ1195—2021",
+  "name": "气态制冷剂 10 种卤代烃的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202111/t20211123_961365.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11822021": {
+  "code": "HJ1182—2021",
+  "name": "水质 色度的测定 稀释倍数法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202107/t20210708_845860.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11842021": {
+  "code": "HJ1184—2021",
+  "name": "土壤和沉积物 6 种邻苯二甲酸酯类化合物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202107/t20210708_845888.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11572021": {
+  "code": "HJ1157—2021",
+  "name": "环境γ辐射剂量率测量技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202104/t20210429_831308.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1154-2020": {
+  "code": "HJ1154-2020",
+  "name": "环境空气 醛、酮类化合物的测定 溶液吸收-高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201215_813229.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1153-2020": {
+  "code": "HJ1153-2020",
+  "name": "固定污染源废气 醛、酮类化合物的测定 溶液吸收-高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201215_813223.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1150-2020": {
+  "code": "HJ1150-2020",
+  "name": "水质 硝基酚类化合物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201210_812442.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ164-2020": {
+  "code": "HJ164-2020",
+  "name": "地下水环境监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201203_811333.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.10-2020": {
+  "code": "HJ442.10-2020",
+  "name": "近岸海域环境监测技术规范 第十部分 评价及报告",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814210.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.9-2020": {
+  "code": "HJ442.9-2020",
+  "name": "近岸海域环境监测技术规范 第九部分 近岸海域应急与专题监测",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814208.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.8-2020": {
+  "code": "HJ442.8-2020",
+  "name": "近岸海域环境监测技术规范 第八部分 直排海污染源及对近岸海域 水环境影响监测",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814204.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.7-2020": {
+  "code": "HJ442.7-2020",
+  "name": "近岸海域环境监测技术规范 第七部分 入海河流监测",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814202.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.6-2020": {
+  "code": "HJ442.6-2020",
+  "name": "近岸海域环境监测技术规范 第六部分 近岸海域生物监测",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814201.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.5-2020": {
+  "code": "HJ442.5-2020",
+  "name": "近岸海域环境监测技术规范 第五部分 近岸海域生物质量监测",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814200.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.4-2020": {
+  "code": "HJ442.4-2020",
+  "name": "近岸海域环境监测技术规范 第四部分 近岸海域沉积物监测",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814199.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.3-2020": {
+  "code": "HJ442.3-2020",
+  "name": "近岸海域环境监测技术规范 第三部分 近岸海域水质监测",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814193.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.2-2020": {
+  "code": "HJ442.2-2020",
+  "name": "近岸海域环境监测技术规范 第二部分 数据处理与信息管理 （  ）",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814191.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ442.1-2020": {
+  "code": "HJ442.1-2020",
+  "name": "近岸海域环境监测技术规范 第一部分 总则",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201222_814189.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1149-2020": {
+  "code": "HJ1149-2020",
+  "name": "环境空气 气溶胶中γ放射性核素的测定 滤膜压片/γ能谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202012/t20201215_813049.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1139-2020": {
+  "code": "HJ1139-2020",
+  "name": "排污单位自行监测技术指南 化学纤维制造业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202011/t20201118_808429.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ11382020": {
+  "code": "HJ1138—2020",
+  "name": "排污单位自行监测技术指南 无机化学工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202011/t20201118_808430.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1136-2020": {
+  "code": "HJ1136-2020",
+  "name": "中波广播发射台电磁辐射环境监测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202011/t20201102_805797.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1133-2020": {
+  "code": "HJ1133-2020",
+  "name": "环境空气和废气 颗粒物中砷、硒、 铋、锑的测定 原子荧光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202005/t20200518_779717.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1132-2020": {
+  "code": "HJ1132-2020",
+  "name": "固定污染源废气 氮氧化物的测定 便携式紫外吸收法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202005/t20200518_779716.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1131-2020": {
+  "code": "HJ1131-2020",
+  "name": "固定污染源废气 二氧化硫的测定 便携式紫外吸收法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202005/t20200518_779715.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1130-2020": {
+  "code": "HJ1130-2020",
+  "name": "环境空气质量数值预报技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202005/t20200518_779714.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1080-2019": {
+  "code": "HJ1080-2019",
+  "name": "土壤和沉积物 铊的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756540.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1082-2019": {
+  "code": "HJ1082-2019",
+  "name": "土壤和沉积物 六价铬的测定 碱溶液提取-火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756539.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1082-2019.pdf",
+  "crawled": true
+ },
+ "HJ1081-2019": {
+  "code": "HJ1081-2019",
+  "name": "土壤和沉积物 钴的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756538.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1075-2019": {
+  "code": "HJ1075-2019",
+  "name": "水质 浊度的测定 浊度计法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756537.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1074-2019": {
+  "code": "HJ1074-2019",
+  "name": "水质 三丁基锡等 4种有机锡化合物的测定 液相色谱-电感耦合等离子体质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756533.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1073-2019": {
+  "code": "HJ1073-2019",
+  "name": "水质 萘酚的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756532.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1069-2019": {
+  "code": "HJ1069-2019",
+  "name": "水质 急性毒性的测定 斑马鱼卵法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756531.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1071-2019": {
+  "code": "HJ1071-2019",
+  "name": "水质 草甘膦的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756529.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1072-2019": {
+  "code": "HJ1072-2019",
+  "name": "水质 吡啶的测定 顶空/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756528.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1070-2019": {
+  "code": "HJ1070-2019",
+  "name": "水质 15种氯代除草剂的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756527.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1076-2019": {
+  "code": "HJ1076-2019",
+  "name": "环境空气 氨、甲胺、二甲胺和三甲胺的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756506.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1077-2019": {
+  "code": "HJ1077-2019",
+  "name": "固定污染源废气 油烟和油雾的测定 红外分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756503.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1079-2019": {
+  "code": "HJ1079-2019",
+  "name": "固定污染源废气 氯苯类化合物的测定 气相色谱法  ，",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756500.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1078-2019": {
+  "code": "HJ1078-2019",
+  "name": "固定污染源废气 甲硫醇等8种含硫有机化合物的测定 气袋采样-预浓缩/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756497.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ688-2019": {
+  "code": "HJ688-2019",
+  "name": "固定污染源废气 氟化氢的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200102_756490.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1045-2019": {
+  "code": "HJ1045-2019",
+  "name": "固定污染源烟气（二氧化硫和氮氧化物）便携式紫外吸收法测量仪器技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740436.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1044-2019": {
+  "code": "HJ1044-2019",
+  "name": "环境空气 二氧化硫的自动测定 紫外荧光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740435.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1043-2019": {
+  "code": "HJ1043-2019",
+  "name": "环境空气 氮氧化物的自动测定 化学发光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740434.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1042-2019": {
+  "code": "HJ1042-2019",
+  "name": "环境空气和废气 三甲胺的测定 溶液吸收-顶空/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740433.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1041-2019": {
+  "code": "HJ1041-2019",
+  "name": "固定污染源废气 三甲胺的测定 抑制型离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740432.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1040-2019": {
+  "code": "HJ1040-2019",
+  "name": "固定污染源废气 溴化氢的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740431.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1040-2019.pdf",
+  "crawled": true
+ },
+ "HJ1055-2019": {
+  "code": "HJ1055-2019",
+  "name": "土壤和沉积物 草甘膦的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740430.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1054-2019": {
+  "code": "HJ1054-2019",
+  "name": "土壤和沉积物 二硫代氨基甲酸酯（盐）类农药总量的测定 顶空/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740429.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1053-2019": {
+  "code": "HJ1053-2019",
+  "name": "土壤和沉积物 8 种酰胺类农药的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740428.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1052-2019": {
+  "code": "HJ1052-2019",
+  "name": "土壤和沉积物 11 种三嗪类农药的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740427.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1051-2019": {
+  "code": "HJ1051-2019",
+  "name": "土壤 石油类的测定 红外分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740423.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1050-2019": {
+  "code": "HJ1050-2019",
+  "name": "水质 氯酸盐、亚氯酸盐、溴酸盐、二氯乙酸和三氯乙酸的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740419.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1049-2019": {
+  "code": "HJ1049-2019",
+  "name": "水质 4 种硝基酚类化合物的测定 液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740417.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1048-2019": {
+  "code": "HJ1048-2019",
+  "name": "水质 17 种苯胺类化合物的测定 液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740416.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1047-2019": {
+  "code": "HJ1047-2019",
+  "name": "水质 锑的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740415.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1046-2019": {
+  "code": "HJ1046-2019",
+  "name": "水质 锑的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191101_740413.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1099-2020": {
+  "code": "HJ1099-2020",
+  "name": "环境空气臭氧监测一级校准技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202002/t20200213_762885.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1088-2020": {
+  "code": "HJ1088-2020",
+  "name": "排污单位自行监测技术指南 磷肥、钾肥、复混肥料、有机肥料和微生物肥料",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200113_758909.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ10872020": {
+  "code": "HJ1087—2020",
+  "name": "排污单位自行监测技术指南 涂料油墨制造",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200113_758908.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1086-2020": {
+  "code": "HJ1086-2020",
+  "name": "排污单位自行监测技术指南 涂装",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200113_758906.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ10852020": {
+  "code": "HJ1085—2020",
+  "name": "排污单位自行监测技术指南 酒、饮料制造",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200113_758902.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ10842020": {
+  "code": "HJ1084—2020",
+  "name": "排污单位自行监测技术指南 食品制造",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200113_758894.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ10832020": {
+  "code": "HJ1083—2020",
+  "name": "排污单位自行监测技术指南 水处理",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200113_758891.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ8.2-2020": {
+  "code": "HJ8.2-2020",
+  "name": "生态环境档案管理规范生态环境监测 HJ/T 8.2-94",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200117_759817.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ91.1-2019": {
+  "code": "HJ91.1-2019",
+  "name": "污水监测技术规范 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751689.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1068-2019": {
+  "code": "HJ1068-2019",
+  "name": "土壤 粒度的测定吸液管法和比重计法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751688.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1067-2019": {
+  "code": "HJ1067-2019",
+  "name": "水质 苯系物的测定 顶空/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751680.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1067-2019.pdf",
+  "crawled": true
+ },
+ "HJ355-2019": {
+  "code": "HJ355-2019",
+  "name": "水污染源在线监测系统（CODCr、NH3-N 等）运行技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751679.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ354-2019": {
+  "code": "HJ354-2019",
+  "name": "水污染源在线监测系统（CODCr、NH3-N 等）验收技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751687.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ356-2019": {
+  "code": "HJ356-2019",
+  "name": "水污染源在线监测系统（CODCr、NH3-N 等）数据有效性判别技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751686.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ353-2019": {
+  "code": "HJ353-2019",
+  "name": "水污染源在线监测系统（CODCr、NH3-N 等）安装技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751685.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ609-2019": {
+  "code": "HJ609-2019",
+  "name": "六价铬水质自动在线监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751684.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ377-2019": {
+  "code": "HJ377-2019",
+  "name": "化学需氧量（CODCr）水质在线自动监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751683.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ15-2019": {
+  "code": "HJ15-2019",
+  "name": "超声波明渠污水流量计技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751682.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ101-2019": {
+  "code": "HJ101-2019",
+  "name": "氨氮水质在线自动监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201912/t20191227_751681.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1091-2020": {
+  "code": "HJ1091-2020",
+  "name": "固体废物再生利用污染防治技术导则",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202001/t20200115_759463.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1058-2019": {
+  "code": "HJ1058-2019",
+  "name": "硬质聚氨酯泡沫和组合聚醚中 CFC-12、HCFC-22 CFC-11 和 HCFC-141b 等消耗臭氧层物质的测定 便携式顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191105_740728.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1057-2019": {
+  "code": "HJ1057-2019",
+  "name": "组合聚醚中 HCFC-22、CFC-11 和 HCFC-141b 等消 耗臭氧层物质的测定 顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201911/t20191105_740727.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1026-2019": {
+  "code": "HJ1026-2019",
+  "name": "固体废物 氨基甲酸酯类农药的测定 高效液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190520_703443.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1025-2019": {
+  "code": "HJ1025-2019",
+  "name": "固体废物 氨基甲酸酯类农药的测定 柱后衍生-高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190520_703439.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1024-2019": {
+  "code": "HJ1024-2019",
+  "name": "固体废物 热灼减率的测定 重量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190520_703414.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1024-2019.pdf",
+  "crawled": true
+ },
+ "HJ1023-2019": {
+  "code": "HJ1023-2019",
+  "name": "土壤和沉积物 有机磷类和拟除虫菊酯类等47种农药的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190513_702700.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1022-2019": {
+  "code": "HJ1022-2019",
+  "name": "土壤和沉积物 苯氧羧酸类农药的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190513_702698.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ491-2019": {
+  "code": "HJ491-2019",
+  "name": "土壤和沉积物 铜、锌、铅、镍、铬的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190513_702667.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ491-2019.pdf",
+  "crawled": true
+ },
+ "HJ1021-2019": {
+  "code": "HJ1021-2019",
+  "name": "土壤和沉积物 石油烃（C10-C40）的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190513_702696.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1020-2019": {
+  "code": "HJ1020-2019",
+  "name": "土壤和沉积物 石油烃（C6-C9）的测定 吹扫捕集/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190513_702687.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ10192019": {
+  "code": "HJ1019—2019",
+  "name": "地块土壤和地下水中挥发性有机物采样技术导则",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201905/t20190513_702683.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1013-2018": {
+  "code": "HJ1013-2018",
+  "name": "固定污染源废气非甲烷总烃连续监测系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190105_688618.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1012-2018": {
+  "code": "HJ1012-2018",
+  "name": "环境空气和废气 总烃、甲烷和非甲烷总烃便携式监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190105_688617.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1011-2018": {
+  "code": "HJ1011-2018",
+  "name": "环境空气和废气 挥发性有机物组分便携式傅里叶红外监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190105_688616.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1010-2018": {
+  "code": "HJ1010-2018",
+  "name": "环境空气挥发性有机物气相色谱连续监测系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190105_688615.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ999-2018": {
+  "code": "HJ999-2018",
+  "name": "固体废物 氟的测定 碱熔-离子选择电极法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190104_688598.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1002-2018": {
+  "code": "HJ1002-2018",
+  "name": "水质 丁基黄原酸的测定液相色谱-三重四极杆串联质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190104_688596.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1001-2018": {
+  "code": "HJ1001-2018",
+  "name": "水质 总大肠菌群、粪大肠菌群和大肠埃希氏菌的测定 酶底物法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190104_688595.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1000-2018": {
+  "code": "HJ1000-2018",
+  "name": "水质 细菌总数的测定 平皿计数法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190104_688594.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ997-2018": {
+  "code": "HJ997-2018",
+  "name": "土壤和沉积物 醛、酮类化合物的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190104_688597.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ347.2-2018": {
+  "code": "HJ347.2-2018",
+  "name": "水质 粪大肠菌群的测定 多管发酵法 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190104_688592.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ998-2018": {
+  "code": "HJ998-2018",
+  "name": "土壤和沉积物 挥发酚的测定 4-氨基安替比林分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190104_688591.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ347.1-2018": {
+  "code": "HJ347.1-2018",
+  "name": "水质 粪大肠菌群的测定 滤膜法 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190104_688590.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1008-2018": {
+  "code": "HJ1008-2018",
+  "name": "卫星遥感秸秆焚烧监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190103_688448.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1007-2018": {
+  "code": "HJ1007-2018",
+  "name": "固定污染源废气碱雾的测定电感耦合等离子体发射光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190103_688447.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1006-2018": {
+  "code": "HJ1006-2018",
+  "name": "固定污染源废气挥发性卤代烃的测定气袋采样-气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190103_688446.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1005-2018": {
+  "code": "HJ1005-2018",
+  "name": "环境空气降水中阳离子（Na+、NH4+、K+、Mg2+、Ca2+）的测定离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190103_688445.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1004-2018": {
+  "code": "HJ1004-2018",
+  "name": "环境空气降水中有机酸（乙酸、甲酸和草酸）的测定离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201901/t20190103_688441.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ9872018": {
+  "code": "HJ987—2018",
+  "name": "排污单位自行监测技术指南 农药制造工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201812/t20181210_683945.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ986-2018": {
+  "code": "HJ986-2018",
+  "name": "排污单位自行监测技术指南 农副食品加工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201812/t20181210_683944.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ985-2018": {
+  "code": "HJ985-2018",
+  "name": "排污单位自行监测技术指南 电镀工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201812/t20181210_683943.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ988-2018": {
+  "code": "HJ988-2018",
+  "name": "排污单位自行监测技术指南 平板玻璃工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201812/t20181210_683942.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ989-2018": {
+  "code": "HJ989-2018",
+  "name": "排污单位自行监测技术指南 有色金属工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201812/t20181210_683941.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ975-2018": {
+  "code": "HJ975-2018",
+  "name": "固体废物 苯系物的测定 顶空-气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201811/t20181114_673776.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ977-2018": {
+  "code": "HJ977-2018",
+  "name": "水质 烷基汞的测定吹扫捕集/气相色谱-冷原子荧光光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201811/t20181114_673734.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ976-2018": {
+  "code": "HJ976-2018",
+  "name": "固体废物 苯系物的测定 顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201811/t20181114_673779.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ974-2018": {
+  "code": "HJ974-2018",
+  "name": "土壤和沉积物 11种元素的测定 碱熔-电感耦合等离子体发射光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201811/t20181114_673772.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ973-2018": {
+  "code": "HJ973-2018",
+  "name": "固定污染源废气 一氧化碳的测定定电位电解法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201811/t20181114_673693.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ637-2018": {
+  "code": "HJ637-2018",
+  "name": "水质 石油类和动植物油类的测定 红外分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201810/t20181016_662395.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ637-2018.pdf",
+  "crawled": true
+ },
+ "HJ970-2018": {
+  "code": "HJ970-2018",
+  "name": "水质 石油类的测定 紫外分光光度法（试行）",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201810/t20181016_662396.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ970-2018.pdf",
+  "crawled": true
+ },
+ "HJ960-2018": {
+  "code": "HJ960-2018",
+  "name": "土壤和沉积物 氨基甲酸酯类农药的测定 柱后衍生-高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180815_451428.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ961-2018": {
+  "code": "HJ961-2018",
+  "name": "土壤和沉积物 氨基甲酸酯类农药的测定 高效液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180815_451429.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ962-2018": {
+  "code": "HJ962-2018",
+  "name": "土壤 pH 值的测定 电位法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180815_451430.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ962-2018.pdf",
+  "crawled": true
+ },
+ "HJ963-2018": {
+  "code": "HJ963-2018",
+  "name": "固体废物 有机磷类和拟除虫菊酯类等 47 种农药的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180815_451431.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ957-2018": {
+  "code": "HJ957-2018",
+  "name": "水质 钴的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180814_451381.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ958-2018": {
+  "code": "HJ958-2018",
+  "name": "水质 钴的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180814_451382.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ959-2018": {
+  "code": "HJ959-2018",
+  "name": "水质 四乙基铅的测定 顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180814_451383.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ952-2018": {
+  "code": "HJ952-2018",
+  "name": "土壤和沉积物 多溴二苯醚的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180814_451377.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ951-2018": {
+  "code": "HJ951-2018",
+  "name": "固体废物 半挥发性有机物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180814_451373.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ950-2018": {
+  "code": "HJ950-2018",
+  "name": "固体废物 多环芳烃的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180814_451369.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ948.12018": {
+  "code": "HJ948.1—2018",
+  "name": "排污单位自行监测技术指南 化肥工业—氮肥",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180806_447797.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ947-2018": {
+  "code": "HJ947-2018",
+  "name": "排污单位自行监测技术指南 石油化学工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180806_447793.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ9462018": {
+  "code": "HJ946—2018",
+  "name": "排污单位自行监测技术指南 制革及毛皮加工工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180806_447792.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ956-2018": {
+  "code": "HJ956-2018",
+  "name": "环境空气 苯并[a]芘的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180815_451409.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ955-2018": {
+  "code": "HJ955-2018",
+  "name": "环境空气 氟化物的测定 滤膜采样/氟离子选择电极法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180815_451408.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ955-2018.pdf",
+  "crawled": true
+ },
+ "HJ818-2018": {
+  "code": "HJ818-2018",
+  "name": "环境空气气态污染物（SO2、NO2、O3、CO）连续自动监测系统运行和质控技术规范 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180815_451406.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ817-2018": {
+  "code": "HJ817-2018",
+  "name": "环境空气颗粒物（PM10 和 PM2.5）连续自动监测系统运行和质控技术规范 部分",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201808/t20180815_451405.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ9492018": {
+  "code": "HJ949—2018",
+  "name": "民用建筑环境空气颗粒物 (PM 2.5 )渗透系数调查技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201807/t20180717_446747.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ338-2018": {
+  "code": "HJ338-2018",
+  "name": "饮用水水源保护区划分技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201803/t20180321_432813.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ908-2017": {
+  "code": "HJ908-2017",
+  "name": "水质 六价铬的测定 流动注射-二苯碳酰二肼光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429323.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ194-2017": {
+  "code": "HJ194-2017",
+  "name": "环境空气质量手工监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429319.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ910-2017": {
+  "code": "HJ910-2017",
+  "name": "环境空气 气态汞的测定 金膜富集/冷原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429316.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ173-2017": {
+  "code": "HJ173-2017",
+  "name": "环境标准样品研复制技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429315.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ912-2017": {
+  "code": "HJ912-2017",
+  "name": "固体废物 有机氯农药的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429314.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ5452017": {
+  "code": "HJ545—2017",
+  "name": "固定污染源废气 气态总磷的测定 喹钼柠酮容量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429312.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ547-2017": {
+  "code": "HJ547-2017",
+  "name": "固定污染源废气 氯气的测定 碘量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429308.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ921-2017": {
+  "code": "HJ921-2017",
+  "name": "土壤和沉积物 有机氯农药的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429301.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ914-2017": {
+  "code": "HJ914-2017",
+  "name": "水质 百草枯和杀草快的测定 固相萃取-高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429291.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ920-2017": {
+  "code": "HJ920-2017",
+  "name": "环境空气 无机有害气体的应急监测 便携式傅里叶红外仪法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429289.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ919-2017": {
+  "code": "HJ919-2017",
+  "name": "环境空气 挥发性有机物的测定 便携式傅里叶红外仪法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429288.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ915-2017": {
+  "code": "HJ915-2017",
+  "name": "地表水自动监测技术规范（试行）（2025年7月1日起废止）",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429283.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ925-2017": {
+  "code": "HJ925-2017",
+  "name": "便携式溶解氧测定仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429282.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ926-2017": {
+  "code": "HJ926-2017",
+  "name": "汞水质自动在线监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429284.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ38-2017": {
+  "code": "HJ38-2017",
+  "name": "固定污染源废气 总烃、甲烷和非甲烷总烃的测定 气相色谱法 HJ/T 38―1999",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429313.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ38-2017.pdf",
+  "crawled": true
+ },
+ "HJ923-2017": {
+  "code": "HJ923-2017",
+  "name": "土壤和沉积物 总汞的测定 催化热解-冷原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429304.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ909-2017": {
+  "code": "HJ909-2017",
+  "name": "水质 多溴二苯醚的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429322.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ922-2017": {
+  "code": "HJ922-2017",
+  "name": "土壤和沉积物 多氯联苯的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429292.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ918-2017": {
+  "code": "HJ918-2017",
+  "name": "环境振动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429290.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ916-2017": {
+  "code": "HJ916-2017",
+  "name": "环境二噁英类监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429287.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ917-2017": {
+  "code": "HJ917-2017",
+  "name": "固定污染源废气 气态汞的测定 活性炭吸附/热裂解原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429285.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ911-2017": {
+  "code": "HJ911-2017",
+  "name": "土壤和沉积物 有机物的提取 超声波萃取法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429324.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ924-2017": {
+  "code": "HJ924-2017",
+  "name": "COD 光度法快速测定仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429281.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ9432018": {
+  "code": "HJ943—2018",
+  "name": "黄金行业氰渣污染控制技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201803/t20180322_432841.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ76-2017": {
+  "code": "HJ76-2017",
+  "name": "固定污染源烟气（SO2、NOX、颗粒物）排放连续监测系统技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429328.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ75-2017": {
+  "code": "HJ75-2017",
+  "name": "固定污染源烟气（SO2、NOX、颗粒物）排放连续监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429327.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ905-2017": {
+  "code": "HJ905-2017",
+  "name": "恶臭污染环境监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429325.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ836-2017": {
+  "code": "HJ836-2017",
+  "name": "固定污染源废气 低浓度颗粒物的测定 重量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429326.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ604-2017": {
+  "code": "HJ604-2017",
+  "name": "环境空气 总烃、甲烷和非甲烷总烃的测定 直接进样-气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428271.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ604-2017.pdf",
+  "crawled": true
+ },
+ "HJ906-2017": {
+  "code": "HJ906-2017",
+  "name": "功能区声环境质量自动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428285.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ904-2017": {
+  "code": "HJ904-2017",
+  "name": "环境空气 多氯联苯混合物的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428282.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ901-2017": {
+  "code": "HJ901-2017",
+  "name": "环境空气 有机氯农药的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428273.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ902-2017": {
+  "code": "HJ902-2017",
+  "name": "环境空气 多氯联苯的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428278.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ907-2017": {
+  "code": "HJ907-2017",
+  "name": "环境噪声自动监测系统技术要求",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428287.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ900-2017": {
+  "code": "HJ900-2017",
+  "name": "环境空气 有机氯农药的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428272.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ903-2017": {
+  "code": "HJ903-2017",
+  "name": "环境空气 多氯联苯的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428280.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ891-2017": {
+  "code": "HJ891-2017",
+  "name": "固体废物 多氯联苯的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428295.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ889-2017": {
+  "code": "HJ889-2017",
+  "name": "土壤 阳离子交换量的测定 三氯化六氨合钴浸提-分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428288.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ895-2017": {
+  "code": "HJ895-2017",
+  "name": "水质 甲醇和丙酮的测定 顶空/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428726.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ898-2017": {
+  "code": "HJ898-2017",
+  "name": "水质 总α放射性的测定 厚源法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428730.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ896-2017": {
+  "code": "HJ896-2017",
+  "name": "水质 丁基黄原酸的测定 吹扫捕集/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428727.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ893-2017": {
+  "code": "HJ893-2017",
+  "name": "水质 挥发性石油烃(C6-C9)的测定 吹扫捕集/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428710.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ899-2017": {
+  "code": "HJ899-2017",
+  "name": "水质 总β放射性的测定 厚源法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428731.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ890-2017": {
+  "code": "HJ890-2017",
+  "name": "土壤和沉积物 多氯联苯混合物的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428294.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ897-2017": {
+  "code": "HJ897-2017",
+  "name": "水质 叶绿素a 的测定 分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428728.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ897-2017.pdf",
+  "crawled": true
+ },
+ "HJ894-2017": {
+  "code": "HJ894-2017",
+  "name": "水质 可萃取性石油烃（C10-C40）的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428713.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ892-2017": {
+  "code": "HJ892-2017",
+  "name": "固体废物 多环芳烃的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171220_428296.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT16157-1996": {
+  "code": "GB/T16157-1996",
+  "name": "《固定污染源排气中颗粒物测定与气态污染物采样方法》（）修改单",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201801/t20180108_429329.shtml",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ8672017": {
+  "code": "HJ867—2017",
+  "name": "环境空气 酞酸酯类的测定 气相色谱－质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427558.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ8692017": {
+  "code": "HJ869—2017",
+  "name": "固定污染源废气 酞酸酯类的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427553.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ870-2017": {
+  "code": "HJ870-2017",
+  "name": "固定污染源废气 二氧化碳的测定 非分散红外吸收法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427552.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ57-2017": {
+  "code": "HJ57-2017",
+  "name": "固定污染源废气 二氧化硫的测定 定电位电解法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427551.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ878-2017": {
+  "code": "HJ878-2017",
+  "name": "排污单位自行监测技术指南 钢铁工业及炼焦化学工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428756.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ874-2017": {
+  "code": "HJ874-2017",
+  "name": "固体废物 丙烯醛、丙烯腈和乙腈的测定 顶空-气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427554.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ883-2017": {
+  "code": "HJ883-2017",
+  "name": "排污单位自行监测技术指南 化学合成类制药工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428764.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ882-2017": {
+  "code": "HJ882-2017",
+  "name": "排污单位自行监测技术指南 发酵类制药工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428763.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ879-2017": {
+  "code": "HJ879-2017",
+  "name": "排污单位自行监测技术指南 纺织印染工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428758.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ881-2017": {
+  "code": "HJ881-2017",
+  "name": "排污单位自行监测技术指南 提取类制药工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428761.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ880-2017": {
+  "code": "HJ880-2017",
+  "name": "排污单位自行监测技术指南 石油炼制工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171227_428760.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ866-2017": {
+  "code": "HJ866-2017",
+  "name": "水质 松节油的测定 吹扫捕集/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427559.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ873-2017": {
+  "code": "HJ873-2017",
+  "name": "土壤 水溶性氟化物和总氟化物的测定 离子选择电极法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427560.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ8682017": {
+  "code": "HJ868—2017",
+  "name": "环境空气 酞酸酯类的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427557.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ8712017": {
+  "code": "HJ871—2017",
+  "name": "环境空气 氯气等有毒有害气体的应急监测 比长式检测管法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427555.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ8722017": {
+  "code": "HJ872—2017",
+  "name": "环境空气 氯气等有毒有害气体的应急监测 电化学传感器法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201712/t20171207_427556.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ848-2017": {
+  "code": "HJ848-2017",
+  "name": "排污单位自行监测技术指南 水泥工业",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201710/t20171016_423453.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ852-2017": {
+  "code": "HJ852-2017",
+  "name": "环境空气 指示性毒杀芬的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201708/t20170831_420686.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ835-2017": {
+  "code": "HJ835-2017",
+  "name": "土壤和沉积物 有机氯农药的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201707/t20170724_418410.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ8332017": {
+  "code": "HJ833—2017",
+  "name": "土壤和沉积物 硫化物的测定 亚甲基蓝分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201707/t20170724_418409.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ832-2017": {
+  "code": "HJ832-2017",
+  "name": "土壤和沉积物 金属元素总量的消解 微波消解法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201707/t20170724_418408.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ834-2017": {
+  "code": "HJ834-2017",
+  "name": "土壤和沉积物 半挥发性有机物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201707/t20170724_418406.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ830-2017": {
+  "code": "HJ830-2017",
+  "name": "环境空气 颗粒物中无机元素的测定 波长色散X射线荧光光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201705/t20170519_414358.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ829-2017": {
+  "code": "HJ829-2017",
+  "name": "环境空气 颗粒物中无机元素的测定 能量色散X射线荧光光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201705/t20170519_414349.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ822-2017": {
+  "code": "HJ822-2017",
+  "name": "水质 苯胺类化合物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201704/t20170410_409557.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ826-2017": {
+  "code": "HJ826-2017",
+  "name": "水质 阴离子表面活性剂的测定 流动注射-亚甲基蓝分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201704/t20170410_409554.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ823-2017": {
+  "code": "HJ823-2017",
+  "name": "水质 氰化物的测定 流动注射-分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201704/t20170410_409553.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ824-2017": {
+  "code": "HJ824-2017",
+  "name": "水质 硫化物的测定 流动注射-亚甲基蓝分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201704/t20170410_409549.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ825-2017": {
+  "code": "HJ825-2017",
+  "name": "水质 挥发酚的测定 流动注射-4-氨基安替比林分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201704/t20170410_409548.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ8282017": {
+  "code": "HJ828—2017",
+  "name": "水质 化学需氧量的测定 重铬酸盐法 GB 11914-89",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201704/t20170410_409547.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ827-2017": {
+  "code": "HJ827-2017",
+  "name": "水质 氨基甲酸酯类农药的测定 超高效液相色谱-三重四极杆质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201704/t20170410_409543.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ84-2016": {
+  "code": "HJ84-2016",
+  "name": "水质 无机阴离子（F-、Cl-、NO2-、Br-、NO3-、PO43-、SO32-、SO42-）的测定 离子色谱法 ：",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201608/t20160803_361818.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ84-2016.pdf",
+  "crawled": true
+ },
+ "HJ540-2016": {
+  "code": "HJ540-2016",
+  "name": "固定污染源废气 砷的测定 二乙基二硫代氨基甲酸银分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201608/t20160803_361819.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ540-2016.pdf",
+  "crawled": true
+ },
+ "HJ811-2016": {
+  "code": "HJ811-2016",
+  "name": "水质 总硒的测定 3,3＇-二氨基联苯胺分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201608/t20160803_361816.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ812-2016": {
+  "code": "HJ812-2016",
+  "name": "水质 可溶性阳离子（Li+、Na+、NH4+、K+、Ca2+、Mg2+）的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201608/t20160803_361817.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ809-2016": {
+  "code": "HJ809-2016",
+  "name": "水质 亚硝胺类化合物的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201608/t20160803_361812.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ810-2016": {
+  "code": "HJ810-2016",
+  "name": "水质 挥发性有机物的测定 顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201608/t20160803_361813.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ807-2016": {
+  "code": "HJ807-2016",
+  "name": "水质 钼和钛的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201606/t20160630_356531.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ807-2016.pdf",
+  "crawled": true
+ },
+ "HJ806-2016": {
+  "code": "HJ806-2016",
+  "name": "水质 丙烯腈和丙烯醛的测定 吹扫捕集/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201606/t20160630_356530.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ805-2016": {
+  "code": "HJ805-2016",
+  "name": "土壤和沉积物 多环芳烃的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201606/t20160630_356527.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ804-2016": {
+  "code": "HJ804-2016",
+  "name": "土壤 8种有效态元素的测定 二乙烯三胺五乙酸浸提-电感耦合等离子体发射光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201606/t20160630_356526.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ801-2016": {
+  "code": "HJ801-2016",
+  "name": "环境空气和废气 酰胺类化合物的测定 液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201605/t20160519_337908.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ803-2016": {
+  "code": "HJ803-2016",
+  "name": "土壤和沉积物 12种金属元素的测定 王水提取-电感耦合等离子体质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201606/t20160630_356525.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ800-2016": {
+  "code": "HJ800-2016",
+  "name": "环境空气 颗粒物中水溶性阳离子(Li+、Na+、NH4+、K+、Ca2+、Mg2+)的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201605/t20160519_337907.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ802-2016": {
+  "code": "HJ802-2016",
+  "name": "土壤 电导率的测定 电极法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201606/t20160630_356524.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ802-2016.pdf",
+  "crawled": true
+ },
+ "HJ799-2016": {
+  "code": "HJ799-2016",
+  "name": "环境空气 颗粒物中水溶性阴离子（F-、Cl-、Br-、NO2-、NO3-、PO43-、SO32-、SO42-）的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201605/t20160519_337906.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ551-2016": {
+  "code": "HJ551-2016",
+  "name": "水质 二氧化氯和亚氯酸盐的测定 连续滴定碘量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201605/t20160519_337905.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ551-2016.pdf",
+  "crawled": true
+ },
+ "HJ549-2016": {
+  "code": "HJ549-2016",
+  "name": "环境空气和废气 氯化氢的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201605/t20160519_337904.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ549-2016.pdf",
+  "crawled": true
+ },
+ "HJ548-2016": {
+  "code": "HJ548-2016",
+  "name": "固定污染源废气 氯化氢的测定 硝酸银容量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201605/t20160519_337903.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ548-2016.pdf",
+  "crawled": true
+ },
+ "HJ798-2016": {
+  "code": "HJ798-2016",
+  "name": "总铬水质自动在线监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201605/t20160510_337444.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ793-2016": {
+  "code": "HJ793-2016",
+  "name": "城市轨道交通(地下段)结构噪声监测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201605/t20160518_337843.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ787-2016": {
+  "code": "HJ787-2016",
+  "name": "固体废物 铅和镉的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201604/t20160405_334682.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ786-2016": {
+  "code": "HJ786-2016",
+  "name": "固体废物 铅、锌和镉的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201604/t20160405_334681.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ544-2016": {
+  "code": "HJ544-2016",
+  "name": "固定污染源废气 硫酸雾的测定 离子色谱法（本标准自2026年07月01日起废止）",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201604/t20160405_334680.shtml",
+  "isGB": false,
+  "current": false,
+  "currentCode": "HJ544—2025",
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ789-2016": {
+  "code": "HJ789-2016",
+  "name": "水质 乙腈的测定 直接进样/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201604/t20160405_334684.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ788-2016": {
+  "code": "HJ788-2016",
+  "name": "水质 乙腈的测定 吹扫捕集/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201604/t20160405_334683.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ781-2016": {
+  "code": "HJ781-2016",
+  "name": "固体废物 22种金属元素的测定 电感耦合等离子体发射光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201602/t20160217_330301.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ784-2016": {
+  "code": "HJ784-2016",
+  "name": "土壤和沉积物 多环芳烃的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201602/t20160217_330303.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ783-2016": {
+  "code": "HJ783-2016",
+  "name": "土壤和沉积物 有机物的提取 加压流体萃取法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201602/t20160217_330302.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ782-2016": {
+  "code": "HJ782-2016",
+  "name": "固体废物 有机物的提取 加压流体萃取法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201602/t20160217_330293.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ546-2015": {
+  "code": "HJ546-2015",
+  "name": "环境空气 五氧化二磷的测定 钼蓝分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151222_319847.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ780-2015": {
+  "code": "HJ780-2015",
+  "name": "土壤和沉积物 无机元素的测定 波长色散X射线荧光光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151222_319850.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ779-2015": {
+  "code": "HJ779-2015",
+  "name": "环境空气 六价铬的测定 柱后衍生离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151214_319123.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ778-2015": {
+  "code": "HJ778-2015",
+  "name": "水质 碘化物的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151214_319122.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ777-2015": {
+  "code": "HJ777-2015",
+  "name": "空气和废气 颗粒物中金属元素的测定 电感耦合等离子体发射光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151214_319107.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ776-2015": {
+  "code": "HJ776-2015",
+  "name": "水质 32种元素的测定 电感耦合等离子体发射光谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151214_319106.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ775-2015": {
+  "code": "HJ775-2015",
+  "name": "水质 蛔虫卵的测定 沉淀集卵法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151214_319105.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ6332012": {
+  "code": "HJ633—2012",
+  "name": "环境空气质量指数（AQI）技术规定（试行）（2026年3月1日起废止）",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201203/t20120302_224166.shtml",
+  "isGB": false,
+  "current": false,
+  "currentCode": "HJ633—2026",
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ767-2015": {
+  "code": "HJ767-2015",
+  "name": "固体废物 钡的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151201_318083.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ539-2015": {
+  "code": "HJ539-2015",
+  "name": "环境空气 铅的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151201_318087.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ766-2015": {
+  "code": "HJ766-2015",
+  "name": "固体废物 金属元素的测定 电感耦合等离子体质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201511/t20151130_317999.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ765-2015": {
+  "code": "HJ765-2015",
+  "name": "固体废物 有机物的提取 微波萃取法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201511/t20151130_317997.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ769-2015": {
+  "code": "HJ769-2015",
+  "name": "煤中全硫的测定 艾士卡－离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151201_318085.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ770-2015": {
+  "code": "HJ770-2015",
+  "name": "水质 苯氧羧酸类除草剂的测定 液相色谱/串联质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151201_318088.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ768-2015": {
+  "code": "HJ768-2015",
+  "name": "固体废物 有机磷农药的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201512/t20151201_318084.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ759-2015": {
+  "code": "HJ759-2015",
+  "name": "环境空气 挥发性有机物的测定罐采样/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151030_315940.shtml",
+  "isGB": false,
+  "current": false,
+  "currentCode": "HJ759—2023",
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ761-2015": {
+  "code": "HJ761-2015",
+  "name": "固体废物 有机质的测定 灼烧减量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151030_315938.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ760-2015": {
+  "code": "HJ760-2015",
+  "name": "固体废物 挥发性有机物的测定 顶空-气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151030_315937.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ758-2015": {
+  "code": "HJ758-2015",
+  "name": "水质 卤代乙酸类化合物的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151030_315936.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ757-2015": {
+  "code": "HJ757-2015",
+  "name": "水质 铬的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151030_315935.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ757-2015.pdf",
+  "crawled": true
+ },
+ "HJ756-2015": {
+  "code": "HJ756-2015",
+  "name": "水质 丁基黄原酸的测定 紫外分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151030_315933.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ756-2015.pdf",
+  "crawled": true
+ },
+ "HJ764-2015": {
+  "code": "HJ764-2015",
+  "name": "砷水质自动在线监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151028_315742.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ762-2015": {
+  "code": "HJ762-2015",
+  "name": "铅水质自动在线监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151028_315741.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ763-2015": {
+  "code": "HJ763-2015",
+  "name": "镉水质自动在线监测仪技术要求及检测方法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151028_315740.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ755-2015": {
+  "code": "HJ755-2015",
+  "name": "水质 总大肠菌群和粪大肠菌群的测定 纸片快速法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151030_315883.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7542015": {
+  "code": "HJ754—2015",
+  "name": "水质 阿特拉津的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201510/t20151030_315882.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ753-2015": {
+  "code": "HJ753-2015",
+  "name": "水质 百菌清及拟除虫菊酯类农药的测定 气相色谱—质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201509/t20150907_309466.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ752-2015": {
+  "code": "HJ752-2015",
+  "name": "固体废物 铍 镍 铜和钼的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201509/t20150907_309464.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ751-2015": {
+  "code": "HJ751-2015",
+  "name": "固体废物 镍和铜的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201509/t20150907_309461.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ750-2015": {
+  "code": "HJ750-2015",
+  "name": "固体废物 总铬的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201509/t20150907_309459.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ749-2015": {
+  "code": "HJ749-2015",
+  "name": "固体废物 总铬的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201509/t20150907_309458.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ748-2015": {
+  "code": "HJ748-2015",
+  "name": "水质 铊的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201506/t20150629_304480.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ748-2015.pdf",
+  "crawled": true
+ },
+ "HJ744-2015": {
+  "code": "HJ744-2015",
+  "name": "水质 酚类化合物的测定气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201505/t20150508_301346.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ743-2015": {
+  "code": "HJ743-2015",
+  "name": "土壤和沉积物 多氯联苯的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201505/t20150508_301345.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ742-2015": {
+  "code": "HJ742-2015",
+  "name": "土壤和沉积物 挥发性芳香烃的测定 顶空/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201505/t20150508_301325.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ741-2015": {
+  "code": "HJ741-2015",
+  "name": "土壤和沉积物 挥发性有机物的测定 顶空/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201505/t20150508_301324.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ5502015": {
+  "code": "HJ550—2015",
+  "name": "水质 钴的测定 5-氯-2-(吡啶偶氮)-1，3-二氨基苯分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201504/t20150413_298974.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7462015": {
+  "code": "HJ746—2015",
+  "name": "土壤 氧化还原电位的测定 电位法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201506/t20150616_303749.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ745-2015": {
+  "code": "HJ745-2015",
+  "name": "土壤 氰化物和总氰化物的测定 分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201506/t20150616_303748.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ745-2015.pdf",
+  "crawled": true
+ },
+ "HJ7382015": {
+  "code": "HJ738—2015",
+  "name": "环境空气 硝基苯类化合物的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201502/t20150212_295838.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7392015": {
+  "code": "HJ739—2015",
+  "name": "环境空气 硝基苯类化合物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201502/t20150212_295837.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ737-2015": {
+  "code": "HJ737-2015",
+  "name": "土壤和沉积物 铍的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201502/t20150212_295836.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ736-2015": {
+  "code": "HJ736-2015",
+  "name": "土壤和沉积物 挥发性卤代烃的测定 顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201502/t20150212_295835.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ735-2015": {
+  "code": "HJ735-2015",
+  "name": "土壤和沉积物 挥发性卤代烃的测定 吹扫捕集/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201502/t20150212_295834.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7342014": {
+  "code": "HJ734—2014",
+  "name": "固定污染源废气 挥发性有机物的测定 固相吸附-热脱附／气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201501/t20150115_294225.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ733-2014": {
+  "code": "HJ733-2014",
+  "name": "泄漏和敞开液面排放的挥发性有机物检测技术导则",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201501/t20150115_294222.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ732-2014": {
+  "code": "HJ732-2014",
+  "name": "固定污染源废气 挥发性有机物的采样 气袋法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201501/t20150115_294220.shtml",
+  "isGB": false,
+  "current": false,
+  "currentCode": "HJ732—2025",
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7172014": {
+  "code": "HJ717—2014",
+  "name": "土壤质量 全氮的测定 凯氏法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141208_292648.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7162014": {
+  "code": "HJ716—2014",
+  "name": "水质 硝基苯类化合物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141208_292646.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ714-2014": {
+  "code": "HJ714-2014",
+  "name": "固体废物 挥发性卤代烃的测定 顶空/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141208_292644.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ713-2014": {
+  "code": "HJ713-2014",
+  "name": "固体废物 挥发性卤代烃的测定 吹扫捕集/气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141208_292643.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ712-2014": {
+  "code": "HJ712-2014",
+  "name": "固体废物 总磷的测定 偏钼酸铵分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141208_292640.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ711-2014": {
+  "code": "HJ711-2014",
+  "name": "固体废物 酚类化合物的测定 气相色谱法 ()",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141208_292639.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7312014": {
+  "code": "HJ731—2014",
+  "name": "近岸海域水质自动监测技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141229_293576.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ7302014": {
+  "code": "HJ730—2014",
+  "name": "近岸海域环境监测点位布设技术规范",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141229_293575.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ707-2014": {
+  "code": "HJ707-2014",
+  "name": "环境噪声监测技术规范 结构传播固定设备室内噪声",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201411/t20141102_290995.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ706-2014": {
+  "code": "HJ706-2014",
+  "name": "环境噪声监测技术规范 噪声测量值修正",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201411/t20141102_290994.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ715-2014": {
+  "code": "HJ715-2014",
+  "name": "水质 多氯联苯的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201412/t20141208_292645.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ704-2014": {
+  "code": "HJ704-2014",
+  "name": "土壤 有效磷的测定 碳酸氢钠浸提-钼锑抗分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201409/t20140926_289599.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ703-2014": {
+  "code": "HJ703-2014",
+  "name": "土壤和沉积物 酚类化合物的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201409/t20140926_289598.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ701-2014": {
+  "code": "HJ701-2014",
+  "name": "水质 黄磷的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201409/t20140912_288935.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ702-2014": {
+  "code": "HJ702-2014",
+  "name": "固体废物 汞、砷、硒、铋、锑的测定 微波消解/原子荧光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201409/t20140912_288936.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ700-2014": {
+  "code": "HJ700-2014",
+  "name": "水质 65种元素的测定 电感耦合等离子体质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201405/t20140523_275576.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ695-2014": {
+  "code": "HJ695-2014",
+  "name": "土壤 有机碳的测定 燃烧氧化-非分散红外法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201403/t20140319_269363.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ699-2014": {
+  "code": "HJ699-2014",
+  "name": "水质 有机氯农药和氯苯类化合物的测定 气相色谱-质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201404/t20140421_270808.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ698-2014": {
+  "code": "HJ698-2014",
+  "name": "水质 百菌清和溴氰菊酯的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201404/t20140421_270805.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ697-2014": {
+  "code": "HJ697-2014",
+  "name": "水质 丙烯酰胺的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201404/t20140421_270800.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ6942014": {
+  "code": "HJ694—2014",
+  "name": "水质 汞、砷、硒、铋和锑的测定 原子荧光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201403/t20140319_269361.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ696-2014": {
+  "code": "HJ696-2014",
+  "name": "水质 松节油的测定 气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201404/t20140421_270799.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ693-2014": {
+  "code": "HJ693-2014",
+  "name": "固定污染源废气 氮氧化物的测定 定电位电解法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201402/t20140217_267824.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ692-2014": {
+  "code": "HJ692-2014",
+  "name": "固定污染源废气 氮氧化物的测定 非分散红外吸收法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201402/t20140217_267822.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ691-2014": {
+  "code": "HJ691-2014",
+  "name": "环境空气 半挥发性有机物采样技术导则",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201402/t20140217_267820.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ690-2014": {
+  "code": "HJ690-2014",
+  "name": "固定污染源废气 苯可溶物的测定 索氏提取－重量法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201402/t20140217_267819.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ687-2014": {
+  "code": "HJ687-2014",
+  "name": "固体废物 六价铬的测定 碱消解/火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201401/t20140120_266671.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ686-2014": {
+  "code": "HJ686-2014",
+  "name": "水质 挥发性有机物的测定 吹扫捕集/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201401/t20140120_266670.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ685-2014": {
+  "code": "HJ685-2014",
+  "name": "固定污染源废气 铅的测定 火焰原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201401/t20140120_266669.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ684-2014": {
+  "code": "HJ684-2014",
+  "name": "固定污染源废气 铍的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201401/t20140120_266668.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ683-2014": {
+  "code": "HJ683-2014",
+  "name": "空气 醛、酮类化合物的测定 高效液相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201401/t20140120_266666.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ680-2013": {
+  "code": "HJ680-2013",
+  "name": "土壤和沉积物 汞、砷、硒、铋、锑的测定 微波消解/原子荧光法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201312/t20131203_264304.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ679-2013": {
+  "code": "HJ679-2013",
+  "name": "土壤和沉积物 丙烯醛、丙烯腈、乙腈的测定 顶空-气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201312/t20131203_264303.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ678-2013": {
+  "code": "HJ678-2013",
+  "name": "水质 金属总量的消解 微波消解法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201312/t20131203_264302.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ677-2013": {
+  "code": "HJ677-2013",
+  "name": "水质 金属总量的消解 硝酸消解法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201312/t20131203_264301.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ676-2013": {
+  "code": "HJ676-2013",
+  "name": "水质 酚类化合物的测定 液液萃取/气相色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201312/t20131203_264296.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ675-2013": {
+  "code": "HJ675-2013",
+  "name": "固定污染源排气 氮氧化物的测定 酸碱滴定法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201312/t20131203_264280.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ674-2013": {
+  "code": "HJ674-2013",
+  "name": "水质 肼和甲基肼的测定 对二甲氨基苯甲醛分光光度法 ,",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201312/t20131203_264279.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ673-2013": {
+  "code": "HJ673-2013",
+  "name": "水质 钒的测定 石墨炉原子吸收分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201312/t20131203_264278.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ673-2013.pdf",
+  "crawled": true
+ },
+ "HJ671-2013": {
+  "code": "HJ671-2013",
+  "name": "水质 总磷的测定 流动注射-钼酸铵分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201311/t20131106_262959.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ670-2013": {
+  "code": "HJ670-2013",
+  "name": "水质 磷酸盐和总磷的测定 连续流动-钼酸铵分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201311/t20131106_262958.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ669-2013": {
+  "code": "HJ669-2013",
+  "name": "水质 磷酸盐的测定 离子色谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201311/t20131106_262953.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ668-2013": {
+  "code": "HJ668-2013",
+  "name": "水质 总氮的测定 流动注射-盐酸萘乙二胺分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201311/t20131106_262944.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ667-2013": {
+  "code": "HJ667-2013",
+  "name": "水质 总氮的测定 连续流动-盐酸萘乙二胺分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201311/t20131106_262943.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ666-2013": {
+  "code": "HJ666-2013",
+  "name": "水质 氨氮的测定 流动注射-水杨酸分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201311/t20131106_262942.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ665-2013": {
+  "code": "HJ665-2013",
+  "name": "水质 氨氮的测定 连续流动-水杨酸分光光度法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201311/t20131106_262937.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ661-2013": {
+  "code": "HJ661-2013",
+  "name": "环境噪声监测点位编码规则",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201309/t20130925_260812.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ6642013": {
+  "code": "HJ664—2013",
+  "name": "环境空气质量监测点位布设技术规范（试行）",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201309/t20130925_260810.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ6632013": {
+  "code": "HJ663—2013",
+  "name": "环境空气质量评价技术规范（试行）（2026年3月1日起废止）",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201309/t20130925_260809.shtml",
+  "isGB": false,
+  "current": false,
+  "currentCode": "HJ663—2026",
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ659-2013": {
+  "code": "HJ659-2013",
+  "name": "水质 氰化物等的测定 真空检测管-电子比色法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201309/t20130925_260811.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ650-2013": {
+  "code": "HJ650-2013",
+  "name": "土壤、沉积物 二噁英类的测定 同位素稀释/高分辨气相色谱－低分辨质谱法",
+  "detail": "https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/201306/t20130608_253625.shtml",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1226-2021": {
+  "code": "HJ1226-2021",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1226-2021.pdf",
+  "crawled": true
+ },
+ "HJ544-2025": {
+  "code": "HJ544-2025",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ544-2025.pdf",
+  "crawled": true
+ },
+ "HJ694-2014": {
+  "code": "HJ694-2014",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ694-2014.pdf",
+  "crawled": true
+ },
+ "HJ1221-2021": {
+  "code": "HJ1221-2021",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1221-2021.pdf",
+  "crawled": true
+ },
+ "HJ1263-2022": {
+  "code": "HJ1263-2022",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1263-2022.pdf",
+  "crawled": true
+ },
+ "HJ1453-2026": {
+  "code": "HJ1453-2026",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1453-2026.pdf",
+  "crawled": true
+ },
+ "HJ1451-2026": {
+  "code": "HJ1451-2026",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1451-2026.pdf",
+  "crawled": true
+ },
+ "HJ51-2024": {
+  "code": "HJ51-2024",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ51-2024.pdf",
+  "crawled": true
+ },
+ "HJ1261-2022": {
+  "code": "HJ1261-2022",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1261-2022.pdf",
+  "crawled": true
+ },
+ "GBT7475-1987": {
+  "code": "GB/T7475-1987",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT11911-1989": {
+  "code": "GB/T11911-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GB／T11911-1989": {
+  "code": "GB／T11911-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT11912-1989": {
+  "code": "GB/T11912-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GB7466-87": {
+  "code": "GB7466-87",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ597-2011": {
+  "code": "HJ597-2011",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ597-2011.pdf",
+  "crawled": true
+ },
+ "GBT5750.6-2006": {
+  "code": "GB/T5750.6-2006",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": false,
+  "currentCode": "GB/T5750.6-2023",
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT17138-1997": {
+  "code": "GB/T17138-1997",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT17141-1997": {
+  "code": "GB/T17141-1997",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ491-2009": {
+  "code": "HJ491-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": false,
+  "currentCode": "HJ491-2019",
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT17139-1997": {
+  "code": "GB/T17139-1997",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT17136-1997": {
+  "code": "GB/T17136-1997",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ543-2009": {
+  "code": "HJ543-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ543-2009.pdf",
+  "crawled": true
+ },
+ "GBT15264-1994": {
+  "code": "GB/T15264-1994",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJT63.1-2001": {
+  "code": "HJ/T63.1-2001",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT63.1-2001.pdf",
+  "crawled": true
+ },
+ "HJT64.1-2001": {
+  "code": "HJ/T64.1-2001",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT64.1-2001.pdf",
+  "crawled": true
+ },
+ "国家环保总局（2003）第四版": {
+  "code": "国家环保总局（2003）第四版",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT6920-1986": {
+  "code": "GB/T6920-1986",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "水质阴离子表面活性剂的测定亚甲蓝分光光度法测定": {
+  "code": "水质阴离子表面活性剂的测定亚甲蓝分光光度法测定",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT7494-1987": {
+  "code": "GB/T7494-1987",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT11901-1989": {
+  "code": "GB/T11901-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT5750.5-2023": {
+  "code": "GB/T5750.5-2023",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT11889-1989": {
+  "code": "GB/T11889-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GB11889-1989": {
+  "code": "GB11889-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT16489-1996": {
+  "code": "GB/T16489-1996",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT5750.6-2023": {
+  "code": "GB/T5750.6-2023",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT7485-1987": {
+  "code": "GB/T7485-1987",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT5750.4-2023": {
+  "code": "GB/T5750.4-2023",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT7484-1987": {
+  "code": "GB/T7484-1987",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT5750.5-2006": {
+  "code": "GB/T5750.5-2006",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": false,
+  "currentCode": "GB/T5750.5-2023",
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT7489-1987": {
+  "code": "GB/T7489-1987",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ505-2009": {
+  "code": "HJ505-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ505-2009.pdf",
+  "crawled": true
+ },
+ "HJ482-2009": {
+  "code": "HJ482-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ482-2009.pdf",
+  "crawled": true
+ },
+ "国家环保总局（2003）版第四版": {
+  "code": "国家环保总局（2003）版第四版",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT17134-1997": {
+  "code": "GB/T17134-1997",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ535-2009": {
+  "code": "HJ535-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ535-2009.pdf",
+  "crawled": true
+ },
+ "GB7467-87": {
+  "code": "GB7467-87",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ636-2012": {
+  "code": "HJ636-2012",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ636-2012.pdf",
+  "crawled": true
+ },
+ "GBT11893-1989": {
+  "code": "GB/T11893-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT11892-1989": {
+  "code": "GB/T11892-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ828-2017": {
+  "code": "HJ828-2017",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ828-2017.pdf",
+  "crawled": true
+ },
+ "HJ503-2009": {
+  "code": "HJ503-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ503-2009.pdf",
+  "crawled": true
+ },
+ "HJ484-2009": {
+  "code": "HJ484-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ484-2009.pdf",
+  "crawled": true
+ },
+ "国家环保总局（2002）第四版": {
+  "code": "国家环保总局（2002）第四版",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1182-2021": {
+  "code": "HJ1182-2021",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1182-2021.pdf",
+  "crawled": true
+ },
+ "GBT15516-1995": {
+  "code": "GB/T15516-1995",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ533-2009": {
+  "code": "HJ533-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ533-2009.pdf",
+  "crawled": true
+ },
+ "HJ479-2009": {
+  "code": "HJ479-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ479-2009.pdf",
+  "crawled": true
+ },
+ "HJ618-2011": {
+  "code": "HJ618-2011",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ618-2011.pdf",
+  "crawled": true
+ },
+ "HJT27-1999": {
+  "code": "HJ/T27-1999",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT27-1999.pdf",
+  "crawled": true
+ },
+ "HJT67-2001": {
+  "code": "HJ/T67-2001",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT67-2001.pdf",
+  "crawled": true
+ },
+ "GBT7493-1987": {
+  "code": "GB/T7493-1987",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT15502-1995": {
+  "code": "GB/T15502-1995",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT5750.7-2023": {
+  "code": "GB/T5750.7-2023",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJT346-2007": {
+  "code": "HJ/T346-2007",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT346-2007.pdf",
+  "crawled": true
+ },
+ "HJ584-2010": {
+  "code": "HJ584-2010",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ584-2010.pdf",
+  "crawled": true
+ },
+ "HJT30-1999": {
+  "code": "HJ/T30-1999",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT30-1999.pdf",
+  "crawled": true
+ },
+ "生活饮用水标准": {
+  "code": "生活饮用水标准",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJT28-1999": {
+  "code": "HJ/T28-1999",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT28-1999.pdf",
+  "crawled": true
+ },
+ "HJ601-2011": {
+  "code": "HJ601-2011",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ601-2011.pdf",
+  "crawled": true
+ },
+ "HJ538-2009": {
+  "code": "HJ538-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ538-2009.pdf",
+  "crawled": true
+ },
+ "GB11905-89": {
+  "code": "GB11905-89",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT15555.4-1995": {
+  "code": "GB/T15555.4-1995",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GB17378.4-2007": {
+  "code": "GB17378.4-2007",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ586-2010": {
+  "code": "HJ586-2010",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ586-2010.pdf",
+  "crawled": true
+ },
+ "海洋监测规范第4部分：海水分析（36.2）次溴酸": {
+  "code": "海洋监测规范第4部分：海水分析（36.2）次溴酸",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT17378.4-2007": {
+  "code": "GB/T17378.4-2007",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GB3097-1997": {
+  "code": "GB3097-1997",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "国家环保局（2003）第四版": {
+  "code": "国家环保局（2003）第四版",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "DZT0064.49-2021": {
+  "code": "DZ/T0064.49-2021",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "DB37T3460-2018": {
+  "code": "DB37/T3460-2018",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ504-2009": {
+  "code": "HJ504-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ504-2009.pdf",
+  "crawled": true
+ },
+ "HJ613-2011": {
+  "code": "HJ613-2011",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ613-2011.pdf",
+  "crawled": true
+ },
+ "GBT15555.1-1995": {
+  "code": "GB/T15555.1-1995",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "国家环保局（2002）第四版": {
+  "code": "国家环保局（2002）第四版",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJT342-2007": {
+  "code": "HJ/T342-2007",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT342-2007.pdf",
+  "crawled": true
+ },
+ "GBT15555.3-1995": {
+  "code": "GB/T15555.3-1995",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "CJT51-2018式中：W1-总重，W2-容": {
+  "code": "CJ/T51-2018式中：W1-总重，W2-容",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT11896-1989": {
+  "code": "GB/T11896-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT7477-1987": {
+  "code": "GB/T7477-1987",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT15501-1995": {
+  "code": "GB/T15501-1995",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT12763.4-2007": {
+  "code": "GB/T12763.4-2007",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT5750.8-2023": {
+  "code": "GB/T5750.8-2023",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "空气和废气监测分析方法第三篇第二章八铬（六价）二": {
+  "code": "空气和废气监测分析方法第三篇第二章八铬（六价）二",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "CJT51-2018": {
+  "code": "CJ/T51-2018",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJT59-2000": {
+  "code": "HJ/T59-2000",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT59-2000.pdf",
+  "crawled": true
+ },
+ "GB11907-89": {
+  "code": "GB11907-89",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1147-2020": {
+  "code": "HJ1147-2020",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1147-2020.pdf",
+  "crawled": true
+ },
+ "GBT15555.12-1995": {
+  "code": "GB/T15555.12-1995",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT13580.4-1992": {
+  "code": "GB/T13580.4-1992",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT13580.3-1992": {
+  "code": "GB/T13580.3-1992",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ602-2011": {
+  "code": "HJ602-2011",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ602-2011.pdf",
+  "crawled": true
+ },
+ "HJT45-1999": {
+  "code": "HJ/T45-1999",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT45-1999.pdf",
+  "crawled": true
+ },
+ "HJ620-2011": {
+  "code": "HJ620-2011",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ620-2011.pdf",
+  "crawled": true
+ },
+ "HJT33-1999": {
+  "code": "HJ/T33-1999",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT33-1999.pdf",
+  "crawled": true
+ },
+ "水和废水监测分析方法（第四版）增补版": {
+  "code": "水和废水监测分析方法（第四版）增补版",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT11904-1989": {
+  "code": "GB/T11904-1989",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ1443-2026": {
+  "code": "HJ1443-2026",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ1443-2026.pdf",
+  "crawled": true
+ },
+ "HJT32-1999": {
+  "code": "HJ/T32-1999",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT32-1999.pdf",
+  "crawled": true
+ },
+ "HJT29-1999": {
+  "code": "HJ/T29-1999",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJT29-1999.pdf",
+  "crawled": true
+ },
+ "水质阴离子洗涤剂的测定亚甲基蓝分光光度法测定": {
+  "code": "水质阴离子洗涤剂的测定亚甲基蓝分光光度法测定",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "GBT5750.11-2023": {
+  "code": "GB/T5750.11-2023",
+  "name": "",
+  "detail": "",
+  "isGB": true,
+  "current": true,
+  "currentCode": null,
+  "pdf": null,
+  "crawled": false
+ },
+ "HJ506-2009": {
+  "code": "HJ506-2009",
+  "name": "",
+  "detail": "",
+  "isGB": false,
+  "current": true,
+  "currentCode": null,
+  "pdf": "HJ506-2009.pdf",
+  "crawled": true
+ }
+}

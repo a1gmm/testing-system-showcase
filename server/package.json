@@ -1,0 +1,14 @@
+{
+  "name": "server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "环境检测 LIMS 后端（零依赖：Node 内置 http + node:sqlite）",
+  "scripts": {
+    "dev": "node --watch src/server.ts",
+    "start": "node src/server.ts",
+    "test": "node --test",
+    "pilot:replay": "node scripts/mobile-pilot-replay.mjs 300",
+    "e2e": "node scripts/run-e2e.mjs"
+  }
+}

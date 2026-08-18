@@ -1,0 +1,8 @@
+import{describe,expect,it,vi}from'vitest'
+import{assessFieldReadiness,departureMilestones,requestOneShotLocation}from'../src/offline/fieldReadiness'
+
+describe('field readiness',()=>{
+  it('blocks missing package resources and an authorization horizon shorter than plan plus four hours',()=>{const base=Date.parse('2026-08-17T00:00:00.000Z');expect(assessFieldReadiness({packageValid:false,hasAllSlots:false,storageReady:true,cameraReady:true,authorizationExpiresAt:'2026-08-17T12:00:00.000Z',plannedEndAt:'2026-08-17T04:00:00.000Z'},base).ready).toBe(false);expect(assessFieldReadiness({packageValid:true,hasAllSlots:true,storageReady:true,cameraReady:true,authorizationExpiresAt:'2026-08-17T07:59:59.999Z',plannedEndAt:'2026-08-17T04:00:00.000Z'},base).reasons).toContain('authorization_horizon_short')})
+  it('separates local completion, confirmation and formal submission',()=>{expect(departureMilestones({requiredFieldsComplete:true,attachmentsComplete:true,localSaved:true,confirmationCount:1,submissionStatus:'pending'})).toEqual({localComplete:true,confirmationComplete:false,formalSubmissionComplete:false})})
+  it('requests location only once and degrades denial or timeout into explainable evidence',async()=>{const denied={getCurrentPosition:(_:any,fail:any)=>fail({code:1})};expect(await requestOneShotLocation(denied as any)).toMatchObject({status:'denied'});const ok={getCurrentPosition:(done:any)=>done({coords:{latitude:31,longitude:121,accuracy:180},timestamp:1})};expect(await requestOneShotLocation(ok as any)).toMatchObject({status:'low_accuracy',accuracy:180});expect(vi.isMockFunction((ok as any).watchPosition)).toBe(false)})
+})

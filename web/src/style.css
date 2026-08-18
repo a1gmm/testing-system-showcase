@@ -1,0 +1,96 @@
+/* 环境检测 LIMS · 现代SaaS（方案C）设计令牌 + 基础样式
+   基调：暖中性灰阶 + 唯一靛蓝交互色，浅色导航栏，8px 栅格，克制阴影 */
+:root{
+  --font-sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
+
+  /* 面 / 底：暖调中性灰，不是纯冷灰 */
+  --bg:#f8f8f7; --surface:#ffffff; --surface-2:#f4f4f2;
+  /* 侧栏：浅色导航轨（方案C），与内容区同世界观 */
+  --sidebar:#fcfcfb; --sidebar-2:#f1f1ef; --sidebar-ink:#55555c; --sidebar-faint:#9a9aa2;
+
+  /* 文字 */
+  --ink:#1a1a1e; --muted:#63636b; --faint:#9a9aa2;
+  /* 描边 */
+  --line:#e8e8e6; --line-strong:#d9d9d6;
+
+  /* 强调：全局唯一交互色（靛蓝） */
+  --accent:#4f46e5; --accent-2:#4338ca; --accent-soft:#eeedfc; --accent-ink:#4338ca;
+
+  /* 语义状态（克制，仅用于真实状态） */
+  --good:#1c7a43; --good-soft:#e5f6ec;
+  --warn:#b4690e; --warn-soft:#fdf2e3;
+  --crit:#c23b2e; --crit-soft:#fbe9e7;
+
+  /* 阴影：极浅，靠描边分层 */
+  --shadow-sm:0 1px 2px rgba(26,26,30,.04);
+  --shadow:0 1px 2px rgba(26,26,30,.04),0 10px 28px -18px rgba(26,26,30,.18);
+  --radius:10px; --radius-sm:8px;
+
+  --el-color-primary:#4f46e5;
+  --el-color-primary-dark-2:#4338ca;
+  --el-color-primary-light-3:#7b74ec;
+  --el-color-primary-light-5:#a5a0f2;
+  --el-color-primary-light-7:#cecbf8;
+  --el-color-primary-light-8:#e2e0fb;
+  --el-color-primary-light-9:#f0effd;
+  --el-border-radius-base:8px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body,#app{height:100%;margin:0}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+a{color:var(--accent);text-decoration:none}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* ——— 统一卡片：一套到底 ——— */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-clk{cursor:pointer;transition:border-color .14s ease,box-shadow .14s ease}
+.card-clk:hover{border-color:var(--line-strong);box-shadow:var(--shadow)}
+/* 选中卡：靛蓝描边 + 柔光圈（方案C 的选中语言） */
+.card-sel{border-color:var(--accent) !important;box-shadow:0 0 0 3px rgba(79,70,229,.10) !important}
+
+/* ——— 状态圆点：替代 emoji ——— */
+.sdot{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none;background:var(--faint)}
+.sdot.good{background:var(--good)} .sdot.warn{background:var(--warn)} .sdot.crit{background:var(--crit)}
+.sdot.accent{background:var(--accent)}
+/* 带底色的状态胶囊 */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.pill.accent{background:var(--accent-soft);color:var(--accent-ink)}
+
+/* ——— 细进度条：卡片上的一眼进度（方案C） ——— */
+.prog{height:4px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.prog > i{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .3s ease}
+
+/* ——— 页面布局：限宽 + 页头 + 分区标题 ——— */
+.pagewrap{max-width:1200px;margin:0 auto}
+/* 查看器/主从页：列表+预览双栏，限宽会压挤 A4 原表 */
+.pagewrap.wide{max-width:1680px}
+/* 撑满视口的主从页（左列表右详情，各自内滚） */
+.pagewrap.full{height:calc(100vh - 58px - 56px);display:flex;flex-direction:column}
+/* 只作用于直接子级——嵌套在 flex/grid 分栏里的 section 由页面自己控距 */
+.pagewrap > section{margin-bottom:28px}
+.phead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:26px}
+.phead .page{font-size:22px;font-weight:650;margin:0 0 4px;letter-spacing:-.01em}
+.phead .sub{color:var(--muted);margin:0;font-size:13px}
+.sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px;padding:0 2px}
+.sechead h2{font-size:13px;font-weight:600;color:var(--muted);margin:0;letter-spacing:.04em}
+.sechead .link{font-size:12.5px;color:var(--accent);cursor:pointer}
+
+/* ——— 键帽提示（⌘K 等快捷键） ——— */
+kbd.key{font-family:var(--font-sans);font-size:10.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:5px;padding:1px 5px}
+
+/* ——— Element Plus 对齐设计令牌 ——— */
+.el-card{--el-card-border-color:var(--line);--el-card-border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.el-table{--el-table-border-color:var(--line);--el-table-header-bg-color:var(--surface-2);--el-table-header-text-color:var(--muted)}
+.el-button{font-weight:600}
+.el-dialog{--el-dialog-border-radius:14px}
+.el-message-box{--el-messagebox-border-radius:14px}
+
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#d9d9d6;border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:#c4c4c0}
