@@ -82,7 +82,7 @@ const tpRows = computed(() => {
 // —— 有组织废气插槽：气类且点位不含风向字样（上/下风向属无组织，走横表）——
 const isGasOrganized = computed(() => {
   const rs = results.value.filter(r => !r.qcType)
-  return rs.length > 0 && rs.every(r => r.matrix === '废气') && !rs.some(r => /风向/.test(r.pointName || ''))
+  return rs.length > 0 && rs.every(r => r.matrix === '有组织废气' || r.matrix === '废气') && !rs.some(r => /风向/.test(r.pointName || ''))
 })
 const stacks = computed(() => (rp.value?.data?.stacks ?? []) as any[])
 // 现场参数只展示标量项（field_info 里还混着 confirms 等内部结构，不上报告）

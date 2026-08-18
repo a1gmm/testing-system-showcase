@@ -17,16 +17,17 @@ test('有组织废气期次报告：data.stacks 带排气筒静态参数、结�
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
     contractId: c.id, cycleMonths: 0, periodStart: '2026-07-01', periodEnd: '2026-07-01',
-    points: [{ element: '废气', point: '1#排气筒', items: ['二氧化硫'], freq: composeFreq(3, 0), standard: 'DB37/2374-2018' }],
+    points: [{ element: '有组织废气', point: '1#排气筒', items: ['二氧化硫'], freq: composeFreq(3, 0), standard: 'DB37/2374-2018' }],
     limits: [{ analyte: '二氧化硫', op: '≤', value: 100, unit: 'mg/m³', stdName: '锅炉大气污染物排放标准', stdNo: 'DB 37/2374-2018', tableNo: '表2' } as any],
   })
   reviewScheme(db, c.id, 'approve', '许技术')
   // 排气筒静态档案（地基3）：方案同步建点后补参数
-  upsertPoint(db, c.id, { name: '1#排气筒', matrix: '废气', stackInfo: { daCode: 'DA001', height: 15, diameter: 0.75, process: '低氮燃烧', fuel: '天然气' } } as any, { name: '许技术' })
+  upsertPoint(db, c.id, { name: '1#排气筒', matrix: '有组织废气', stackInfo: { daCode: 'DA001', height: 15, diameter: 0.75, process: '低氮燃烧', fuel: '天然气' } } as any, { name: '许技术' })
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样', username: 'demo_sampler' })
+  assert.ok(made.some(s => !s.qc_type && s.matrix === '有组织废气'))
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, { name: '赵采样', username: 'demo_sampler' })
   confirmHandoverSheet(db, sh.id, { name: '吴质控', username: 'qianqc' })

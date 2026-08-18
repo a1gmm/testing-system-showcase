@@ -14,7 +14,7 @@ import {
 const qcActor = { name: '吴质控', username: 'qianqc' }
 const samplerActor = { name: '赵采样', username: 'demo_sampler' }
 
-function setup(db: any, opts: { reject?: boolean } = {}) {
+function setup(db: any, opts: { reject?: boolean; matrix?: string } = {}) {
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
   createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc'], password: 'x12345' })
   createUser(db, { username: 'zhaoce', name: '赵检测', roles: ['tester'], password: 'x12345' })
@@ -23,7 +23,7 @@ function setup(db: any, opts: { reject?: boolean } = {}) {
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
     contractId: c.id, cycleMonths: 0, periodStart: '2026-07-01', periodEnd: '2026-07-01',
-    points: [{ element: '废水', point: '1#总排口', items: ['COD', '氨氮'], freq: composeFreq(1, 0), standard: 'GB8978' }],
+    points: [{ element: opts.matrix || '废水', point: '1#总排口', items: opts.matrix ? ['颗粒物'] : ['COD', '氨氮'], freq: composeFreq(1, 0), standard: 'GB8978' }],
   })
   reviewScheme(db, c.id, 'approve', '许技术')
   const r = listRounds(db, c.id)[0]
@@ -52,6 +52,16 @@ test('从已签收交接单一键生成通知单：编号TZ、样品分组项目
   assert.deepEqual(grp.analytes, s0.items)
   // 任务类别按介质自动勾：废水→污水
   assert.equal(n.category, '污水')
+})
+
+test('有组织与无组织废气样品生成通知单时任务类别均为废气', () => {
+  for (const matrix of ['有组织废气', '无组织废气']) {
+    const db = openDb(':memory:')
+    const { sh, made } = setup(db, { matrix })
+    const notice = createNoticeFromSheet(db, sh.id, qcActor)
+    assert.equal(notice.category, '废气')
+    assert.ok(notice.groups.some((g: any) => made.some(s => s.id === g.sampleId && s.matrix === matrix)))
+  }
 })
 
 test('被拒收的样品不进通知单', () => {

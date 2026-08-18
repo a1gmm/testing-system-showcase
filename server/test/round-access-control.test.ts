@@ -7,7 +7,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { spawn } from 'node:child_process'
 import { openDb } from '../src/db.ts'
 import {
-  addAttachment, assignRound, cancelRound, confirmRoundField, createContract, createUser, getAttachment, getRound,
+  addAttachment, assignRound, cancelRound, confirmRoundField, createContract, createUser, deleteAttachment, getAttachment, getRound,
   getRoundDetail, getRoundSheet, listAllRounds, listAttachments, listRoundSheets, sampleRound, saveRoundField,
   saveRoundSheet, terminateContract, updateUser,
 } from '../src/handlers.ts'
@@ -111,6 +111,20 @@ test('现场字段、表单、附件与确认都按当前派工 ID 做对象级�
   assert.equal(getAttachment(db, attachment.id, samplerA)!.id, attachment.id)
   assert.throws(() => listAttachments(db, 'round', roundId, samplerB), (e: any) => e.errorCode === 'ROUND_FORBIDDEN')
   assert.throws(() => getAttachment(db, attachment.id, samplerB), (e: any) => e.errorCode === 'ROUND_FORBIDDEN')
+
+  const sheetTarget = `${roundId}::HJ-TC-136`
+  assert.throws(
+    () => addAttachment(db, { entityType: 'round_sheet', entityId: sheetTarget, origName: '伪造表单.jpg', storedName: 'fake-sheet.jpg' }, samplerB),
+    (e: any) => e.errorCode === 'ROUND_FORBIDDEN',
+  )
+  const sheetAttachment = addAttachment(db, { entityType: 'round_sheet', entityId: sheetTarget, origName: '表单.jpg', storedName: 'sheet.jpg' }, samplerA)
+  assert.equal(listAttachments(db, 'round_sheet', sheetTarget, samplerA).length, 1)
+  assert.equal(getAttachment(db, sheetAttachment.id, samplerA)!.id, sheetAttachment.id)
+  assert.throws(() => listAttachments(db, 'round_sheet', sheetTarget, samplerB), (e: any) => e.errorCode === 'ROUND_FORBIDDEN')
+  assert.throws(() => getAttachment(db, sheetAttachment.id, samplerB), (e: any) => e.errorCode === 'ROUND_FORBIDDEN')
+  assert.throws(() => deleteAttachment(db, sheetAttachment.id, samplerB), (e: any) => e.errorCode === 'ROUND_FORBIDDEN')
+  deleteAttachment(db, sheetAttachment.id, samplerA)
+  assert.equal(listAttachments(db, 'round_sheet', sheetTarget, samplerA).length, 0)
 })
 
 test('同名采样员确认投影不折叠，并且必须逐个 ID 确认后才能收样入库', () => {
@@ -143,6 +157,31 @@ test('同名采样员确认投影不折叠，并且必须逐个 ID 确认后才�
   assert.equal(afterSecond.field_info.confirmation_users.length, 2)
   assert.ok(afterSecond.field_info.confirmation_users.every((x: any) => x.confirmed_at))
   assert.doesNotThrow(() => sampleRound(db, roundId, user('same-b', '同名采样员', ['sampler'])))
+})
+
+test('收样入库要求每个计划基质至少有一张已保存采样单，并兼容旧 field.sheets', () => {
+  const prepare = (id: string) => {
+    const db = freshDb()
+    const roundId = makeRound(db, id)
+    createUser(db, { username: 'sampler-a', name: '赵采样', roles: ['sampler'], password: 'secret1' })
+    assignRound(db, roundId, ['sampler-a'])
+    const actor = user('sampler-a', '赵采样', ['sampler'])
+    confirmRoundField(db, roundId, actor)
+    return { db, roundId, actor }
+  }
+
+  const missing = prepare('ROUND-SHEET-REQUIRED')
+  saveRoundField(missing.db, missing.roundId, { sheetCodes: { 废水: ['HJ-TC-136'] } }, missing.actor, { supervisor: false })
+  assert.throws(() => sampleRound(missing.db, missing.roundId, missing.actor), /废水.*采样单|采样单.*废水/)
+
+  const exact = prepare('ROUND-SHEET-EXACT')
+  saveRoundField(exact.db, exact.roundId, { sheetCodes: { 废水: ['HJ-TC-136'] } }, exact.actor, { supervisor: false })
+  saveRoundSheet(exact.db, exact.roundId, 'HJ-TC-136', { rows: [{ point: '排污口' }] }, exact.actor, undefined, { supervisor: false })
+  assert.doesNotThrow(() => sampleRound(exact.db, exact.roundId, exact.actor))
+
+  const legacy = prepare('ROUND-SHEET-LEGACY')
+  saveRoundField(legacy.db, legacy.roundId, { sheets: { 废水: { code: 'HJ-TC-136', name: '旧版采样单', point: '排污口' } } }, legacy.actor, { supervisor: false })
+  assert.doesNotThrow(() => sampleRound(legacy.db, legacy.roundId, legacy.actor))
 })
 
 test('改派和撤销立即收回旧采样员访问，并使旧确认失效', () => {

@@ -471,7 +471,7 @@ export function todayLocal(d = new Date()): string {
 // —— 样品编号生成：<基质字母><年>-<四位序号>，如 W2026-0001 —— //
 const MATRIX_LETTER: Record<string, string> = {
   废水: 'W', 地表水: 'S', 地下水: 'D', 海水: 'H', 土壤: 'T',
-  固废: 'G', 环境空气: 'A', 废气: 'Q', 生活饮用水: 'Y', 大气降水: 'R', 噪声: 'N',
+  固废: 'G', 环境空气: 'A', 废气: 'Q', 有组织废气: 'Q', 无组织废气: 'Q', 生活饮用水: 'Y', 大气降水: 'R', 噪声: 'N',
 }
 // 取同前缀的最大序号：必须按数值比，不能靠字符串排序
 // （'W2026-9999' > 'W2026-10000'，破万后会取错 max 生成重号 → 主键冲突 500）
@@ -918,7 +918,7 @@ export type TestNotice = {
 // 介质 → 通知单"任务类别"勾选项（样张 HJ-TC-137 的选项口径）
 const NOTICE_CATEGORY: Record<string, string> = {
   废水: '污水', 地表水: '地表水', 地下水: '地下水', 生活饮用水: '生活饮用水',
-  废气: '废气', 环境空气: '环境空气', 土壤: '土壤', 固废: '固废', 海水: '其他（海水）',
+  废气: '废气', 有组织废气: '废气', 无组织废气: '废气', 环境空气: '环境空气', 土壤: '土壤', 固废: '固废', 海水: '其他（海水）',
 }
 function parseNotice(r: any): TestNotice {
   const { groups_json, ...rest } = r
@@ -1268,7 +1268,7 @@ export function decodeNotice(db: DB, noticeId: string): { sampleId: string; poin
 
 // ============ 记录附件（照片/小票，选传不强制） ============
 // 通用附件：任意记录类型都能挂。合规语义——只增、软删留痕、记录定稿后冻结。
-export type AttachEntityType = 'record' | 'handover' | 'pretreatment' | 'qc' | 'system_record' | 'round' | 'report' | 'delivery'
+export type AttachEntityType = 'record' | 'handover' | 'pretreatment' | 'qc' | 'system_record' | 'round' | 'round_sheet' | 'report' | 'delivery'
 const ATTACH_TARGET: Record<AttachEntityType, { table: string; idCol: string }> = {
   record:        { table: 'records',          idCol: 'id' },
   handover:      { table: 'sample_handovers', idCol: 'id' },
@@ -1276,6 +1276,7 @@ const ATTACH_TARGET: Record<AttachEntityType, { table: string; idCol: string }> 
   qc:            { table: 'qc_records',        idCol: 'id' },
   system_record: { table: 'system_records',   idCol: 'id' },
   round:         { table: 'rounds',           idCol: 'id' },   // 期次：现场照片/交接单扫描件，采样员在派工页传
+  round_sheet:   { table: 'rounds',           idCol: 'id' },   // 期次+表号的合成目标：每张采样单独立挂照片
   report:        { table: 'reports',          idCol: 'id' },   // 报告：盖章扫描件等，签发后冻结
   delivery:      { table: 'report_deliveries', idCol: 'id' },   // 发放/收回登记：客户签收回执照片（签发后照传）
 }
@@ -1285,6 +1286,7 @@ export const ATTACH_ENTITY_TYPES = Object.keys(ATTACH_TARGET) as AttachEntityTyp
 // 采样员没理由动报告附件，体系记录只有技术负责人管；而签字人传报告盖章扫描件是正当需求。
 // 不改 PERM 矩阵（前后端镜像被测试钉住），在这里做实体级第二道闸。
 const ATTACH_ENTITY_ROLES: Partial<Record<AttachEntityType, { roles: string[]; label: string }>> = {
+  round_sheet:   { roles: ['sampler', 'tech'], label: '采样单附件需要 采样员/技术负责人 权限' },
   report:        { roles: ['registrar', 'reviewer', 'approver', 'signer', 'tech'], label: '报告附件需要 登记员/复核员/审核员/授权签字人/技术负责人 权限' },
   system_record: { roles: ['tech'], label: '体系记录附件需要 技术负责人 权限' },
   delivery:      { roles: ['registrar', 'signer', 'qc', 'tech'], label: '发放回执需要 登记员/授权签字人/质控员/技术负责人 权限' },
@@ -1308,8 +1310,19 @@ export type Attachment = {
 // 校验目标记录存在；不存在则抛错
 function assertAttachTarget(db: DB, entityType: AttachEntityType, entityId: string) {
   const t = ATTACH_TARGET[entityType]
-  const row = db.prepare(`SELECT 1 FROM ${t.table} WHERE ${t.idCol}=?`).get(entityId)
+  const targetId = entityType === 'round_sheet' ? roundSheetTarget(entityId).roundId : entityId
+  const row = db.prepare(`SELECT 1 FROM ${t.table} WHERE ${t.idCol}=?`).get(targetId)
   if (!row) throw new Error('目标记录不存在')
+}
+function roundSheetTarget(entityId: string) {
+  const marker = entityId.lastIndexOf('::')
+  const roundId = marker > 0 ? entityId.slice(0, marker) : ''
+  const code = marker > 0 ? entityId.slice(marker + 2) : ''
+  if (!roundId || !code) throw new Error('采样单附件目标格式错误')
+  return { roundId, code }
+}
+function attachmentRoundId(entityType: string, entityId: string) {
+  return entityType === 'round_sheet' ? roundSheetTarget(entityId).roundId : entityId
 }
 // 定稿即冻结（泛化到全部有终态的实体）：定稿/签收/签发之后附件不能再增删——现场证据链不许事后换照片
 function attachTargetFrozen(db: DB, entityType: AttachEntityType, entityId: string): boolean {
@@ -1325,9 +1338,9 @@ function attachTargetFrozen(db: DB, entityType: AttachEntityType, entityId: stri
     const r = db.prepare(`SELECT status, voided FROM reports WHERE id=?`).get(entityId) as any
     return r?.status === 'issued' || !!r?.voided
   }
-  if (entityType === 'round') {
+  if (entityType === 'round' || entityType === 'round_sheet') {
     // 期次出了（未作废的）签发报告后，现场照片冻结
-    const rep = db.prepare(`SELECT 1 FROM reports WHERE round_id=? AND status='issued' AND voided=0 LIMIT 1`).get(entityId)
+    const rep = db.prepare(`SELECT 1 FROM reports WHERE round_id=? AND status='issued' AND voided=0 LIMIT 1`).get(attachmentRoundId(entityType, entityId))
     return !!rep
   }
   return false
@@ -1341,7 +1354,7 @@ export function addAttachment(
   if (!ATTACH_ENTITY_TYPES.includes(input.entityType)) throw new Error('不支持的记录类型')
   if (!input.origName || !input.storedName) throw new Error('文件名必填')
   assertAttachTarget(db, input.entityType, input.entityId)
-  if (input.entityType === 'round' && actor.roles) assertRoundAccess(db, input.entityId, actor as User)
+  if ((input.entityType === 'round' || input.entityType === 'round_sheet') && actor.roles) assertRoundAccess(db, attachmentRoundId(input.entityType, input.entityId), actor as User)
   if (attachTargetFrozen(db, input.entityType, input.entityId)) throw new Error('记录已定稿，附件已冻结，不能再增删')
   const id = randomUUID()
   const at = now()
@@ -1356,7 +1369,7 @@ export function addAttachment(
 
 // 列出某记录的有效（未软删）附件，按上传时间正序
 export function listAttachments(db: DB, entityType: string, entityId: string, actor?: User): Attachment[] {
-  if (entityType === 'round' && actor) assertRoundAccess(db, entityId, actor)
+  if ((entityType === 'round' || entityType === 'round_sheet') && actor) assertRoundAccess(db, attachmentRoundId(entityType, entityId), actor)
   // 按 rowid（插入顺序）排，稳定；不能按 at 排——同毫秒上传的 at 会打平，而 id 是随机 uuid
   return db.prepare(
     `SELECT * FROM attachments WHERE entity_type=? AND entity_id=? AND deleted_at IS NULL ORDER BY rowid`
@@ -1366,7 +1379,7 @@ export function listAttachments(db: DB, entityType: string, entityId: string, ac
 // 取单个有效附件（下载用）；已软删返回 null
 export function getAttachment(db: DB, id: string, actor?: User): Attachment | null {
   const attachment = (db.prepare(`SELECT * FROM attachments WHERE id=? AND deleted_at IS NULL`).get(id) as Attachment) ?? null
-  if (attachment?.entity_type === 'round' && actor) assertRoundAccess(db, attachment.entity_id, actor)
+  if (attachment && (attachment.entity_type === 'round' || attachment.entity_type === 'round_sheet') && actor) assertRoundAccess(db, attachmentRoundId(attachment.entity_type, attachment.entity_id), actor)
   return attachment
 }
 
@@ -1375,7 +1388,7 @@ export function getAttachment(db: DB, id: string, actor?: User): Attachment | nu
 export function deleteAttachment(db: DB, id: string, actor: { name: string; username?: string; roles?: string[] }, supervisor = false) {
   const a = getAttachment(db, id)
   if (!a) throw new Error('附件不存在或已删除')
-  if (a.entity_type === 'round' && actor.roles) assertRoundAccess(db, a.entity_id, actor as User)
+  if ((a.entity_type === 'round' || a.entity_type === 'round_sheet') && actor.roles) assertRoundAccess(db, attachmentRoundId(a.entity_type, a.entity_id), actor as User)
   if (attachTargetFrozen(db, a.entity_type as AttachEntityType, a.entity_id)) {
     throw new Error('记录已定稿，附件已冻结，不能再增删')
   }
@@ -2554,7 +2567,7 @@ const BLANK_EXEMPT_ITEMS = ['色度', '嗅', '嗅和味', '浊度', 'pH', 'pH值
 // VOC 项目关键词：命中则该批要运输空白
 const VOC_KEYWORDS = ['挥发性有机', 'VOC', '苯系物', '氯乙烯', '三氯甲烷', '四氯化碳', '三氯乙烯', '四氯乙烯', '乙苯', '苯乙烯', '二甲苯', '甲苯', '氯苯', '二氯甲烷', '氯仿']
 const WATER_MATRICES = ['废水', '地表水', '地下水', '生活饮用水', '大气降水', '海水']
-const AIR_MATRICES = ['环境空气', '废气']
+const AIR_MATRICES = ['环境空气', '废气', '有组织废气', '无组织废气']
 const SOIL_MATRICES = ['土壤', '沉积物', '海洋沉积物']
 // 空气里只采运输空白的项目（非甲烷总烃/总烃/甲烷）；臭气浓度什么空白都不要
 const AIR_TRANSPORT_ONLY = ['非甲烷总烃', '总烃', '甲烷']
@@ -2667,6 +2680,21 @@ export function sampleRound(db: DB, roundId: string, actorOrYear: { name: string
   if (c.scheme && c.scheme.status !== 'approved') throw new Error('方案还没批准，先让技术负责人审完再排采样')
   // 只采「本期到期」的项目（各项周期不同），本期清单在 round.items；旧数据兜底用合同全计划
   const plan = round.items?.length ? round.items : c.plan
+  // 新版现场工作流一旦持久化了选表信息，每个计划基质都必须有一张真正保存的采样单。
+  // 完全没有选表结构的历史期次不追溯阻断；旧 field.sheets 和旧 round_sheets 均算已填。
+  const fieldInfo = round.field_info || {}
+  const storedSheetCodes = new Set((db.prepare(`SELECT template_code FROM round_sheets WHERE round_id=?`).all(roundId) as any[]).map(x => String(x.template_code)))
+  const hasSheetWorkflow = !!fieldInfo.sheetCodes || !!fieldInfo.sheets || storedSheetCodes.size > 0
+  if (hasSheetWorkflow) {
+    const matrices = [...new Set(plan.map(p => p.matrix).filter(Boolean))]
+    const legacyUnmappedSheetsCoverAll = !fieldInfo.sheetCodes && !fieldInfo.sheets && storedSheetCodes.size >= matrices.length
+    const missing = legacyUnmappedSheetsCoverAll ? [] : matrices.filter(matrix => {
+      if (fieldInfo.sheets?.[matrix]?.code) return false
+      const selected = Array.isArray(fieldInfo.sheetCodes?.[matrix]) ? fieldInfo.sheetCodes[matrix].filter(Boolean) : []
+      return !selected.some((code: string) => storedSheetCodes.has(code) || fieldInfo.sheetDrafts?.[code])
+    })
+    if (missing.length) throw new Error(`${missing.join('、')}还没有保存采样单，请至少选择并保存一张后再收样入库`)
+  }
   if (plan.some(p => p.matrix === '噪声')) checkNoiseGate(round.field_info)
   // 决策1：采样地点必须体现——已建点位档案的合同，计划行缺点位不许入库（老合同无点位档案的放行）
   if (listPoints(db, c.id).length && plan.some(p => !(p as any).point)) {
@@ -2835,7 +2863,7 @@ export function getRoundDetail(db: DB, roundId: string, actor?: User) {
   const contract = getContract(db, round.contract_id)
   const samples = listSamplesByRound(db, roundId).map(s => ({ ...s, rollup: sampleRollup(listRecords(db, { sampleId: s.id })) }))
   // 待采清单 = 本期到期的项目（不是合同全部计划）
-  const planItems = (round.items?.length ? round.items : contract?.plan ?? []).map((p: any, i: number) => ({ id: i, matrix: p.matrix, items: p.items, qty: p.qty }))
+  const planItems = (round.items?.length ? round.items : contract?.plan ?? []).map((p: any, i: number) => ({ id: i, matrix: p.matrix, items: p.items, qty: p.qty, point: p.point || '' }))
   return { round, contract, planItems, samples }
 }
 // 该期报告是否已签发：期次报告（一期一份）或该期每个样品都有已签发的单样报告（兼容旧数据）。
@@ -2917,7 +2945,8 @@ export function reschedulePendingRounds(db: DB, contractId: string): { reschedul
   const keepIds = new Set(keep.map(r => r.id))
   const hasFieldData = (id: string) =>
     !!db.prepare(`SELECT 1 FROM round_sheets WHERE round_id=? LIMIT 1`).get(id) ||
-    !!db.prepare(`SELECT 1 FROM attachments WHERE entity_type='round' AND entity_id=? AND deleted_at IS NULL LIMIT 1`).get(id)
+    !!db.prepare(`SELECT 1 FROM attachments WHERE entity_type='round' AND entity_id=? AND deleted_at IS NULL LIMIT 1`).get(id) ||
+    !!db.prepare(`SELECT 1 FROM attachments WHERE entity_type='round_sheet' AND substr(entity_id,1,length(?) + 2)=? || '::' AND deleted_at IS NULL LIMIT 1`).get(id, id)
   const pending = existing.filter(r => !keepIds.has(r.id))                  // 待派工待采：候删
   const dirty = pending.filter(r => hasFieldData(r.id)).sort((a, b) => (a.due_date < b.due_date ? -1 : 1))
   const dirtyIds = new Set(dirty.map(r => r.id))
@@ -3388,7 +3417,7 @@ export function generateRoundReport(db: DB, roundId: string, year = new Date().g
     subNote = `（*为我公司分包项目，本公司无资质，${[...labs].join('；')}。）`
   }
   // 有组织废气插槽：气类期次带上涉及点位的排气筒静态档案（地基3 stack_info），供报告附表渲染
-  const GAS_MATRIX = ['废气', '环境空气']
+  const GAS_MATRIX = ['废气', '有组织废气', '无组织废气', '环境空气']
   let stacks: any[] = []
   if (samples.some(s => GAS_MATRIX.includes(s.matrix))) {
     const ptNames = new Set(results.map((r: any) => r.pointName).filter(Boolean))
