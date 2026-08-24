@@ -403,7 +403,7 @@ const baseTpls = computed(() => {
   const k = tplKeyword.value.toLowerCase()
   return templates
     // 实验室检测步骤只列"实验室"环节的表：把混在原始记录里的现场表（油烟/烟气比对/噪声等）剔掉
-    .filter(t => t.matrix === mx && (t.sheetType === '原始记录' || t.sheetType === '前处理') && templatePhase(t) === '实验室')
+    .filter(t => (!t.matrix || t.matrix === mx) && (t.sheetType === '原始记录' || t.sheetType === '前处理') && templatePhase(t) === '实验室')
     .filter(t => !k || (t.raw + t.analyte + t.code + t.method).toLowerCase().includes(k))
 })
 const matchedTpls = computed(() => {
@@ -813,7 +813,7 @@ watch(() => route.query.queue, loadLaboratoryQueue)
                     :key="selected.id + chosenTpl.file"
                     :sample-id="selected.id"
                     :template-name="chosenTpl.raw"
-                    :analyte="chosenTpl.analyte" :method="chosenTpl.method" :matrix="chosenTpl.matrix"
+                    :analyte="chosenTpl.analyte" :method="chosenTpl.method" :matrix="chosenTpl.matrix || selected.matrix"
                     :code="chosenTpl.code" :sheet-type="chosenTpl.sheetType"
                     :readonly="!can('record_save')" lock-text="只有实验室分析人员能填写检测原始记录" />
                 </div>
