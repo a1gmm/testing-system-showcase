@@ -42,6 +42,30 @@ describe('authentication integration for recovery identity', () => {
     expect(recovery.issue).toHaveBeenLastCalledWith('user-b')
   })
 
+  test('successful login is not blocked when device recovery storage never settles', async () => {
+    http.post.mockResolvedValueOnce({ data: { token: 'token-a', user: { username: 'user-a', name: 'A', roles: [], status: 'active', created_at: '', must_change_pw: true } } })
+    recovery.issue.mockImplementationOnce(() => new Promise<boolean>(() => undefined))
+
+    const result = await Promise.race([
+      api.login('user-a', 'password'),
+      new Promise<'blocked'>(resolve => setTimeout(() => resolve('blocked'), 0)),
+    ])
+
+    expect(result).toMatchObject({ username: 'user-a', must_change_pw: true })
+  })
+
+  test('session restoration is not blocked when device recovery storage never settles', async () => {
+    http.get.mockResolvedValueOnce({ data: { username: 'user-a', name: 'A', roles: [], status: 'active', created_at: '' } })
+    recovery.issue.mockImplementationOnce(() => new Promise<boolean>(() => undefined))
+
+    const result = await Promise.race([
+      api.me(),
+      new Promise<'blocked'>(resolve => setTimeout(() => resolve('blocked'), 0)),
+    ])
+
+    expect(result).toMatchObject({ username: 'user-a' })
+  })
+
   test('network failure keeps a retained hint while currentUser remains null for read-only cold recovery', async () => {
     http.get.mockRejectedValueOnce(new Error('offline'))
 
