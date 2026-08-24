@@ -13,7 +13,7 @@ vi.mock('../src/api', () => ({
 }))
 vi.mock('../src/permissions', () => ({
   can: () => false,
-  PAGE_ROLES: { plans: ['sampler', 'planner', 'qc', 'tech'], qc: ['sampler', 'sample_manager', 'qc', 'tech'] },
+  PAGE_ROLES: { plans: ['sampler', 'planner', 'qc', 'tech'], qc: ['sampler', 'sample_manager', 'qc', 'planner', 'tech'] },
 }))
 vi.mock('vue-router', () => ({
   useRoute: () => mocks.route,

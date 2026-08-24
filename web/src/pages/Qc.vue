@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // 样品交接与质控工作面：样品管理员签收交接单，质控员随后生成任务通知单并下达。
 // 样品交接与质控安排是十阶段中的两个独立阶段，共用当前专业工作面。
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, nextTick, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { api, currentUser, type HandoverSheet, type TestNotice, type QualityPlan, type QualityPlanRequirement, type WorkflowAssignment, type WorkflowView, type WorkflowDecisionLevel } from '../api'
@@ -9,6 +9,7 @@ import { can, PAGE_ROLES } from '../permissions'
 import StageQueueNav from '../components/StageQueueNav.vue'
 import ProfessionalTaskQueue from '../components/ProfessionalTaskQueue.vue'
 import WorkflowReviewPanel from '../components/WorkflowReviewPanel.vue'
+import WorkflowAssignmentEditor from '../components/WorkflowAssignmentEditor.vue'
 import ProjectStageProgress from '../components/ProjectStageProgress.vue'
 import type { BusinessStageKey, StageQueueKey } from '../workflow/businessStages'
 import { matchesActorWorkflowQueue } from '../workflow/actorQueueMatching'
@@ -35,6 +36,7 @@ const qualityPlan = ref<QualityPlan | null>(null)
 const adjustments = ref<QualityPlanRequirement[]>([])
 const qualityError = ref<{ code: string; message: string }>({ code: '', message: '' })
 const qualityBusy = ref(false)
+const qualityAssignmentTarget = ref<HTMLElement | null>(null)
 
 // 按合同排：同一家的单挨在一起，行上带 单位·项目·委托号
 const byContract = (a: any, b: any) => String(a.contract_id || '').localeCompare(String(b.contract_id || '')) || String(a.id).localeCompare(String(b.id))
@@ -100,7 +102,10 @@ const sheetsNeedNotice = computed(() => {
 const draftNotices = computed(() => notices.value.filter(x => x.status === 'draft'))
 const issuedNotices = computed(() => notices.value.filter(x => x.status === 'issued').slice(0, 8))
 const visibleSheets = computed(() => sheets.value.filter(sheet => activeQueue.value === 'write' ? sheet.status === 'draft' : activeQueue.value === 'review' ? sheet.status === 'sent' : activeQueue.value === 'rejected' ? sheet.detail.some(row => row.rejected) : false))
+const canEditQuality = computed(() => currentUser.value?.roles.includes('qc') === true)
+const canAssignReviewers = computed(() => currentUser.value?.roles.some(role => role === 'planner' || role === 'admin') === true)
 const qualitySheets = computed(() => confirmedSheets.value.filter(sheet => {
+  if (activeQueue.value === 'write' && canAssignReviewers.value) return true
   const workflow = workflowByRound.value[sheet.round_id]
   const assignment = assignmentsByContract.value[sheet.contract_id]?.find(item => item.scope === 'quality')
   const plan = qualityPlanByRound.value[sheet.round_id]
@@ -111,7 +116,22 @@ const qualitySheets = computed(() => confirmedSheets.value.filter(sheet => {
 const selectedQualitySheet = computed(() => confirmedSheets.value.find(sheet => sheet.round_id === selectedRoundId.value) || null)
 const selectedQualityWorkflow = computed(() => selectedRoundId.value ? workflowByRound.value[selectedRoundId.value] || null : null)
 const selectedQualityAssignment = computed(() => selectedQualitySheet.value ? assignmentsByContract.value[selectedQualitySheet.value.contract_id]?.find(item => item.scope === 'quality') || null : null)
-const canEditQuality = computed(() => currentUser.value?.roles.includes('qc') === true)
+const missingQualityAssignmentMessage = computed(() => canAssignReviewers.value
+  ? '本项目尚未指定质控复核人和审核人，指定后才能提交复核。'
+  : '本项目尚未指定质控复核人和审核人。请联系计划员或管理员指定；当前账号可编制质控安排和派检测任务，不能指定审核人员。')
+async function focusQualityAssignment() {
+  await nextTick()
+  const target = qualityAssignmentTarget.value?.querySelector<HTMLElement>('[data-assignment-scope="quality"]')
+  target?.focus()
+  target?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+}
+function onQualityAssignmentSaved(assignment: WorkflowAssignment) {
+  const current = assignmentsByContract.value[assignment.contract_id] || []
+  assignmentsByContract.value = {
+    ...assignmentsByContract.value,
+    [assignment.contract_id]: [...current.filter(item => item.scope !== assignment.scope), assignment],
+  }
+}
 async function selectQualityRound(roundId: string) {
   selectedRoundId.value = roundId; qualityError.value = { code: '', message: '' }
   qualityPlan.value = null; adjustments.value = []
@@ -262,9 +282,16 @@ const dt = (iso?: string | null) => (iso ? iso.slice(5, 16).replace('T', ' ') : 
         </div>
         <WorkflowReviewPanel v-if="qualityPlan" :workflow="selectedQualityWorkflow" :assignment="selectedQualityAssignment"
           :actor-username="currentUser?.username || ''" :author-username="qualityPlan.author_username"
-          :qualification-problem="selectedQualityAssignment ? '' : '本项目尚未指定质控复核人和审核人，暂不能提交复核'"
+          :qualification-problem="selectedQualityAssignment ? '' : missingQualityAssignmentMessage"
+          :qualification-action-label="!selectedQualityAssignment && canAssignReviewers ? '立即指定人员' : ''"
           :busy="qualityBusy" :error-code="qualityError.code" :error-message="qualityError.message"
-          @submit="submitQualityReview" @decide="decideQualityReview" @refresh="refreshSelectedQuality" />
+          @submit="submitQualityReview" @decide="decideQualityReview" @refresh="refreshSelectedQuality"
+          @resolve-qualification-problem="focusQualityAssignment" />
+        <div v-if="canAssignReviewers" ref="qualityAssignmentTarget" data-quality-assignment-target class="assignment-focus-target">
+          <WorkflowAssignmentEditor :contract-id="selectedQualitySheet.contract_id"
+            :assignments="assignmentsByContract[selectedQualitySheet.contract_id] || []" :scopes="['quality']"
+            @saved="onQualityAssignmentSaved" />
+        </div>
         <p v-else-if="qualityError.message" class="errbar" role="alert">{{ qualityError.message }}</p>
         <p v-else class="empty">尚未保存质控安排。质控员保存后才可提交复核。</p>
       </template>
