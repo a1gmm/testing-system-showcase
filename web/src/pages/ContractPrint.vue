@@ -18,8 +18,8 @@ const q = computed(() => c.value?.quote ?? null)
 const buyer = computed(() => q.value?.buyer ?? {})
 // 评审受理通过才能打印：没受理只给提示，不给打印
 const accepted = computed(() => !!c.value?.accepted_at)
-// 报价单是商务数据，服务端只给 登记员/技术负责人/授权签字人（admin恒真）——没权限时提示语要说实话
-const canSeeQuote = computed(() => hasRole('admin', 'registrar', 'tech', 'signer'))
+// 报价单是商务数据，服务端只给业务员/技术负责人/授权签字人（admin恒真）——没权限时提示语要说实话
+const canSeeQuote = computed(() => hasRole('admin', 'sales', 'tech', 'signer'))
 const extNo = computed(() => q.value?.extNo || c.value?.id || '')
 const discount = computed(() => q.value?.discount ?? 0)
 const upper = computed(() => q.value?.discountUpper || rmbUpper(discount.value))
@@ -196,7 +196,7 @@ function doClose() { window.close() }
         </table>
       </section>
     </template>
-    <div v-else-if="c && !q && !canSeeQuote" class="errbox noprint">你的岗位看不到报价单（商务数据），打印合同正本需要登记员 / 技术负责人 / 授权签字人操作。</div>
+    <div v-else-if="c && !q && !canSeeQuote" class="errbox noprint">你的岗位看不到报价单（商务数据），打印合同正本需要业务员 / 技术负责人 / 授权签字人操作。</div>
     <div v-else-if="c && !q" class="errbox noprint">这份合同是快速登记建的，没有报价单数据，打印不了合同正本。</div>
   </div>
 </template>

@@ -7,8 +7,10 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { createHash, generateKeyPairSync, sign } from 'node:crypto'
 import { openDb, resolveLegacyStagingDir } from '../src/db.ts'
-import { stageAttachment, getStagedAttachmentStatus, cancelStagedAttachment, addStagedAttachmentRef, gcStagedAttachments, startStagingGcTimer, createUser, assignRound, currentOfflineTaskScope } from '../src/handlers.ts'
+import { stageAttachment, getStagedAttachmentStatus, cancelStagedAttachment, addStagedAttachmentRef, gcStagedAttachments, startStagingGcTimer, createUser, assignRound, currentOfflineTaskScope, submitSamplingWorkflow } from '../src/handlers.ts'
 import { detectImageMime } from '../src/attachmentSecurity.ts'
+import { assignProjectReviewers, setUserQualifications } from '../src/qualifications.ts'
+import { decideWorkflow } from '../src/workflow.ts'
 
 function fixture() {
   const db = openDb(':memory:')
@@ -69,6 +71,27 @@ test('cancel atomically removes bytes and leaves tombstone audit', () => {
   const row = db.prepare(`SELECT blob,status FROM staged_attachments WHERE receipt_id=?`).get(staged.receiptId) as any
   assert.equal(row.blob, null); assert.equal(row.status, 'cancelled')
   assert.equal((db.prepare(`SELECT COUNT(*) n FROM audit_log WHERE record_id='round-1' AND action='attachment_stage_cancel'`).get() as any).n, 1)
+})
+
+test('submitted sampling freezes staged upload and cancel in review and approval queues', () => {
+  const db = fixture()
+  createUser(db, { username: 'stage-reviewer', name: '暂存复核', roles: [], password: 'secret1' })
+  createUser(db, { username: 'stage-approver', name: '暂存审核', roles: [], password: 'secret1' })
+  const admin = { username: 'admin', name: '管理员', roles: ['admin'], status: 'active' } as any
+  const planner = { username: 'planner', name: '计划员', roles: ['planner'], status: 'active' } as any
+  setUserQualifications(db, 'stage-reviewer', ['sampling_review'], admin)
+  setUserQualifications(db, 'stage-approver', ['sampling_approve'], admin)
+  assignProjectReviewers(db, 'c-1', 'sampling', 'stage-reviewer', 'stage-approver', planner)
+  const staged = stageAttachment(db, input, Buffer.from('abc'), actor, { managedDeviceId: 'device-a' })
+  const workflow = submitSamplingWorkflow(db, 'round-1', actor)
+  const late = { ...input, clientAttachmentId: 'late-upload' }
+
+  assert.throws(() => stageAttachment(db, late, Buffer.from('abc'), actor, { managedDeviceId: 'device-a' }), /已提交审核并冻结/)
+  assert.throws(() => cancelStagedAttachment(db, 'round-1', 'local-a', actor, { managedDeviceId: 'device-a' }), /已提交审核并冻结/)
+  decideWorkflow(db, workflow.id, 1, 'review', 'approve', '', { username: 'stage-reviewer', name: '暂存复核', roles: [], status: 'active' } as any)
+  assert.throws(() => stageAttachment(db, late, Buffer.from('abc'), actor, { managedDeviceId: 'device-a' }), /已提交审核并冻结/)
+  assert.throws(() => cancelStagedAttachment(db, 'round-1', 'local-a', actor, { managedDeviceId: 'device-a' }), /已提交审核并冻结/)
+  assert.equal((db.prepare(`SELECT status FROM staged_attachments WHERE receipt_id=?`).get(staged.receiptId) as any).status, 'uploaded_staged')
 })
 
 test('GC deletes only terminal unreferenced generations', () => {

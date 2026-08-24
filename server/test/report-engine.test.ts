@@ -11,6 +11,12 @@ import {
   createSample, saveRecord, reviewRecord,
   generateReport, updateReport, buildConclusionDraft,
 } from '../src/handlers.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
+import {
+  generateTestSampleReport,
+  prepareReportTestActors,
+  reportTestActors,
+} from './support/approved-report.ts'
 
 const wj = { name: '许技术', username: 'demo_tech' }
 
@@ -94,7 +100,7 @@ test('结论句式库：单标准全符合 / 不予判定 / 多标准分组 / �
   assert.ok(c5.includes('其它检测项目检测结果符合'), c5)
 })
 
-test('报告生成：verdict自动判草稿（拍板3翻案决策15），结论=引擎草稿且编制人可改', () => {
+test('报告生成：项目归档不能绑定无期次合同样品或无项目样品，legacy路径仍可编制', () => {
   const db = openDb(':memory:')
   const c = createContract(db, { client: '判定厂', plan: [{ matrix: '废水', items: ['COD'], qty: 1 }] })
   acceptContract(db, c.id, '周登记')
@@ -104,18 +110,26 @@ test('报告生成：verdict自动判草稿（拍板3翻案决策15），结论=
     limits: [{ analyte: 'COD', op: '≤', value: 50, unit: 'mg/L', stdName: '纺织染整工业水污染物排放标准', stdNo: 'GB 4287-2012', tableNo: '表2' } as any],
   })
   reviewScheme(db, c.id, 'approve', '许技术')
-  const s = createSample(db, { matrix: '废水', items: ['COD'], client: '判定厂' })
-  let rec = saveRecord(db, { sampleId: s.id, code: 'HJ-TC-103', analyte: 'COD', method: '重铬酸盐法',
-    data: { rows: [], meta: {}, resultSummary: { analyte: 'COD', value: 30, unit: 'mg/L' } }, submit: true })
-  rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-  rec = reviewRecord(db, rec.id, 'approve', '孙审核')
-  // 样品挂上合同才能取到方案限值
-  db.prepare(`UPDATE samples SET contract_id=? WHERE id=?`).run(c.id, s.id)
-  const rp = generateReport(db, s.id, 2026, '周登记')
+  prepareReportTestActors(db, c.id)
+  const s = createSample(db, { matrix: '废水', items: ['COD'], client: '判定厂', contractId: c.id })
+  approveLaboratoryRecord(db, { sampleId: s.id, code: 'HJ-TC-103', analyte: 'COD', method: '重铬酸盐法',
+    data: { rows: [], meta: {}, resultSummary: { analyte: 'COD', value: 30, unit: 'mg/L' } } })
+  db.prepare(`INSERT INTO archive_packages
+    (id,contract_id,version,status,manifest_sha256,created_by,created_at) VALUES (?,?,?,?,?,?,?)`)
+    .run('ARCHIVE-DRAFT', c.id, 1, 'ready', 'a'.repeat(64), 'archive-user', '2026-08-22T00:00:00.000Z')
+  assert.throws(() => generateReport(db, s.id, 2026, reportTestActors.author.name, reportTestActors.author.username, 'ARCHIVE-DRAFT'), /确认.*归档|归档.*确认/)
+  db.prepare(`UPDATE archive_packages SET status='confirmed',confirmed_by='archive-user',confirmed_at='2026-08-22T00:01:00.000Z'
+    WHERE id='ARCHIVE-DRAFT'`).run()
+  assert.throws(() => generateReport(db, s.id, 2026, reportTestActors.author.name, reportTestActors.author.username, 'ARCHIVE-DRAFT'), /期次|项目归档|实验室记录|清单/)
+  const self = createSample(db, { matrix: '废水', items: ['COD'], client: '自送样客户' })
+  approveLaboratoryRecord(db, { sampleId: self.id, code: 'HJ-TC-103', analyte: 'COD', method: '重铬酸盐法',
+    data: { rows: [], meta: {}, resultSummary: { analyte: 'COD', value: 25, unit: 'mg/L' } } })
+  assert.throws(() => generateReport(db, self.id, 2026, '周登记', '', 'ARCHIVE-DRAFT'), /无项目|自送样|项目归档/)
+  const rp = generateTestSampleReport(db, s.id, 2026)
   assert.equal(rp.data.results[0].verdict, '达标', '自动判草稿')
   assert.ok(rp.data.results[0].limit.includes('50'), '限值带出')
   assert.ok(rp.conclusion.includes('符合《纺织染整工业水污染物排放标准》（GB 4287-2012）表2限值要求'), rp.conclusion)
   // 编制人可改（人工确认）
-  const upd = updateReport(db, rp.id, { conclusion: '人工改过的结论。' })
+  const upd = updateReport(db, rp.id, { conclusion: '人工改过的结论。' }, reportTestActors.author)
   assert.equal(upd.conclusion, '人工改过的结论。')
 })

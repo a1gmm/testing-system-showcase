@@ -2,7 +2,7 @@
 import { computed, ref, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { api, currentUser, hasRole, HANDOVER_ACTIONS, PRETREAT_METHODS, type Sample, type Handover, type Pretreatment, type TestTask, type HandoverSheet } from '../api'
+import { api, currentUser, hasRole, HANDOVER_ACTIONS, PRETREAT_METHODS, type Sample, type Handover, type Pretreatment, type TestTask, type HandoverSheet, type RecordRow, type WorkflowAssignment, type WorkflowView, type WorkflowDecisionLevel } from '../api'
 import { can } from '../permissions'
 import { confirmIfDirty } from '../utils/dirty'
 import RecordAttachments from '../components/RecordAttachments.vue'
@@ -13,6 +13,19 @@ const route = useRoute()
 import templatesJson from '../data/templates.json'
 import { templatePhase } from '../data/phase'
 import StructuredSheet from '../components/StructuredSheet.vue'
+import StageQueueNav from '../components/StageQueueNav.vue'
+import WorkflowReviewPanel from '../components/WorkflowReviewPanel.vue'
+import ProjectStageProgress from '../components/ProjectStageProgress.vue'
+import type { StageQueueKey } from '../workflow/businessStages'
+import { matchesActorWorkflowQueue } from '../workflow/actorQueueMatching'
+
+const activeQueue = computed<StageQueueKey>(() => ['write', 'review', 'approve', 'rejected', 'final'].includes(String(route.query.queue)) ? route.query.queue as StageQueueKey : 'write')
+const laboratoryRecords = ref<RecordRow[]>([])
+const selectedLaboratoryRecord = ref<RecordRow | null>(null)
+const laboratoryWorkflow = ref<WorkflowView | null>(null)
+const laboratoryAssignment = ref<WorkflowAssignment | null>(null)
+const laboratoryBusy = ref(false)
+const laboratoryError = ref<{ code: string; message: string }>({ code: '', message: '' })
 
 type Tpl = { code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; raw: string; file: string }
 const templates = templatesJson as Tpl[]
@@ -56,6 +69,49 @@ async function refresh() {
   catch (e: any) { ElMessage.error('后端未连接？' + (e?.message || e)) }
   finally { loading.value = false }
 }
+async function loadLaboratoryQueue() {
+  if (activeQueue.value === 'write') { laboratoryRecords.value = []; selectedLaboratoryRecord.value = null; return }
+  const status = ({ review: 'submitted', approve: 'reviewed', rejected: 'rejected', final: 'approved' } as const)[activeQueue.value as 'review' | 'approve' | 'rejected' | 'final']
+  const records = await api.listRecordsByStatus(status).catch(() => [])
+  const [workflowEntries, assignmentEntries] = await Promise.all([
+    Promise.all(records.map(async record => [record.id, await api.getWorkflow('lab_record', record.id).catch(() => null)] as const)),
+    Promise.all([...new Set(records.map(record => record.contract_id).filter((id): id is string => !!id))]
+      .map(async contractId => [contractId, await api.listWorkflowAssignments(contractId).catch(() => [])] as const)),
+  ])
+  const workflows = new Map(workflowEntries)
+  const assignments = new Map(assignmentEntries)
+  laboratoryRecords.value = records.filter(record => matchesActorWorkflowQueue(activeQueue.value, workflows.get(record.id),
+    record.contract_id ? assignments.get(record.contract_id)?.find(item => item.scope === 'laboratory') : null,
+    currentUser.value?.username || '', [record.author_username || '']))
+  if (!laboratoryRecords.value.some(record => record.id === selectedLaboratoryRecord.value?.id)) selectedLaboratoryRecord.value = null
+}
+async function selectLaboratoryRecord(record: RecordRow) {
+  selectedLaboratoryRecord.value = record; laboratoryError.value = { code: '', message: '' }
+  const [workflow, assignments] = await Promise.all([
+    api.getWorkflow('lab_record', record.id).catch(() => null),
+    record.contract_id ? api.listWorkflowAssignments(record.contract_id).catch(() => []) : Promise.resolve([]),
+  ])
+  laboratoryWorkflow.value = workflow
+  laboratoryAssignment.value = assignments.find(item => item.scope === 'laboratory') || null
+}
+async function refreshLaboratoryRecord() {
+  if (selectedLaboratoryRecord.value) await selectLaboratoryRecord(selectedLaboratoryRecord.value)
+  await loadLaboratoryQueue()
+}
+async function submitLaboratoryReview() {
+  if (!selectedLaboratoryRecord.value || laboratoryBusy.value) return
+  laboratoryBusy.value = true
+  try { await api.submitWorkflow('lab_record', selectedLaboratoryRecord.value.id); await refreshLaboratoryRecord() }
+  catch (error: any) { laboratoryError.value = { code: error?.response?.data?.error_code || '', message: error?.response?.data?.error || error?.message || '提交失败' } }
+  finally { laboratoryBusy.value = false }
+}
+async function decideLaboratoryReview(input: { revision: number; level: WorkflowDecisionLevel; decision: 'approve' | 'reject'; comment: string }) {
+  if (!laboratoryWorkflow.value || laboratoryBusy.value) return
+  laboratoryBusy.value = true
+  try { await api.decideWorkflow(laboratoryWorkflow.value.id, input); await refreshLaboratoryRecord() }
+  catch (error: any) { laboratoryError.value = { code: error?.response?.data?.error_code || '', message: error?.response?.data?.error || error?.message || '审批失败' } }
+  finally { laboratoryBusy.value = false }
+}
 function setStatus(s: string) { statusFilter.value = s; refresh() }
 // 按项目（合同）筛选的选项
 const contractOpts = computed(() => {
@@ -85,18 +141,18 @@ const showGrpHead = (i: number) => {
   return i === 0 || (cur.contract_id || '') !== (prev?.contract_id || '')
 }
 
-// —— 我的检测任务（质控派活给我）：检测员默认只看派给自己的活 ——
+// —— 我的检测任务（质控派活给我）：实验室分析人员默认只看派给自己的活 ——
 const myTasks = ref<TestTask[]>([])
 const onlyMine = ref(false)
 // 搜索/筛选变了回到第 1 页——必须放在 onlyMine 声明之后（watch 同步取值，放前面是 TDZ 白屏）
 watch([keyword, statusFilter, contractFilter, onlyMine], () => { page.value = 1 })
-const isPureTester = computed(() => hasRole('tester') && !hasRole('tech') && !(currentUser.value?.roles || []).includes('admin'))
-// 真盲视角（拍板2）：与后端 isBlindViewer 同口径——纯检测员（不兼 qc/采样/登记/管理/签字岗）
-const isBlindView = computed(() => hasRole('tester') && !hasRole('admin', 'tech', 'qc', 'registrar', 'sampler', 'signer'))
+const isPureTester = computed(() => hasRole('analyst') && !hasRole('tech') && !(currentUser.value?.roles || []).includes('admin'))
+// 真盲视角（拍板2）：与后端 isBlindViewer 同口径——纯实验室分析人员（不兼质控/采样/商务/管理/签字岗）
+const isBlindView = computed(() => hasRole('analyst') && !hasRole('admin', 'tech', 'qc', 'sales', 'sampler', 'signer'))
 const myTaskSampleIds = computed(() => new Set(myTasks.value.map(t => t.sample_id)))
 async function loadMyTasks() {
   try { myTasks.value = await api.listTasks({ assignee: 'me' }) } catch { myTasks.value = [] }
-  // 纯检测员且确实有派给他的活 → 默认只看自己的
+  // 纯实验室分析人员且确实有派给他的活 → 默认只看自己的
   if (isPureTester.value && myTasks.value.length && !touchedMineToggle.value) onlyMine.value = true
 }
 const todayStr = new Date().toISOString().slice(0, 10)
@@ -115,18 +171,19 @@ async function select(s: Sample) {
   api.getSample(s.id).then(d => { if (selected.value?.id === s.id) selected.value = { ...selected.value, storage: (d as any).storage } }).catch(() => {})
 }
 async function backToPicker() { if (await confirmIfDirty()) chosenTpl.value = null }
-// —— 跨合同同表批量录入（PRD 步骤6）——
+// —— 阶段 8：跨合同同表批量录入 ——
 const batchMode = ref(false)
 async function toggleBatch() { if (await confirmIfDirty()) batchMode.value = !batchMode.value }
 async function onBatchSaved() { await refresh(); await loadMyTasks() }
 
-// —— 检测任务派工（PRD 步骤5：qc 按样品×项目派给检测员）——
+// —— 阶段 7：质控员按样品×项目派给实验室分析人员 ——
 const tasks = ref<TestTask[]>([])
 const showTasks = ref(false)
 const canAssignTasks = computed(() => can('task_assign'))
 const testers = ref<{ username: string; name: string }[]>([])
 const taskDraft = ref<Record<string, string>>({})
-const TASK_ST: Record<string, string> = { none: '未开始', draft: '录入中', submitted: '待复核', reviewed: '待终审', approved: '已定稿', rejected: '被打回' }
+const TASK_ST: Record<string, string> = { none: '未开始', draft: '录入中', submitted: '待复核', reviewed: '待终审', migration_required: '待迁移', approved: '已定稿', rejected: '被打回' }
+const TASK_TONE: Record<string, string> = { migration_required: 'warn' }
 async function loadTasks() {
   tasks.value = []; taskDraft.value = {}
   if (!selected.value) return
@@ -141,7 +198,7 @@ async function saveTasks() {
   const items = (selected.value.items || [])
     .map(a => ({ analyte: a, assignee: taskDraft.value[a] || '', assigneeUsername: testers.value.find(t => t.name === taskDraft.value[a])?.username }))
     .filter(x => x.assignee)
-  if (!items.length) return ElMessage.warning('先给至少一个项目选检测员')
+  if (!items.length) return ElMessage.warning('先给至少一个项目选实验室分析人员')
   taskSaving.value = true
   try {
     tasks.value = await api.assignTasks(selected.value.id, items)
@@ -302,7 +359,7 @@ async function confirmHo(h: Handover) {
 }
 function hoTime(iso: string) { return iso ? iso.slice(0, 16).replace('T', ' ') : '' }
 
-// —— 交接单（批次一）：收样自动草稿 → 采样员改/发出 → 质控员整单签收（可拒收个别样品） ——
+// —— 交接单（批次一）：收样自动草稿 → 采样员改/发出 → 样品管理员整单签收（可拒收个别样品） ——
 const sheets = ref<HandoverSheet[]>([])
 const sheetOpen = ref('')
 const canSheet = computed(() => can('handover_send'))
@@ -315,10 +372,10 @@ async function doSaveSheet(sh: HandoverSheet) {
   catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
 }
 async function doSendSheet(sh: HandoverSheet) {
-  try { await api.sendHandoverSheet(sh.id); ElMessage.success('已发质控员签收'); await loadSheets() }
+  try { await api.sendHandoverSheet(sh.id); ElMessage.success('已发样品管理员签收'); await loadSheets() }
   catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
 }
-// 质控签收/任务通知单已拆到「③质控交接」页（Qc.vue）——本页只留采样员发出入口和检测员认领池
+// 样品交接/质控任务通知单在阶段 6–7 工作面（Qc.vue）处理；本页保留交样入口和实验任务认领池
 
 // —— 待认领任务池（拍板1：认领为主+质控可指派）——
 const unclaimed = ref<TestTask[]>([])
@@ -365,31 +422,56 @@ onMounted(async () => {
   await loadMyTasks()
   await loadSheets()
   await loadUnclaimed()
+  await loadLaboratoryQueue()
   if (canAssignTasks.value) { try { testers.value = await api.listTesters() } catch { /* */ } }
   const want = route.query.sample as string | undefined
   if (want) { const s = samples.value.find(x => x.id === want); if (s) select(s) }
 })
+watch(() => route.query.queue, loadLaboratoryQueue)
 </script>
 
 <template>
   <div class="pagewrap wide">
     <div class="phead">
       <div>
-        <h1 class="page">检测录入</h1>
-        <p class="sub">选一张记录表录入原始数据 · 客户直接送检可「自送样登记」</p>
+        <h1 class="page">⑧ 实验室分析</h1>
+        <p class="sub">原始记录编制、复核、审核在同一专业页面完成</p>
       </div>
       <div class="hact">
         <span v-if="samples.length" class="hcount num">在库 {{ samples.length }} 个样品</span>
-        <el-button v-if="can('record_save')" :type="batchMode ? 'primary' : 'default'" plain @click="toggleBatch">{{ batchMode ? '返回逐样录入' : '同表批量录入' }}</el-button>
-        <el-button v-if="can('sample_create')" type="primary" @click="showReg = !showReg">自送样登记</el-button>
+        <el-button v-if="activeQueue === 'write' && can('record_save')" :type="batchMode ? 'primary' : 'default'" plain @click="toggleBatch">{{ batchMode ? '返回逐样录入' : '同表批量录入' }}</el-button>
+        <el-button v-if="activeQueue === 'write' && can('sample_create')" type="primary" @click="showReg = !showReg">自送样登记</el-button>
       </div>
     </div>
+    <StageQueueNav :active="activeQueue" />
 
-    <!-- 交接单（采样员视角）：收样自动生成草稿 → 补保存条件 → 发质控签收。签收/通知单在「③质控交接」页 -->
-    <div v-if="!batchMode && sheets.length && can('handover_send')" class="card hosheet-card">
+    <div v-if="activeQueue !== 'write'" class="split laboratory-queue">
+      <section class="left card">
+        <div class="queue-heading"><b>{{ activeQueue === 'review' ? '待我复核' : activeQueue === 'approve' ? '待我审核' : activeQueue === 'rejected' ? '已退回' : '已定稿' }}</b><span class="num">{{ laboratoryRecords.length }} 份记录</span></div>
+        <button v-for="record in laboratoryRecords" :key="record.id" type="button" class="laboratory-row" :class="{ on: selectedLaboratoryRecord?.id === record.id }" @click="selectLaboratoryRecord(record)">
+          <span class="mono">{{ record.serial || record.id }}</span><b>{{ record.template_name }}</b><span>{{ record.analyte }} · {{ record.matrix }}</span><small>{{ record.contract_id || '散样' }}</small>
+        </button>
+        <div v-if="!laboratoryRecords.length" class="empty">当前队列没有实验室记录</div>
+      </section>
+      <section class="right card">
+        <template v-if="selectedLaboratoryRecord">
+          <div class="laboratory-detail"><h2>{{ selectedLaboratoryRecord.template_name }}</h2><p><span class="mono">{{ selectedLaboratoryRecord.id }}</span> · {{ selectedLaboratoryRecord.analyte }} · {{ selectedLaboratoryRecord.matrix }}</p></div>
+          <ProjectStageProgress current-stage="laboratory" :completed-stages="['contract','contract-review','scheme','dispatch','sampling','handover','quality']" />
+          <WorkflowReviewPanel :workflow="laboratoryWorkflow" :assignment="laboratoryAssignment"
+            :actor-username="currentUser?.username || ''" :author-username="laboratoryWorkflow?.created_by"
+            :qualification-problem="laboratoryAssignment ? '' : '本项目尚未指定实验室复核人和审核人，暂不能提交复核'"
+            :busy="laboratoryBusy" :error-code="laboratoryError.code" :error-message="laboratoryError.message"
+            @submit="submitLaboratoryReview" @decide="decideLaboratoryReview" @refresh="refreshLaboratoryRecord" />
+        </template>
+        <div v-else class="rest">左侧选择一份记录</div>
+      </section>
+    </div>
+
+    <!-- 交接单（采样员视角）：收样自动生成草稿 → 补保存条件 → 发样品管理员签收。签收/通知单在阶段 6–7 工作面 -->
+    <div v-if="activeQueue === 'write' && !batchMode && sheets.length && can('handover_send')" class="card hosheet-card">
       <div class="hosheet-head">
         <b>样品交接单</b>
-        <span class="muted">收样自动生成 · 补保存条件后发质控员签收（签收在「③质控交接」页）</span>
+        <span class="muted">收样自动生成 · 补保存条件后发样品管理员签收（签收在阶段 6 样品交接）</span>
       </div>
       <div v-for="sh in sheets" :key="sh.id" class="hosheet">
         <div class="hosheet-line">
@@ -402,7 +484,7 @@ onMounted(async () => {
           <span class="spacer"></span>
           <el-button size="small" text type="primary" @click="sheetOpen = sheetOpen === sh.id ? '' : sh.id">{{ sheetOpen === sh.id ? '收起' : '明细' }}</el-button>
           <a class="plink" :href="`/handover-sheets/${sh.id}/print`" target="_blank">打印</a>
-          <el-button v-if="sh.status === 'draft'" size="small" type="primary" plain @click="doSendSheet(sh)">发质控签收</el-button>
+          <el-button v-if="sh.status === 'draft'" size="small" type="primary" plain @click="doSendSheet(sh)">发样品管理员签收</el-button>
         </div>
         <div v-if="sheetOpen === sh.id" class="hosheet-detail">
           <div v-if="sh.status === 'draft'" style="margin-bottom:8px">
@@ -422,8 +504,8 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- 待认领任务池：通知单下达后，检测员自己领活（质控员也可在样品页指派） -->
-    <div v-if="!batchMode && unclaimed.length && can('record_save')" class="card hosheet-card">
+    <!-- 待认领任务池：通知单下达后，实验室分析人员自己领活（质控员也可在样品页指派） -->
+    <div v-if="activeQueue === 'write' && !batchMode && unclaimed.length && can('record_save')" class="card hosheet-card">
       <div class="hosheet-head">
         <b>待认领任务</b>
         <span class="muted">通知单已下达 · 认领后出现在「我的任务」，才能录数据</span>
@@ -439,11 +521,11 @@ onMounted(async () => {
     </div>
 
     <!-- 同表批量录入：一张表多样品（可跨委托），按编号自动归各自合同 -->
-    <div v-if="batchMode" class="card" style="padding:16px">
+    <div v-if="activeQueue === 'write' && batchMode" class="card" style="padding:16px">
       <BatchEntry :samples="samples" :my-tasks="myTasks" @saved="onBatchSaved" />
     </div>
 
-    <div v-else class="split">
+    <div v-else-if="activeQueue === 'write'" class="split">
       <!-- 左：登记 + 列表 -->
       <div class="left">
         <section v-if="showReg" class="regsec">
@@ -551,7 +633,7 @@ onMounted(async () => {
                     <template v-else>
                       <span class="ho-sign warn">待接收方确认</span>
                       <el-button v-if="canConfirmHo" size="small" text type="primary" @click="confirmHo(h)">确认签收</el-button>
-                      <span v-else class="ho-wait">待质控员签收</span>
+                      <span v-else class="ho-wait">待样品管理员签收</span>
                     </template>
                     <RecordAttachments type="handover" :id="h.id" />
                   </div>
@@ -568,14 +650,14 @@ onMounted(async () => {
               </div>
             </section>
 
-            <!-- 步骤② 检测任务派工（PRD 步骤5：质控员按项目派检测员）-->
+            <!-- 阶段 7 质控任务派工：质控员按项目派实验室分析人员 -->
             <section class="step" :class="{ open: showTasks }">
               <button class="step-h" @click="showTasks = !showTasks">
                 <span class="step-no">2</span>
                 <span class="step-t">检测任务派工</span>
                 <span class="step-sum">
                   <template v-if="tasks.length">{{ tasks.map(t => `${t.analyte}→${t.assignee}`).join(' · ') }}</template>
-                  <template v-else-if="selected.round_id"><em class="warn">还没派活——质控员签收后在此把项目派给检测员</em></template>
+                  <template v-else-if="selected.round_id"><em class="warn">还没派活——质量安排审核通过后把项目派给实验室分析人员</em></template>
                   <template v-else>自送样可不派（登记人直接测）</template>
                 </span>
                 <el-icon class="step-chev"><ArrowRight /></el-icon>
@@ -585,18 +667,18 @@ onMounted(async () => {
                   <div v-for="t in tasks" :key="t.id" class="ho-ev">
                     <span class="ho-act">{{ t.analyte }}</span>
                     <span class="ho-flow">→ <b>{{ t.assignee }}</b></span>
-                    <span class="ho-f">{{ TASK_ST[t.record_status] || t.record_status }}</span>
+                    <span class="ho-f" :class="TASK_TONE[t.record_status]">{{ TASK_ST[t.record_status] || t.record_status }}</span>
                     <span class="ho-meta mono">{{ t.assigned_by }} 派 · {{ hoTime(t.assigned_at) }}</span>
                     <el-button v-if="canAssignTasks && t.record_status === 'none'" size="small" text type="danger" @click="cancelTask(t)">取消</el-button>
                     <el-button v-if="t.record_status === 'none' && t.assignee === currentUser?.name" size="small" text @click="unclaim(t)">退回认领池</el-button>
                   </div>
-                  <div v-if="!tasks.length" class="ho-empty">还没有派工记录。质控员确认签收后，在下面把每个检测项目派给检测员；检测员只能录派给自己的项目。</div>
+                  <div v-if="!tasks.length" class="ho-empty">还没有派工记录。质量安排审核通过后，在下面把每个检测项目派给实验室分析人员；实验室分析人员只能录派给自己的项目。</div>
                 </div>
                 <div v-if="canAssignTasks && selected.items.length" class="ho-add task-add">
                   <template v-for="a in selected.items" :key="a">
                     <label class="task-row">{{ a }}
                       <select v-model="taskDraft[a]">
-                        <option value="">（选检测员）</option>
+                        <option value="">（选实验室分析人员）</option>
                         <option v-for="p in testers" :key="p.username || p.name" :value="p.name">{{ p.name }}</option>
                       </select>
                     </label>
@@ -733,7 +815,7 @@ onMounted(async () => {
                     :template-name="chosenTpl.raw"
                     :analyte="chosenTpl.analyte" :method="chosenTpl.method" :matrix="chosenTpl.matrix"
                     :code="chosenTpl.code" :sheet-type="chosenTpl.sheetType"
-                    :readonly="!can('record_save')" lock-text="只有检测员能填写检测原始记录" />
+                    :readonly="!can('record_save')" lock-text="只有实验室分析人员能填写检测原始记录" />
                 </div>
               </div>
             </section>
@@ -835,6 +917,7 @@ button.step-h:hover{background:var(--surface-2)}
 .ho-ev:last-child{border-bottom:0}
 .ho-act{font-weight:600;color:var(--ink);font-size:12.5px}
 .ho-f{font-size:12px;color:var(--muted)}
+.ho-f.warn{color:var(--warn);background:var(--warn-soft);font-weight:600;border-radius:5px;padding:1px 7px}
 .ho-flow{color:var(--faint)}
 .ho-flow b{color:var(--ink);font-weight:500}
 .ho-cond{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-size:12px}

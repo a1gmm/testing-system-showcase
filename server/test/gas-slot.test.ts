@@ -6,13 +6,16 @@ import {
   createContract, acceptContract, createScheme, reviewScheme, composeFreq, createUser,
   upsertPoint, listRounds, assignRound, confirmRoundField, sampleRound,
   listHandoverSheets, sendHandoverSheet, confirmHandoverSheet,
-  saveRecord, reviewRecord, generateRoundReport,
+  saveRecord, reviewRecord,
 } from '../src/handlers.ts'
+import { generateTestRoundReport } from './support/approved-report.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
 
 test('有组织废气期次报告：data.stacks 带排气筒静态参数、结果行透传折算/速率', () => {
   const db = openDb(':memory:')
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
-  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc'], password: 'x12345' })
+  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
   const c = createContract(db, { client: '气厂', project: '例行', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
@@ -26,21 +29,19 @@ test('有组织废气期次报告：data.stacks 带排气筒静态参数、结�
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, { username: 'demo_sampler', name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样', username: 'demo_sampler' })
   assert.ok(made.some(s => !s.qc_type && s.matrix === '有组织废气'))
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, { name: '赵采样', username: 'demo_sampler' })
   confirmHandoverSheet(db, sh.id, { name: '吴质控', username: 'qianqc' })
   for (const s of made) {
-    let rec = saveRecord(db, {
+    approveLaboratoryRecord(db, {
       sampleId: s.id, code: 'HJ-TC-642', analyte: '二氧化硫', method: '定电位电解法',
       data: { rows: [], meta: {}, resultSummary: { analyte: '二氧化硫', value: 47, unit: 'mg/m³', corrected: 49, rate: 0.035 } },
-      submit: true,
     })
-    rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-    reviewRecord(db, rec.id, 'approve', '孙审核')
   }
-  const rp = generateRoundReport(db, r.id, 2026, '周登记')
+  const rp = generateTestRoundReport(db, r.id, 2026)
   // 排气筒附表数据
   assert.ok(Array.isArray(rp.data.stacks), '气类报告要带 stacks')
   const st = rp.data.stacks.find((x: any) => x.name === '1#排气筒')

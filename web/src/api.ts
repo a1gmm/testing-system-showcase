@@ -9,9 +9,82 @@ const http = axios.create({ baseURL: '/api', timeout: 8000 })
 // ============ 登录态（全局唯一）============
 export type User = { username: string; name: string; roles: string[]; status: string; created_at: string; must_change_pw?: boolean; cert_name?: string | null; cert_until?: string | null }
 export const ROLE_LABEL: Record<string, string> = {
-  admin: '系统管理员', registrar: '登记员', sampler: '采样员', tester: '检测员',
-  reviewer: '复核员', approver: '审核员', signer: '授权签字人', tech: '技术负责人',
-  qc: '质控员',
+  admin: '系统管理员', sales: '业务员', tech: '技术负责人', planner: '计划员',
+  sampler: '采样员', sample_manager: '样品管理员', qc: '质控员',
+  analyst: '实验室分析人员', report_editor: '报告编制人员',
+  archivist: '档案管理员', signer: '授权签字人',
+}
+export const PROFESSIONAL_SCOPES = ['sampling', 'quality', 'laboratory', 'report'] as const
+export type ProfessionalScope = typeof PROFESSIONAL_SCOPES[number]
+export const PROFESSIONAL_SCOPE_LABEL: Record<ProfessionalScope, string> = {
+  sampling: '采样', quality: '质控', laboratory: '实验室', report: '报告',
+}
+export const QUALIFICATION_CODES = PROFESSIONAL_SCOPES.flatMap(scope => [`${scope}_review`, `${scope}_approve`] as const)
+export type QualificationCode = typeof QUALIFICATION_CODES[number]
+export const QUALIFICATION_LABEL: Record<QualificationCode, string> = {
+  sampling_review: '采样复核', sampling_approve: '采样审核',
+  quality_review: '质控复核', quality_approve: '质控审核',
+  laboratory_review: '实验室复核', laboratory_approve: '实验室审核',
+  report_review: '报告复核', report_approve: '报告审核',
+}
+export type UserQualification = {
+  username: string; code: QualificationCode; valid_from: string | null; valid_until: string | null
+  status: 'active' | 'inactive'; granted_by: string; granted_at: string
+}
+export type QualificationInput = {
+  code: QualificationCode; validFrom?: string | null; validUntil?: string | null; status?: 'active' | 'inactive'
+}
+export type WorkflowSubjectType = 'round_sampling' | 'quality_plan' | 'lab_record' | 'report'
+export type WorkflowStatus = 'draft' | 'pending_review' | 'pending_approval' | 'approved' | 'rejected' | 'withdrawn'
+export type WorkflowDecisionLevel = 'review' | 'approve'
+export type WorkflowDecision = 'approve' | 'reject'
+export type WorkflowRevision = {
+  revision: number; snapshot: Record<string, unknown>; snapshot_json: string; snapshot_sha256: string
+  submitted_by: string; submitted_at: string
+}
+export type WorkflowDecisionEntry = {
+  id: number; revision: number; level: WorkflowDecisionLevel; decision: WorkflowDecision
+  comment: string; decided_by: string; decided_at: string
+}
+export type WorkflowInstance = {
+  id: string; contract_id: string; round_id: string | null; scope: ProfessionalScope
+  subject_type: WorkflowSubjectType; subject_id: string; status: WorkflowStatus; current_revision: number
+  created_by: string; created_at: string; withdrawn_reason: string | null; withdrawn_by: string | null
+  withdrawn_at: string | null
+}
+export type WorkflowView = WorkflowInstance & { revisions: WorkflowRevision[]; decisions: WorkflowDecisionEntry[] }
+export type WorkflowTask = {
+  workflow_instance_id: string; subject_type: WorkflowSubjectType; subject_id: string; contract_id: string
+  status: 'pending_review' | 'pending_approval'; current_revision: number
+  decision_level: WorkflowDecisionLevel; acting_capacity: string
+}
+export type WorkflowAssignment = {
+  id: number; contract_id: string; scope: ProfessionalScope; reviewer_username: string; approver_username: string
+  active: boolean; reason: string | null; assigned_by: string; assigned_at: string
+}
+export type WorkflowCandidate = { username: string; name: string }
+export type ArchiveIssue = { code: string; message: string; roundId?: string; entityId?: string }
+export type ArchiveReadiness = {
+  ready: boolean; contractId: string; reportBatchId: string | null; roundIds: string[]; issues: ArchiveIssue[]
+}
+export type ArchiveItem = {
+  id: number; archive_package_id: string; item_order: number; entity_type: string; entity_id: string
+  workflow_instance_id: string | null; revision: number | null; content_hash: string; label: string
+  metadata: Record<string, unknown>
+}
+export type ArchivePackage = {
+  id: string; contract_id: string; report_batch_id: string | null; version: number
+  status: 'draft' | 'ready' | 'confirmed' | 'invalidated'; manifest_sha256: string; readiness: ArchiveReadiness
+  created_by: string; created_at: string; confirmed_by: string | null; confirmed_at: string | null
+  invalidated_by: string | null; invalidated_at: string | null; invalidation_reason: string | null; items: ArchiveItem[]
+}
+export type ReportBatch = {
+  id: string; contract_id: string; name: string; created_by: string; created_at: string; round_ids: string[]
+}
+export type QualityPlanRequirement = { qcType: string; matrix?: string; analyte?: string; qty: number; basis?: string; note?: string }
+export type QualityPlan = {
+  subject_id: string; round_id: string | null; batch_id: string | null; contract_id: string
+  requirements: QualityPlanRequirement[]; adjustments: QualityPlanRequirement[]; author_username: string; updated_at: string
 }
 export const currentUser = ref<User | null>(null)
 export function getToken() { return localStorage.getItem('tc_token') || '' }
@@ -116,7 +189,7 @@ export type Contract = {
 }
 export type Customer = { id: number; name: string; contact: string | null; phone?: string | null; address: string | null; note: string | null; created_at: string; contract_count: number }
 export type PipeStage = { key: string; label: string; code: string; who: string; status: 'done' | 'active' | 'todo'; action: string }
-export type Pipeline = { stages: PipeStage[]; activeIndex: number; round: { no: number | null; total: number; due?: string } | null }
+export type Pipeline = { stages: PipeStage[]; activeIndex: number; blockers: string[]; round: { no: number | null; total: number; due?: string } | null }
 export type RecordData = { rows: Record<string, any>[]; compRows?: Record<string, Record<string, any>[]>; meta: Record<string, any>; cells?: Record<string, any>; reg?: Record<string, any>; resultSummary?: { analyte: string; value: number | string; unit: string } | null }
 export type RecordRow = {
   id: string; serial: string | null; sample_id: string; template_code: string; template_name: string
@@ -124,6 +197,7 @@ export type RecordRow = {
   instrument_id: string | null; data: RecordData; status: string
   reviewer: string | null; reviewed_at: string | null
   approver: string | null; approved_at: string | null; reject_reason: string | null
+  author?: string | null; author_username?: string | null
   recheck?: number; recheck_reason?: string | null   // 超标复检标记
   contract_id?: string | null; client?: string | null // 所属合同/单位（审核队列按合同分组；盲用户已在接口层脱敏）
   updated_at: string
@@ -135,7 +209,7 @@ export type Checkout = { id: number; instrument_id: string; instrument_name?: st
 export type RefMaterial = { id: string; name: string; batch: string; spec: string; expiry: string | null; stock: string; supplier: string; cert_no: string; created_at: string }
 export type Reagent = { id: string; name: string; spec: string; grade: string; batch: string; expiry: string | null; stock: string; supplier: string; created_at: string }
 export type ResourceAlert = { type: string; typeLabel: string; id: string; name: string; date: string; bucket: 'overdue' | 'soon' }
-export type Report = { id: string; sample_id: string | null; round_id: string | null; contract_id: string | null; client: string; title: string; conclusion: string; data: any; status: string; checker: string | null; checked_at: string | null; issuer: string | null; issued_at: string | null; created_at: string; author?: string | null; voided?: number; void_reason?: string | null; voided_by?: string | null; voided_at?: string | null; reissue_of?: string | null }
+export type Report = { id: string; sample_id: string | null; round_id: string | null; contract_id: string | null; client: string; title: string; conclusion: string; data: any; status: string; checker: string | null; checked_at: string | null; issuer: string | null; issued_at: string | null; created_at: string; author?: string | null; author_username?: string | null; archive_package_id?: string | null; voided?: number; void_reason?: string | null; voided_by?: string | null; voided_at?: string | null; reissue_of?: string | null }
 export type ProjectStats = { samples: number; tested: number; approved: number; reports: number; issued: boolean; reportStatus: 'none' | 'draft' | 'checked' | 'issued' }
 export type ProjectSummary = Contract & { stats: ProjectStats; plan: Plan | null; pipeline: Pipeline }
 export type SampleWithRecords = Sample & { records: RecordRow[]; rollup: string }
@@ -186,10 +260,46 @@ export const api = {
   logout: async () => { try { await http.post('/logout') } catch { /* */ } finally { try { localStorage.removeItem('tc_token') } catch { /* */ }; currentUser.value = null; publishAuthLogout(); await Promise.resolve(clearRecoveryIdentity()).catch(() => undefined) } },
   me: async () => { const { data } = await http.get<User | null>('/me'); currentUser.value = data; if (data) await issueAuthenticatedRecoveryCredential(data.username); return data },
   listUsers: () => http.get<User[]>('/users').then(r => r.data),
+  listUserQualifications: (username: string) => http.get<UserQualification[]>(`/users/${encodeURIComponent(username)}/qualifications`).then(r => r.data),
+  setUserQualifications: (username: string, qualifications: QualificationInput[]) =>
+    http.post<UserQualification[]>(`/users/${encodeURIComponent(username)}/qualifications`, { qualifications }).then(r => r.data),
+  updateUserPersonnel: (username: string, body: { name: string; roles: string[]; qualifications: QualificationInput[] }) =>
+    http.post<{ user: User; qualifications: UserQualification[] }>(`/users/${encodeURIComponent(username)}/personnel`, body).then(r => r.data),
   createUser: (b: { username: string; name: string; roles: string[]; password: string }) => http.post<User>('/users', b).then(r => r.data),
   updateUser: (username: string, b: { name?: string; roles?: string[]; status?: string; certName?: string; certUntil?: string }) => http.post<User>(`/users/${encodeURIComponent(username)}/update`, b).then(r => r.data),
   resetPassword: (username: string, password: string) => http.post(`/users/${encodeURIComponent(username)}/reset-pw`, { password }).then(r => r.data),
   changePassword: (oldPassword: string, newPassword: string) => http.post('/change-password', { oldPassword, newPassword }).then(r => r.data),
+  getWorkflow: (subjectType: WorkflowSubjectType, subjectId: string) =>
+    http.get<WorkflowView | null>(`/workflows/${subjectType}/${encodeURIComponent(subjectId)}`).then(r => r.data),
+  listWorkflowTasks: (scope: ProfessionalScope) =>
+    http.get<WorkflowTask[]>(`/workflow-tasks/${scope}`).then(r => r.data),
+  submitWorkflow: (subjectType: WorkflowSubjectType, subjectId: string) =>
+    http.post<WorkflowInstance>(`/workflows/${subjectType}/${encodeURIComponent(subjectId)}/submit`, {}).then(r => r.data),
+  decideWorkflow: (instanceId: string, input: { revision: number; level: WorkflowDecisionLevel; decision: WorkflowDecision; comment?: string }) =>
+    http.post<WorkflowInstance>(`/workflows/${encodeURIComponent(instanceId)}/decide`, input).then(r => r.data),
+  withdrawWorkflow: (instanceId: string, reason: string) =>
+    http.post<{ workflow: WorkflowInstance; invalidation: { invalidatedArchiveIds: string[]; blockedReportIds: string[]; reissueRequiredReportIds: string[] } }>(`/workflows/${encodeURIComponent(instanceId)}/withdraw`, { reason }).then(r => r.data),
+  listWorkflowAssignments: (contractId: string) =>
+    http.get<WorkflowAssignment[]>(`/contracts/${encodeURIComponent(contractId)}/workflow-assignments`).then(r => r.data),
+  listWorkflowCandidates: (contractId: string, scope: ProfessionalScope, level: WorkflowDecisionLevel, at: string) =>
+    http.get<WorkflowCandidate[]>(`/contracts/${encodeURIComponent(contractId)}/workflow-candidates`, { params: { scope, level, at } }).then(r => r.data),
+  setWorkflowAssignment: (contractId: string, scope: ProfessionalScope, input: { reviewerUsername: string; approverUsername: string; reason?: string }) =>
+    http.post<WorkflowAssignment>(`/contracts/${encodeURIComponent(contractId)}/workflow-assignments/${scope}`, input).then(r => r.data),
+  getArchiveReadiness: (contractId: string, reportBatchId?: string) =>
+    http.get<ArchiveReadiness>(`/contracts/${encodeURIComponent(contractId)}/archive-readiness`, { params: reportBatchId ? { reportBatchId } : {} }).then(r => r.data),
+  buildArchivePackage: (contractId: string, reportBatchId?: string) =>
+    http.post<ArchivePackage>(`/contracts/${encodeURIComponent(contractId)}/archive-packages`, { reportBatchId }).then(r => r.data),
+  getArchivePackage: (id: string) => http.get<ArchivePackage>(`/archive-packages/${encodeURIComponent(id)}`).then(r => r.data),
+  listArchivePackages: (filter: { contractId?: string; status?: ArchivePackage['status'] } = {}) =>
+    http.get<ArchivePackage[]>('/archive-packages', { params: filter }).then(r => r.data),
+  confirmArchivePackage: (id: string) => http.post<ArchivePackage>(`/archive-packages/${encodeURIComponent(id)}/confirm`, {}).then(r => r.data),
+  createReportBatch: (input: { contractId: string; name: string; roundIds: string[] }) =>
+    http.post<ReportBatch>('/report-batches', input).then(r => r.data),
+  listReportBatches: (contractId?: string) =>
+    http.get<ReportBatch[]>('/report-batches', { params: contractId ? { contractId } : {} }).then(r => r.data),
+  getQualityPlan: (roundId: string) => http.get<QualityPlan | null>(`/rounds/${encodeURIComponent(roundId)}/quality-plan`).then(r => r.data),
+  saveQualityPlan: (roundId: string, adjustments: QualityPlanRequirement[]) =>
+    http.post<QualityPlan>(`/rounds/${encodeURIComponent(roundId)}/quality-plan`, { adjustments }).then(r => r.data),
 
   createSample: (b: { client?: string; matrix: string; items?: string[]; note?: string }) =>
     http.post<Sample>('/samples', b).then(r => r.data),
@@ -228,13 +338,13 @@ export const api = {
   voidReport: (id: string, reason: string) => http.post<Report>(`/reports/${id}/void`, { reason }).then(r => r.data),
   // 删除报告草稿（仅 draft/checked，签发过的走作废）
   deleteReport: (id: string) => http.post(`/reports/${id}/delete`, {}).then(r => r.data),
-  generateContractReport: (contractId: string) => http.post<Report>('/reports/generate-contract', { contractId }).then(r => r.data),
-  // 跨合同同表批量录入（PRD 步骤6）
+  generateContractReport: (contractId: string, archivePackageId: string) => http.post<Report>('/reports/generate-contract', { contractId, archivePackageId }).then(r => r.data),
+  // 阶段 8：跨合同同表批量录入
   saveRecordsBatch: (b: { code: string; name?: string; sheetType?: string; method?: string; analyte?: string; matrix?: string; instrumentId?: string; sharedMeta?: Record<string, any>; reg?: Record<string, any>; entries: { sampleId: string; row: Record<string, any>; resultSummary?: any }[]; submit?: boolean }) =>
     http.post<RecordRow[]>('/records/batch', b).then(r => r.data),
   addHandover: (id: string, b: { action: string; fromPerson?: string; toPerson?: string; condition?: string; note?: string }) => http.post<Handover>(`/samples/${encodeURIComponent(id)}/handover`, b).then(r => r.data),
   confirmHandover: (handoverId: number) => http.post<Handover>(`/handovers/${handoverId}/confirm`, {}).then(r => r.data),
-  // 交接单（批次一）：收样自动草稿→采样员改/发出→质控员整单签收（可拒收个别样品）
+  // 交接单（批次一）：收样自动草稿→采样员改/发出→样品管理员整单签收（可拒收个别样品）
   listHandoverSheets: (f: { roundId?: string; status?: string } = {}) => http.get<HandoverSheet[]>('/handover-sheets', { params: f }).then(r => r.data),
   updateHandoverSheet: (id: string, b: { detail?: HandoverSheetRow[]; storage?: string; note?: string; fromPerson?: string }) => http.post<HandoverSheet>(`/handover-sheets/${encodeURIComponent(id)}/update`, b).then(r => r.data),
   sendHandoverSheet: (id: string) => http.post<HandoverSheet>(`/handover-sheets/${encodeURIComponent(id)}/send`, {}).then(r => r.data),
@@ -341,7 +451,7 @@ export const api = {
   listRoundQc: (roundId: string) => http.get<QcRecord[]>(`/rounds/${roundId}/qc`).then(r => r.data),
   addRoundQc: (roundId: string, b: Record<string, any>) => http.post<QcRecord>(`/rounds/${roundId}/qc`, b).then(r => r.data),
   sampleRound: (roundId: string) => http.post<Sample[]>(`/rounds/${roundId}/sample`).then(r => r.data),
-  generateRoundReport: (roundId: string) => http.post<Report>('/reports/generate-round', { roundId }).then(r => r.data),
+  generateRoundReport: (roundId: string, archivePackageId: string) => http.post<Report>('/reports/generate-round', { roundId, archivePackageId }).then(r => r.data),
   listProjects: () => http.get<ProjectSummary[]>('/projects').then(r => r.data),
   getProject: (id: string) => http.get<Project>(`/projects/${id}`).then(r => r.data),
   uploadContractDoc: (id: string, file: File) =>
@@ -353,7 +463,7 @@ export const api = {
   listRecordsByStatus: (status?: string) => http.get<RecordRow[]>('/records-list', { params: status ? { status } : {} }).then(r => r.data),
   reviewRecord: (id: string, op: string, who?: string, comment?: string) =>
     http.post<RecordRow>(`/records/${id}/review`, { op, who, comment }).then(r => r.data),
-  // 已定稿记录打回重录（仅审核员；进了已签发报告的后端会拦）
+  // 已定稿记录打回重录（按实验室专业权限；进了已签发报告的后端会拦）
   revokeRecord: (id: string, reason: string) =>
     http.post<RecordRow>(`/records/${id}/review`, { action: 'revoke', reason }).then(r => r.data),
   flagRecheck: (id: string, reason: string, flag = true) =>
@@ -379,7 +489,7 @@ export const api = {
   resourceAlerts: () => http.get<ResourceAlert[]>('/resource-alerts').then(r => r.data),
 
   listReports: () => http.get<Report[]>('/reports').then(r => r.data),
-  generateReport: (sampleId: string) => http.post<Report>('/reports/generate', { sampleId }).then(r => r.data),
+  generateReport: (sampleId: string, archivePackageId: string) => http.post<Report>('/reports/generate', { sampleId, archivePackageId }).then(r => r.data),
   checkReport: (id: string) => http.post<Report>(`/reports/${id}/check`).then(r => r.data),
   issueReport: (id: string, issuer?: string) => http.post<Report>(`/reports/${id}/issue`, { issuer }).then(r => r.data),
   updateReport: (id: string, b: { title?: string; conclusion?: string }) => http.post<Report>(`/reports/${id}/update`, b).then(r => r.data),

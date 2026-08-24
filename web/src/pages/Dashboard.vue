@@ -2,9 +2,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import templates from '../data/templates.json'
-import { api, currentUser, hasRole, type DueRound, type ProjectSummary, type RecordRow, type Sample, type Report, type StatsOverview } from '../api'
-import { PAGE_ROLES } from '../permissions'
+import { api, currentUser, hasRole, type ArchivePackage, type DueRound, type HandoverSheet, type ProfessionalScope, type ProjectSummary, type RecordRow, type ReportBatch, type Sample, type Report, type StatsOverview, type WorkflowTask, type WorkflowView } from '../api'
+import { can, PAGE_ROLES } from '../permissions'
 import { settleAll } from '../utils/settle'
+import { matchesActorWorkflowQueue } from '../workflow/actorQueueMatching'
+import { confirmedArchiveScopesForRound } from '../workflow/archiveSelection'
 
 const router = useRouter()
 
@@ -23,79 +25,137 @@ const stats = ref<StatsOverview | null>(null)
 // 有接口没拉到 → 页面上如实说明，不能让人把"加载失败"看成"没活儿干"
 const partial = ref(false)
 const loading = ref(false)
-const sentSheets = ref<import('../api').HandoverSheet[]>([])
+const sentSheets = ref<HandoverSheet[]>([])
+const handoverSheets = ref<HandoverSheet[]>([])
 const allRounds = ref<DueRound[]>([])
+const archivePackages = ref<ArchivePackage[]>([])
+const reportBatches = ref<ReportBatch[]>([])
+const workflowBySubject = ref<Record<string, WorkflowView | null>>({})
+const professionalTasks = ref<Record<ProfessionalScope, WorkflowTask[]>>({ sampling: [], quality: [], laboratory: [], report: [] })
+const PROFESSIONAL_TASK_SCOPES: ProfessionalScope[] = ['sampling', 'quality', 'laboratory', 'report']
+const qualificationOnly = computed(() => (currentUser.value?.roles?.length ?? 0) === 0)
+
+const workflowKey = (type: string, id: string) => `${type}:${id}`
+async function loadActorWorkflowContext() {
+  let professionalScopesLoaded = true
+  const professionalEntries = await Promise.all(PROFESSIONAL_TASK_SCOPES.map(async scope => {
+    try { return [scope, await api.listWorkflowTasks(scope)] as const }
+    catch (error: any) {
+      if (error?.response?.status !== 403) professionalScopesLoaded = false
+      return [scope, [] as WorkflowTask[]] as const
+    }
+  }))
+  professionalTasks.value = Object.fromEntries(professionalEntries) as Record<ProfessionalScope, WorkflowTask[]>
+  const subjects = due.value.map(round => ({ type: 'round_sampling' as const, id: round.id }))
+  const subjectEntries = await Promise.all(subjects.map(async subject => {
+    try { return [workflowKey(subject.type, subject.id), await api.getWorkflow(subject.type, subject.id)] as const }
+    catch { return [workflowKey(subject.type, subject.id), null] as const }
+  }))
+  workflowBySubject.value = Object.fromEntries(subjectEntries)
+  return professionalScopesLoaded
+}
 
 async function refresh() {
   loading.value = true
+  if (qualificationOnly.value) {
+    due.value = []; projects.value = []; submitted.value = []; reviewed.value = []; samples.value = []; reports.value = []
+    resAlerts.value = []; pendingHo.value = []; myTasks.value = []; cAlerts.value = []; stats.value = null
+    handoverSheets.value = []; sentSheets.value = []; allRounds.value = []; archivePackages.value = []; reportBatches.value = []
+    partial.value = !(await loadActorWorkflowContext())
+    loading.value = false
+    return
+  }
   const r = await settleAll([
     { p: api.dueRounds(), fallback: [] as DueRound[] },
     { p: api.listProjects(), fallback: [] as ProjectSummary[] },
     { p: api.listRecordsByStatus('submitted'), fallback: [] as RecordRow[] },
     { p: api.listRecordsByStatus('reviewed'), fallback: [] as RecordRow[] },
     { p: api.listSamples(), fallback: [] as Sample[] },
-    // 报告接口只放行报告链上的岗位；采样员/检测员/质控别去撞 403，撞了会误报「部分数据没加载」
+    // 报告接口只放行报告链上的岗位；采样员/实验室分析人员/质控别去撞 403，撞了会误报「部分数据没加载」
     { p: hasRole(...PAGE_ROLES.reports) ? api.listReports() : Promise.resolve([] as Report[]), fallback: [] as Report[] },
     { p: api.resourceAlerts(), fallback: [] as import('../api').ResourceAlert[] },
     { p: api.listPendingHandovers(), fallback: [] as import('../api').Handover[] },
     { p: api.listTasks({ assignee: 'me' }), fallback: [] as import('../api').TestTask[] },
     { p: api.contractAlerts(), fallback: [] as { id: string; client: string; project: string; period_end: string; bucket: string }[] },
     { p: api.statsOverview(), fallback: null as StatsOverview | null },
-    { p: api.listHandoverSheets({ status: 'sent' }), fallback: [] as import('../api').HandoverSheet[] },
-    { p: hasRole(...PAGE_ROLES.reports) ? api.listAllRounds() : Promise.resolve([] as DueRound[]), fallback: [] as DueRound[] },
+    { p: api.listHandoverSheets({}), fallback: [] as HandoverSheet[] },
+    { p: hasRole(...PAGE_ROLES.plans, ...PAGE_ROLES.reports) ? api.listAllRounds() : Promise.resolve([] as DueRound[]), fallback: [] as DueRound[] },
+    { p: can('report_generate') ? api.listArchivePackages() : Promise.resolve([] as ArchivePackage[]), fallback: [] as ArchivePackage[] },
+    { p: can('report_generate') ? api.listReportBatches() : Promise.resolve([] as ReportBatch[]), fallback: [] as ReportBatch[] },
   ] as const)
-  ;[due.value, projects.value, submitted.value, reviewed.value, samples.value, reports.value, resAlerts.value, pendingHo.value, myTasks.value, cAlerts.value, stats.value, sentSheets.value, allRounds.value] = r.values
-  partial.value = !r.ok
+  ;[due.value, projects.value, submitted.value, reviewed.value, samples.value, reports.value, resAlerts.value, pendingHo.value, myTasks.value, cAlerts.value, stats.value, handoverSheets.value, allRounds.value, archivePackages.value, reportBatches.value] = r.values
+  sentSheets.value = handoverSheets.value.filter(sheet => sheet.status === 'sent')
+  const professionalScopesLoaded = await loadActorWorkflowContext()
+  partial.value = !r.ok || !professionalScopesLoaded
   loading.value = false
 }
-const dueCount = computed(() => due.value.filter(r => r.bucket !== 'later').length)
+const dueCount = computed(() => due.value.filter(round => round.bucket !== 'later'
+  && matchesActorWorkflowQueue('write', workflowBySubject.value[workflowKey('round_sampling', round.id)],
+    null, currentUser.value?.username, round.sampler_ids)).length)
 // §9 提醒2：临期（14天内/逾期）还没派工的期次
 const toDispatch = computed(() => due.value.filter(r => r.bucket !== 'later' && !r.sampler).length)
-// 检测员看「派给我的活」；tech/admin 统揽全部在检样品
+// 实验室分析人员看「派给我的活」；tech/admin 统揽全部在检样品
 const myOpenTasks = computed(() => myTasks.value.filter(t => t.record_status !== 'approved').length)
 const toTest = computed(() => hasRole('tech') ? samples.value.filter(s => s.status === 'pending' || s.status === 'testing').length : myOpenTasks.value)
 // 签字人只签「审核通过」的报告（draft 是编制/审核阶段的活，他无权办；原来统计错阶段，
 // 报告一过审他的待办反而归零——唯一该提醒他的时刻提醒消失）
 const toIssue = computed(() => reports.value.filter(r => r.status === 'checked').length)
-const toCheckReport = computed(() => reports.value.filter(r => r.status === 'draft').length)
+const professionalTaskCount = (scope: ProfessionalScope, level: 'review' | 'approve') => professionalTasks.value[scope]
+  .filter(task => task.decision_level === level).length
+const toReviewReport = computed(() => professionalTaskCount('report', 'review'))
+const toApproveReport = computed(() => professionalTaskCount('report', 'approve'))
+const recordsToReview = computed(() => professionalTaskCount('laboratory', 'review'))
+const recordsToApprove = computed(() => professionalTaskCount('laboratory', 'approve'))
+const samplingToReview = computed(() => professionalTaskCount('sampling', 'review'))
+const samplingToApprove = computed(() => professionalTaskCount('sampling', 'approve'))
+const qualityToReview = computed(() => professionalTaskCount('quality', 'review'))
+const qualityToApprove = computed(() => professionalTaskCount('quality', 'approve'))
 // 技术负责人两件签批活（原来全靠项目一览逐行扫）
 const schemeToReview = computed(() => projects.value.filter(p => p.accepted_at && p.scheme && p.scheme.status === 'draft').length)
 const contractToSign = computed(() => projects.value.filter(p => p.accepted_at && !p.tech_review_result && p.status !== 'terminated').length)
-// 可出报告：某期全部样品三级审核走完、还没生成报告 → 登记员该动手了
+// 可出报告：某期实验室记录全部专业批准、还没生成报告 → 报告编制人员该动手了
 const roundsReportable = computed(() => {
-  const has = new Set(reports.value.map(r => (r as any).round_id).filter(Boolean))
-  return allRounds.value.filter(r => r.rollup === 'approved' && r.status === 'done' && !has.has(r.id)).length
+  const has = new Set(reports.value.filter(report => !report.voided).map(report => report.round_id).filter(Boolean))
+  return allRounds.value.filter(round => round.rollup === 'approved' && round.status === 'done' && (round.sample_count || 0) > 0
+    && !has.has(round.id)
+    && confirmedArchiveScopesForRound(archivePackages.value, reportBatches.value, allRounds.value, round).length > 0).length
 })
 // 拒收待补采：采样员的活（补采入口在检测录入页样品详情）
 const rejectedToResample = computed(() => samples.value.filter(s => s.status === 'rejected' && !s.replaced_by).length)
-// 被打回待重录：检测员单列（混在"我的任务"总数里根本看不见）
+// 被打回待重录：实验室分析人员单列（混在"我的任务"总数里根本看不见）
 const myRejected = computed(() => myTasks.value.filter(t => t.record_status === 'rejected').length)
 
-// 只给你看你岗位的活；管理员/技术负责人统揽全部
-type Todo = { key: string; n: number; label: string; sub: string; to: string; roles: string[] }
+// 普通待办按基础岗位显示；专业复核/审核只认服务端资格+项目指派，不让粗岗位或管理概览代替。
+type Todo = { key: string; n: number; label: string; sub: string; capacity: string; to: string; roles: string[]; actorScoped?: boolean }
 const seeAll = computed(() => hasRole('tech'))   // admin 自动 true
 const todos = computed<Todo[]>(() => {
   const all: Todo[] = [
-    { key: 'due', n: dueCount.value, label: '监测到期该采样', sub: '逾期 / 14 天内', to: '/plans', roles: ['sampler', 'registrar', 'qc'] },
-    { key: 'dispatch', n: toDispatch.value, label: '期次待派工', sub: '临期还没派人', to: '/plans', roles: ['registrar', 'qc'] },
-    { key: 'contract', n: cAlerts.value.length, label: '合同快到期', sub: '30 天内到期 / 已过期未完结', to: '/contracts', roles: ['registrar', 'signer'] },
-    { key: 'sign', n: sentSheets.value.length, label: '交接单待签收', sub: '采样员已发出整单', to: '/qc', roles: ['qc'] },
-    { key: 'rejected', n: rejectedToResample.value, label: '拒收样待补采', sub: '质控拒收，需重新采样', to: '/samples', roles: ['sampler', 'qc'] },
-    { key: 'test', n: toTest.value, label: hasRole('tech') ? '样品待检测录入' : '我的检测任务', sub: hasRole('tech') ? '待检测 + 检测中' : '质控派给我的项目', to: '/samples', roles: ['tester'] },
-    { key: 'myrej', n: myRejected.value, label: '被打回待重录', sub: '复核/审核打回的记录', to: '/samples', roles: ['tester'] },
-    { key: 'review', n: submitted.value.length, label: '记录待复核', sub: '检测员已提交', to: '/review', roles: ['reviewer'] },
-    { key: 'approve', n: reviewed.value.length, label: '记录待终审', sub: '复核已通过', to: '/review', roles: ['approver'] },
-    { key: 'reportable', n: roundsReportable.value, label: '可出报告', sub: '全样审核已过，待编制', to: '/reports', roles: ['registrar'] },
-    { key: 'rptcheck', n: toCheckReport.value, label: '报告待审核', sub: '编制完成待审', to: '/reports', roles: ['reviewer', 'approver'] },
-    { key: 'issue', n: toIssue.value, label: '报告待签发', sub: '审核已通过', to: '/reports', roles: ['signer'] },
-    { key: 'scheme', n: schemeToReview.value, label: '监测方案待审核', sub: '登记员已编制', to: '/contracts', roles: ['tech'] },
-    { key: 'techsign', n: contractToSign.value, label: '合同评审待签批', sub: '同意后可打印正本', to: '/contracts', roles: ['tech'] },
-    { key: 'res', n: resAlerts.value.length, label: '资源到期待处理', sub: '仪器检定 / 效期', to: '/instruments', roles: ['tester', 'tech'] },
+    { key: 'due', n: dueCount.value, label: '监测到期该采样', sub: '逾期 / 14 天内', capacity: '现场采样', to: '/plans?stage=sampling&queue=write', roles: ['sampler', 'planner', 'qc'] },
+    { key: 'sampling-review', n: samplingToReview.value, label: '采样待复核', sub: '精确指派给我的复核', capacity: '采样复核', to: '/plans?stage=sampling&queue=review', roles: [], actorScoped: true },
+    { key: 'sampling-approve', n: samplingToApprove.value, label: '采样待审核', sub: '精确指派给我的审核', capacity: '采样审核', to: '/plans?stage=sampling&queue=approve', roles: [], actorScoped: true },
+    { key: 'dispatch', n: toDispatch.value, label: '期次待派工', sub: '临期还没派人', capacity: '计划员', to: '/plans?stage=dispatch&queue=write', roles: ['planner'] },
+    { key: 'contract', n: cAlerts.value.length, label: '合同快到期', sub: '30 天内到期 / 已过期未完结', capacity: '业务员', to: '/contracts?stage=contract&queue=write', roles: ['sales', 'signer'] },
+    { key: 'sign', n: sentSheets.value.length, label: '交接单待签收', sub: '采样员已发出整单', capacity: '样品管理员', to: '/qc?stage=handover&queue=review', roles: ['sample_manager'] },
+    { key: 'quality-review', n: qualityToReview.value, label: '质控待复核', sub: '精确指派给我的复核', capacity: '质控复核', to: '/qc?stage=quality&queue=review', roles: [], actorScoped: true },
+    { key: 'quality-approve', n: qualityToApprove.value, label: '质控待审核', sub: '精确指派给我的审核', capacity: '质控审核', to: '/qc?stage=quality&queue=approve', roles: [], actorScoped: true },
+    { key: 'rejected', n: rejectedToResample.value, label: '拒收样待补采', sub: '交接拒收，需重新采样', capacity: '采样员', to: '/plans?stage=sampling&queue=rejected', roles: ['sampler', 'qc'] },
+    { key: 'test', n: toTest.value, label: hasRole('tech') ? '样品待检测录入' : '我的检测任务', sub: hasRole('tech') ? '待检测 + 检测中' : '质控派给我的项目', capacity: '实验室分析', to: '/samples?stage=laboratory&queue=write', roles: ['analyst'] },
+    { key: 'myrej', n: myRejected.value, label: '被打回待重录', sub: '复核/审核打回的记录', capacity: '记录编制', to: '/samples?stage=laboratory&queue=rejected', roles: ['analyst'] },
+    { key: 'review', n: recordsToReview.value, label: '记录待复核', sub: '精确指派给我的复核', capacity: '实验室复核', to: '/samples?stage=laboratory&queue=review', roles: ['analyst'] },
+    { key: 'approve', n: recordsToApprove.value, label: '记录待审核', sub: '精确指派给我的审核', capacity: '实验室审核', to: '/samples?stage=laboratory&queue=approve', roles: ['analyst'] },
+    { key: 'reportable', n: roundsReportable.value, label: '可出报告', sub: '1–8 归档已确认，待编制', capacity: '报告编制', to: '/reports?queue=write', roles: ['report_editor'] },
+    { key: 'rptreview', n: toReviewReport.value, label: '报告待复核', sub: '精确指派给我的复核', capacity: '报告复核', to: '/reports?queue=review', roles: ['report_editor'] },
+    { key: 'rptapprove', n: toApproveReport.value, label: '报告待审核', sub: '精确指派给我的审核', capacity: '报告审核', to: '/reports?queue=approve', roles: ['report_editor'] },
+    { key: 'issue', n: toIssue.value, label: '报告待签发', sub: '审核已通过', capacity: '授权签字人', to: '/reports?queue=final', roles: ['signer'] },
+    { key: 'scheme', n: schemeToReview.value, label: '监测方案待审核', sub: '计划员已编制', capacity: '技术负责人', to: '/contracts?stage=scheme&queue=review', roles: ['tech'] },
+    { key: 'techsign', n: contractToSign.value, label: '合同评审待签批', sub: '同意后可打印正本', capacity: '技术负责人', to: '/contracts?stage=review&queue=review', roles: ['tech'] },
+    { key: 'res', n: resAlerts.value.length, label: '资源到期待处理', sub: '仪器检定 / 效期', capacity: '资源管理员', to: '/instruments', roles: ['analyst', 'tech'] },
   ]
-  if (seeAll.value) return all.sort((a, b) => Number(hasRole(...b.roles)) - Number(hasRole(...a.roles)))
-  return all.filter(t => hasRole(...t.roles))
+  if (seeAll.value) return all.filter(todo => !todo.actorScoped || todo.n > 0)
+    .sort((a, b) => Number(isMine(b)) - Number(isMine(a)))
+  return all.filter(todo => todo.actorScoped ? todo.n > 0 : hasRole(...todo.roles))
 })
-function isMine(t: Todo) { return hasRole(...t.roles) }
+function isMine(t: Todo) { return t.actorScoped ? t.n > 0 : hasRole(...t.roles) }
 function toneDot(tone?: 'good' | 'warn' | 'bad') { return tone === 'bad' ? 'crit' : tone }
 const myTotal = computed(() => todos.value.filter(isMine).reduce((s, t) => s + t.n, 0))
 
@@ -187,13 +247,13 @@ onMounted(() => { refresh(); loadYearly() })
 
     <!-- 年度盘点：管理评审/年终统计（管理视角） -->
     <section v-if="seeAll && yearly">
-      <div class="sechead"><h2>年度盘点 · {{ yearly.year }}</h2><span class="seccount num">检测员工作量按记录条数计</span></div>
+      <div class="sechead"><h2>年度盘点 · {{ yearly.year }}</h2><span class="seccount num">实验室分析人员工作量按记录条数计</span></div>
       <div class="statbar">
         <div class="cell"><div class="sl">新签合同</div><div class="sn num">{{ yearly.contracts }}</div><div class="ss">客户前三：{{ (yearly.clients || []).slice(0, 3).map((c: any) => c.client).join('、') || '—' }}</div></div>
         <div class="cell"><div class="sl">收样</div><div class="sn num">{{ yearly.samples }}</div><div class="ss">全年累计</div></div>
         <div class="cell"><div class="sl">签发报告</div><div class="sn num">{{ yearly.reportsIssued }}</div><div class="ss">超标 {{ yearly.exceed }} 批</div></div>
         <div class="cell"><div class="sl">质控合格</div><div class="sn num">{{ yearly.qc.total ? Math.round(yearly.qc.pass / yearly.qc.total * 100) + '%' : '—' }}</div><div class="ss">{{ yearly.qc.pass }}/{{ yearly.qc.total }}</div></div>
-        <div class="cell"><div class="sl">检测员工作量</div><div class="sn num">{{ (yearly.testers || []).length }}</div><div class="ss">{{ (yearly.testers || []).slice(0, 3).map((t: any) => `${t.name} ${t.n}`).join(' · ') || '—' }}</div></div>
+        <div class="cell"><div class="sl">实验室分析人员工作量</div><div class="sn num">{{ (yearly.testers || []).length }}</div><div class="ss">{{ (yearly.testers || []).slice(0, 3).map((t: any) => `${t.name} ${t.n}`).join(' · ') || '—' }}</div></div>
       </div>
     </section>
 
@@ -207,6 +267,7 @@ onMounted(() => { refresh(); loadYearly() })
         <div v-for="t in todos" :key="t.key" class="qrow" :class="{ zero: !t.n }" @click="router.push(t.to)">
           <span class="sdot" :class="isMine(t) && t.n ? 'accent' : ''"></span>
           <span class="ql">{{ t.label }}</span>
+          <span class="capacity">{{ t.capacity }}</span>
           <span class="qs">{{ t.sub }}</span>
           <span class="qn num">{{ t.n }}</span>
           <span class="qc">›</span>
@@ -271,6 +332,7 @@ section{margin-bottom:28px}
 .qrow:last-child{border-bottom:0}
 .qrow:hover{background:var(--surface-2)}
 .ql{font-size:13.5px;font-weight:600}
+.capacity{font-size:11.5px;color:var(--accent-ink);background:var(--accent-soft);border-radius:999px;padding:3px 8px;white-space:nowrap}
 .qs{font-size:12px;color:var(--faint);flex:1}
 .qn{font-size:16px;font-weight:650}
 .qrow.zero .ql{color:var(--muted);font-weight:500}

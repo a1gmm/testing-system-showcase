@@ -9,7 +9,12 @@ const mocks = vi.hoisted(() => ({
   planItems: [] as any[],
   checkouts: [] as any[],
   dirtyAllowed: true,
+  dirtyKeys: [] as string[],
   roundFieldAllowed: true,
+  route: { query: { stage: 'sampling', queue: 'final' } as Record<string, string> },
+  currentUser: { value: { username: 'same-b', name: '同名采样员', roles: ['sampler', 'qc'], status: 'active', created_at: '' } as any },
+  assignments: [] as any[],
+  scrollIntoView: vi.fn(),
   round: {
   id: 'ROUND-WEB-ID', contract_id: 'C1', round_no: 1, due_date: '2026-08-01', status: 'pending',
   plan_id: null, sampler: '同名采样员、同名采样员', sampler_ids: ['same-a', 'same-b'], assignment_status: 'active',
@@ -26,7 +31,7 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('../src/api', () => ({
-  currentUser: { value: { username: 'same-b', name: '同名采样员', roles: ['sampler', 'qc'], status: 'active', created_at: '' } },
+  currentUser: mocks.currentUser,
   QC_TYPES: [], UNIT_OPTS: [],
   api: {
     listAllRounds: vi.fn(async () => [mocks.round]),
@@ -38,11 +43,24 @@ vi.mock('../src/api', () => ({
     roundQcReqs: vi.fn(async () => []), listRoundQc: vi.fn(async () => []), listContractPoints: vi.fn(async () => []),
     listCheckouts: vi.fn(async () => mocks.checkouts), assignRound: mocks.assignRound,
     saveRoundField: mocks.saveRoundField, sampleRound: mocks.sampleRound,
+    getWorkflow: vi.fn(async () => ({
+      id: 'wf-round', contract_id: 'C1', round_id: 'ROUND-WEB-ID', scope: 'sampling', subject_type: 'round_sampling',
+      subject_id: 'ROUND-WEB-ID', status: 'approved', current_revision: 1, created_by: 'same-b', created_at: '2026-08-01',
+      withdrawn_reason: null, withdrawn_by: null, withdrawn_at: null, revisions: [], decisions: [],
+    })),
+    listWorkflowAssignments: vi.fn(async () => mocks.assignments),
+    listWorkflowCandidates: vi.fn(async () => []),
   },
 }))
-vi.mock('../src/permissions', () => ({ can: vi.fn((action: string) => action !== 'round_field' || mocks.roundFieldAllowed) }))
-vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn() }) }))
-vi.mock('../src/utils/dirty', () => ({ confirmIfDirty: vi.fn(async () => mocks.dirtyAllowed), hasDirty: vi.fn(() => !mocks.dirtyAllowed) }))
+vi.mock('../src/permissions', () => ({
+  can: vi.fn((action: string) => action !== 'round_field' || mocks.roundFieldAllowed),
+  PAGE_ROLES: { plans: ['sampler', 'planner', 'qc', 'tech'] },
+}))
+vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn(), resolve: (to: any) => ({ path: to.path || '/', query: to.query || {}, fullPath: '/' }) }), useRoute: () => mocks.route }))
+vi.mock('../src/utils/dirty', () => ({
+  confirmIfDirty: vi.fn(async () => mocks.dirtyAllowed),
+  hasDirty: vi.fn((prefix?: string) => mocks.dirtyKeys.some(key => !prefix || key.startsWith(prefix))),
+}))
 
 import Plans from '../src/pages/Plans.vue'
 
@@ -50,8 +68,10 @@ const stubs = {
   'el-select': { props: ['modelValue'], template: '<div data-el-select><slot /></div>' },
   'el-option': { props: ['label', 'value'], template: '<span class="option" :data-label="label" :data-value="value" />' },
   'el-button': { template: '<button><slot /></button>' },
+  'router-link': { template: '<a><slot /></a>' },
   RecordAttachments: true,
   StructuredSheet: true,
+  WorkflowAssignmentEditor: { template: '<fieldset data-assignment-scope="sampling" tabindex="-1">采样指定</fieldset>' },
 }
 
 beforeEach(() => {
@@ -60,7 +80,48 @@ beforeEach(() => {
   mocks.saveRoundField.mockReset().mockResolvedValue({})
   mocks.sampleRound.mockReset().mockRejectedValue(new Error('采样表还差王采样确认'))
   mocks.dirtyAllowed = true
+  mocks.dirtyKeys = []
   mocks.roundFieldAllowed = true
+  mocks.route.query = { stage: 'sampling', queue: 'final' }
+  mocks.currentUser.value = { username: 'same-b', name: '同名采样员', roles: ['sampler', 'qc'], status: 'active', created_at: '' }
+  mocks.assignments = [{
+    id: 1, contract_id: 'C1', scope: 'sampling', reviewer_username: 'reviewer', approver_username: 'approver',
+    active: true, reason: null, assigned_by: 'planner', assigned_at: '2026-08-01',
+  }]
+  mocks.scrollIntoView.mockReset()
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: mocks.scrollIntoView })
+})
+
+test('采样审核人未指定时计划员可从阻断提示直达人员指定区', async () => {
+  mocks.route.query = { stage: 'dispatch', queue: 'final' }
+  mocks.currentUser.value = { username: 'planner', name: '计划员', roles: ['planner'], status: 'active', created_at: '' }
+  mocks.assignments = []
+  const wrapper = mount(Plans, { attachTo: document.body, global: { stubs } })
+  await flushPromises()
+  await wrapper.find('.item.ingrp').trigger('click')
+  await flushPromises()
+
+  expect(wrapper.text()).toContain('采样员已派 · 审核人员待指定')
+  const action = wrapper.get('[data-qualification-action]')
+  await action.trigger('click')
+  await flushPromises()
+
+  const target = wrapper.get('[data-sampling-assignment-target]')
+  expect(target.isVisible()).toBe(true)
+  expect(document.activeElement).toBe(target.get('[data-assignment-scope="sampling"]').element)
+  expect(mocks.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+  wrapper.unmount()
+})
+
+test('计划员从现场采样入口进入时仍能看到审核人员指定区', async () => {
+  mocks.route.query = { stage: 'sampling', queue: 'final' }
+  mocks.currentUser.value = { username: 'planner', name: '计划员', roles: ['planner'], status: 'active', created_at: '' }
+  const wrapper = mount(Plans, { global: { stubs } })
+  await flushPromises()
+  await wrapper.find('.item.ingrp').trigger('click')
+  await flushPromises()
+
+  expect(wrapper.find('[data-sampling-assignment-target]').exists()).toBe(true)
 })
 
 test('Plans 以 sampler ID 初始化改派并区分同名选项；确认按钮和状态按 user ID 判断', async () => {
@@ -113,7 +174,7 @@ test('现场记录保存失败时中止收样入库并显示原因', async () =>
 })
 
 test('有未保存采样表时中止收样入库', async () => {
-  mocks.dirtyAllowed = false
+  mocks.dirtyKeys = ['sheet:ROUND-WEB-ID:HJ-TC-136']
   const wrapper = mount(Plans, { global: { stubs } })
   await flushPromises()
   await wrapper.find('.item.ingrp').trigger('click')
@@ -123,6 +184,23 @@ test('有未保存采样表时中止收样入库', async () => {
   await flushPromises()
   expect(mocks.saveRoundField).not.toHaveBeenCalled()
   expect(mocks.sampleRound).not.toHaveBeenCalled()
+})
+
+test('其他期次残留未保存标记不阻断当前已定稿期次收样入库', async () => {
+  mocks.dirtyKeys = ['sheet:OTHER-ROUND:HJ-TC-136']
+  vi.spyOn(ElMessageBox, 'confirm').mockResolvedValue('confirm' as any)
+  mocks.sampleRound.mockResolvedValueOnce([{ id: 'Q2026-0001' }] as any)
+  const wrapper = mount(Plans, { global: { stubs } })
+  await flushPromises()
+  await wrapper.find('.item.ingrp').trigger('click')
+  await flushPromises()
+
+  const button = wrapper.findAll('button').find(b => b.text().includes('现场采样 · 收样入库'))!
+  await button.trigger('click')
+  await flushPromises()
+
+  expect(mocks.saveRoundField).toHaveBeenCalledWith('ROUND-WEB-ID', expect.any(Object))
+  expect(mocks.sampleRound).toHaveBeenCalledWith('ROUND-WEB-ID')
 })
 
 test('取消收样不调用接口，确认成功后给出入库数量', async () => {

@@ -5,14 +5,23 @@ import { rmbUpper } from './rmb.ts'
 import { roundGB, decimalsOf } from './gbround.ts'
 import { PERM, REPORT_READ_ROLES } from './permissions.ts'
 import { activeOfflineRuleVersion } from './offlineRules.ts'
-import { ensureSampleSlots } from './mobileSampleSlots.ts'
+import { ensureSampleSlots, materializeSampleSlots } from './mobileSampleSlots.ts'
+import { assertWorkflowEditable, decideWorkflow, getWorkflowView, submitWorkflowRevision, withdrawWorkflow, type WorkflowView } from './workflow.ts'
+import { getProjectAssignment } from './qualifications.ts'
+import { assertConfirmedArchiveForReport, getArchivePackage, invalidateAffectedArchives } from './archivePackages.ts'
+import { isSingleActorAcceptance, isSingleActorWorkflowAssignment, recordAcceptanceOverride } from './acceptanceMode.ts'
+export {
+  archiveReadiness, assertConfirmedArchiveForReport, buildArchivePackage, confirmArchivePackage,
+  createReportBatch, getArchivePackage, invalidateAffectedArchives, listArchivePackages, listReportBatches,
+} from './archivePackages.ts'
 
 // ============ 人员 · 登录 · 权限 ============
-export const ROLE_LABEL: Record<string, string> = {
-  admin: '系统管理员', registrar: '登记员', sampler: '采样员', tester: '检测员',
-  reviewer: '复核员', approver: '审核员', signer: '授权签字人', tech: '技术负责人',
-  qc: '质控员',
-}
+export const ROLE_LABEL = {
+  admin: '系统管理员', sales: '业务员', tech: '技术负责人', planner: '计划员',
+  sampler: '采样员', sample_manager: '样品管理员', qc: '质控员',
+  analyst: '实验室分析人员', report_editor: '报告编制人员',
+  archivist: '档案管理员', signer: '授权签字人',
+} as const
 export type User = { username: string; name: string; roles: string[]; status: string; created_at: string; must_change_pw: boolean }
 
 // 会话空闲超时：最后活动起算，默认 12 小时无操作即失效（可用 SESSION_IDLE_HOURS 覆盖）
@@ -72,7 +81,7 @@ function rowToUser(r: any): User {
 }
 
 export const ROLE_CODES = Object.keys(ROLE_LABEL)
-function validRoles(roles: unknown): string[] {
+export function validateRoles(roles: unknown): string[] {
   if (!Array.isArray(roles)) throw new Error('岗位必须是列表')
   const out = roles.map(r => String(r).trim()).filter(Boolean)
   const bad = out.filter(r => !ROLE_CODES.includes(r))
@@ -81,7 +90,7 @@ function validRoles(roles: unknown): string[] {
 }
 export function createUser(db: DB, input: { username: string; name: string; roles: string[]; password: string }): User {
   if (!input.username || !input.name) throw new Error('用户名和姓名必填')
-  const roles = validRoles(input.roles ?? [])
+  const roles = validateRoles(input.roles ?? [])
   if (getUser(db, input.username)) throw new Error(`用户名「${input.username}」已存在；如需修改请用编辑`)  // 防误覆盖他人账号
   const salt = randomBytes(12).toString('hex')
   // 管理员建账号只是给个初始密码，用户首次登录必须自己改（must_change_pw=1）
@@ -93,7 +102,7 @@ export function createUser(db: DB, input: { username: string; name: string; role
 // 编辑人员：改姓名/岗位/在岗状态（不含密码）
 export function updateUser(db: DB, username: string, patch: { name?: string; roles?: string[]; status?: string; certName?: string | null; certUntil?: string | null }): User {
   if (!getUser(db, username)) throw new Error('用户不存在')
-  const roles = patch.roles ? validRoles(patch.roles) : null
+  const roles = patch.roles ? validateRoles(patch.roles) : null
   db.prepare(`UPDATE users SET name=COALESCE(?,name), roles=COALESCE(?,roles), status=COALESCE(?,status) WHERE username=?`)
     .run(patch.name ?? null, roles ? JSON.stringify(roles) : null, patch.status ?? null, username)
   // 授权效期（2026新规"先授权后上岗"）：证书名+有效期；传空串=清除
@@ -148,10 +157,10 @@ export function listSamplers(db: DB): { username: string; name: string }[] {
     .filter(u => u.status === 'active' && (u.roles.includes('sampler') || u.roles.includes('tech')))
     .map(u => ({ username: u.username, name: u.name }))
 }
-// 派检测任务下拉选人：在职且带检测员角色的（tech 兜底也能测）
+// 派检测任务下拉选人：在职且带实验室分析岗位的（tech 兜底也能测）
 export function listTesters(db: DB): { username: string; name: string }[] {
   return listUsers(db)
-    .filter(u => u.status === 'active' && (u.roles.includes('tester') || u.roles.includes('tech')))
+    .filter(u => u.status === 'active' && (u.roles.includes('analyst') || u.roles.includes('tech')))
     .map(u => ({ username: u.username, name: u.name }))
 }
 // —— 登录防爆破：进程内计数（零依赖，重启清零可接受）。连续失败 5 次锁 15 分钟，期间一律 429 ——
@@ -245,7 +254,7 @@ export function hasRole(user: User | null, ...roles: string[]): boolean {
 // 合同/项目对采样员·检测员不能整门拦（登记自送样要选合同），但报价/评审/开票是商务数据，
 // 只有 登记员/技术负责人/授权签字人（admin 恒真）能看全量；其他角色响应里剥掉商务字段。
 export function canSeeCommercial(user: User | null): boolean {
-  return hasRole(user, 'registrar', 'tech', 'signer')
+  return hasRole(user, 'sales', 'tech', 'signer')
 }
 export function stripCommercial<T extends { quote?: any; review_info?: any }>(c: T | null): T | null {
   if (!c) return c
@@ -283,12 +292,12 @@ export function seedUsers(db: DB) {
   if ((db.prepare(`SELECT COUNT(*) n FROM users`).get() as any).n > 0) return
   const seed: [string, string, string[]][] = [
     ['demo_admin', '林工程师', ['admin', 'signer']],
-    ['demo_registrar', '周登记', ['registrar']],
+    ['demo_registrar', '周登记', ['sales', 'planner', 'report_editor']],
     ['demo_sampler', '赵采样', ['sampler']],
-    ['demo_tester', '陈检测', ['tester']],
-    ['demo_qc', '吴质控', ['qc']],
-    ['demo_reviewer', '郑复核', ['reviewer']],
-    ['demo_approver', '孙审核', ['approver']],
+    ['demo_tester', '陈检测', ['analyst']],
+    ['demo_qc', '吴质控', ['qc', 'sample_manager']],
+    ['demo_reviewer', '李归档', ['archivist']],
+    ['demo_approver', '王报告', ['report_editor']],
     ['demo_tech', '许技术', ['tech']],
   ]
   for (const [username, name, roles] of seed) createUser(db, { username, name, roles, password: '123456' })
@@ -525,6 +534,7 @@ export function addPretreatment(
   actor: { name: string; username?: string },
 ): Pretreatment {
   if (!getSample(db, sampleId)) throw new Error('样品不存在')
+  assertLaboratoryEvidenceEditable(db, sampleId)
   if (!ev.method) throw new Error('前处理方法必填')
   const info = db.prepare(`INSERT INTO pretreatments (sample_id, method, reagent, condition, vol_final, note, who, username, at)
     VALUES (?,?,?,?,?,?,?,?,?)`)
@@ -684,6 +694,7 @@ export function addQc(
   if (input.roundId && !getRound(db, input.roundId)) {
     throw httpError(404, '监测期次不存在', 'ROUND_NOT_FOUND')
   }
+  assertLaboratoryEvidenceEditable(db, input.sampleId, input.roundId)
   // 没填任何测定数据的空记录不许提交（列表里会显示 undefined 又删不掉）
   const hasData = ['v1', 'v2', 'background', 'spikedMeasured', 'spikeAdded', 'measured', 'assigned']
     .some(k => input[k] !== undefined && input[k] !== null && String(input[k]).trim() !== '')
@@ -741,7 +752,7 @@ function hasConfirmedHandover(db: DB, sampleId: string): boolean {
 export function requireHandoverConfirmed(db: DB, s: Sample) {
   if (s.source === 'self') return
   if (!hasConfirmedHandover(db, s.id)) {
-    throw new Error('这个样品还没交接签收——先在样品页记一条交接，再由质控员签收，然后才能录数据')
+    throw new Error('这个样品还没交接签收——先在样品页记一条交接，再由样品管理员签收，然后才能录数据')
   }
 }
 export function assignTestTasks(
@@ -754,6 +765,7 @@ export function assignTestTasks(
   if ((s as any).status === 'rejected') throw new Error(`样品 ${sampleId} 已被拒收，不能派任务——请采样员补采后对新样派任务`)
   if (!items?.length) throw new Error('至少要派一个检测项目')
   requireHandoverConfirmed(db, s)   // 决策13：未确认签收的样品不允许派任务
+  requireApprovedQualityPlan(db, (s as any).round_id)
   const at = now()
   for (const it of items) {
     if (!it.analyte?.trim() || !it.assignee?.trim()) throw new Error('检测项目和检测员都必填')
@@ -776,15 +788,23 @@ export function listTestTasks(db: DB, f: { sampleId?: string; assignee?: string;
   if (f.assignee) { where.push('t.assignee=?'); args.push(f.assignee) }
   if (f.unclaimed) where.push(`t.assignee=''`)
   const rows = db.prepare(`
-    SELECT t.*, COALESCE(r.status, 'none') AS record_status
+    SELECT t.*, r.id AS record_id, s.contract_id, COALESCE(r.status, 'none') AS record_status
     FROM test_tasks t
     LEFT JOIN records r ON r.sample_id = t.sample_id AND r.analyte = t.analyte
+    LEFT JOIN samples s ON s.id = t.sample_id
     ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
     ORDER BY t.id DESC`).all(...args) as any[]
-  return rows
+  return rows.map(row => {
+    const { record_id: recordId, contract_id: contractId, ...task } = row
+    const workflow = recordId ? getWorkflowView(db, 'lab_record', recordId) : null
+    if (workflow) return { ...task, record_status: LAB_RECORD_STATUS[workflow.status] ?? 'draft' }
+    return recordId && contractId && task.record_status !== 'draft'
+      ? { ...task, record_status: 'migration_required' }
+      : task
+  })
 }
 
-// 待签收清单：发起了但接收方还没确认的交接——质控员工作台的活
+// 待签收清单：发起了但接收方还没确认的交接——样品管理员工作台的活
 export function listPendingHandovers(db: DB): (Handover & { client: string | null })[] {
   return db.prepare(`SELECT h.*, s.client FROM sample_handovers h LEFT JOIN samples s ON s.id = h.sample_id
     WHERE h.confirmed_at IS NULL ORDER BY h.id DESC`).all() as any
@@ -796,7 +816,7 @@ export function confirmHandover(db: DB, handoverId: number, actor: { name: strin
   if (h.confirmed_at) throw new Error('该交接已确认，不能重复确认')
   // 双签的意义在双方：交样人不能自己点确认（按登录名比对，兜底比姓名）
   if ((h.username && actor.username && h.username === actor.username) || (!h.username && h.who === actor.name)) {
-    throw new Error('交样人不能自己确认签收，须由接收方（质控员）确认')
+    throw new Error('交样人不能自己确认签收，须由接收方（样品管理员）确认')
   }
   db.prepare(`UPDATE sample_handovers SET confirmed_by=?, confirmed_at=? WHERE id=?`).run(actor.name, now(), handoverId)
   return db.prepare(`SELECT * FROM sample_handovers WHERE id=?`).get(handoverId) as Handover
@@ -810,7 +830,7 @@ export type HandoverSheetRow = {
 export type HandoverSheet = {
   id: string; round_id: string; contract_id: string; source: string
   sample_ids: string[]; detail: HandoverSheetRow[]
-  from_person: string | null; from_at: string | null
+  from_person: string | null; from_username: string | null; from_at: string | null
   to_person: string | null; to_at: string | null
   storage: string | null; status: 'draft' | 'sent' | 'confirmed'; note: string | null; created_at: string
 }
@@ -860,7 +880,16 @@ export function sendHandoverSheet(db: DB, id: string, actor: { name: string; use
   const sh = getHandoverSheet(db, id)
   if (!sh) throw new Error('交接单不存在')
   if (sh.status !== 'draft') throw new Error('只有草稿能发出')
-  db.prepare(`UPDATE handover_sheets SET status='sent' WHERE id=?`).run(id)
+  const sender = actor.username ? getUser(db, actor.username) : null
+  if (!sender || sender.status !== 'active' || !sender.roles.includes('sampler')) throw new Error('只有当前在职采样员可以发出交接单')
+  const round = getRound(db, sh.round_id)
+  if (!round || round.assignment_status !== 'active' || !round.sampler_ids.includes(sender.username)) {
+    throw new Error('只有本期当前有效派工的采样员可以发出交接单')
+  }
+  if (!getProjectAssignment(db, round.contract_id, 'sampling')) throw new Error('项目尚未指定采样复核人和审核人，不能发出交接单')
+  if (getWorkflowView(db, 'round_sampling', round.id)?.status !== 'approved') throw new Error('采样审核通过后才能发出交接单')
+  db.prepare(`UPDATE handover_sheets SET status='sent', from_person=?, from_username=?, from_at=? WHERE id=?`)
+    .run(sender.name, sender.username, now(), id)
   logAction(db, id, actor as User, 'handover_sheet_send', {})
   return getHandoverSheet(db, id)!
 }
@@ -874,8 +903,17 @@ export function confirmHandoverSheet(
   if (!sh) throw new Error('交接单不存在')
   if (sh.status === 'confirmed') throw new Error('该交接单已签收，不能重复签收')
   if (sh.status === 'draft') throw new Error('交接单还是草稿，采样员发出后才能签收')
-  const senders = (sh.from_person || '').split('、').filter(Boolean)
-  if (senders.includes(actor.name)) throw new Error('交样人不能自己签收，须由质控员确认')
+  const receiver = actor.username ? getUser(db, actor.username) : null
+  if (!receiver || receiver.status !== 'active' || !receiver.roles.includes('sample_manager')) {
+    throw new Error('只有当前在职样品管理员可以确认收样')
+  }
+  const sameSender = sh.from_username
+    ? actor.username === sh.from_username
+    : (sh.from_person || '').split('、').filter(Boolean).includes(actor.name)
+  const acceptanceOverride = sameSender && isSingleActorAcceptance(db, actor)
+  if (sameSender && !acceptanceOverride) {
+    throw new Error('交样人不能自己签收，须由另一名样品管理员确认')
+  }
   const rejects = opts.rejects ?? []
   for (const rj of rejects) {
     if (!sh.sample_ids.includes(rj.sampleId)) throw new Error(`拒收的样品 ${rj.sampleId} 不在本交接单里`)
@@ -902,8 +940,113 @@ export function confirmHandoverSheet(
     db.prepare(`UPDATE handover_sheets SET status='confirmed', to_person=?, to_at=?, detail=? WHERE id=?`)
       .run(actor.name, at, JSON.stringify(detail), id)
     logAction(db, id, actor as User, 'handover_sheet_confirm', { rejects })
+    if (acceptanceOverride) recordAcceptanceOverride(db, actor, 'handover_confirm', id,
+      '交样人与收样人必须不同', { rejects })
     return getHandoverSheet(db, id)!
   })
+}
+
+// ============ 质量安排（步骤7：质控员编制 → 专业复核 → 专业审核）============
+export type QualityPlanRequirement = {
+  qcType: string; matrix?: string; analyte?: string; qty: number; basis?: string; note?: string
+}
+export type QualityPlan = {
+  subject_id: string; round_id: string | null; batch_id: string | null; contract_id: string
+  requirements: QualityPlanRequirement[]; adjustments: QualityPlanRequirement[]
+  author_username: string; updated_at: string
+}
+
+function parseQualityPlan(row: any): QualityPlan {
+  const { requirements_json, adjustments_json, ...rest } = row
+  return {
+    ...rest,
+    requirements: safeJson(requirements_json, []),
+    adjustments: safeJson(adjustments_json, []),
+  }
+}
+function requireQualityOfficer(db: DB, actor: User): User {
+  const current = actor.username ? getUser(db, actor.username) : null
+  if (!current || current.status !== 'active' || !current.roles.includes('qc')) throw new Error('只有当前在职质控员可以编制质量计划')
+  return current
+}
+function qualityRequirementKey(item: Pick<QualityPlanRequirement, 'qcType' | 'matrix' | 'analyte'>) {
+  return `${item.qcType}\u0000${item.matrix ?? ''}\u0000${item.analyte ?? ''}`
+}
+function normaliseQualityAdjustments(value: unknown): QualityPlanRequirement[] {
+  if (!Array.isArray(value)) throw new Error('质量安排调整必须是列表')
+  return value.map((raw: any) => {
+    const qcType = String(raw?.qcType ?? '').trim()
+    const qty = Number(raw?.qty)
+    if (!qcType) throw new Error('质控类型必填')
+    if (!Number.isInteger(qty) || qty < 1) throw new Error('质控安排数量必须是正整数')
+    return {
+      qcType,
+      ...(raw.matrix ? { matrix: String(raw.matrix).trim() } : {}),
+      ...(raw.analyte ? { analyte: String(raw.analyte).trim() } : {}),
+      qty,
+      ...(raw.basis ? { basis: String(raw.basis).trim() } : {}),
+      ...(raw.note ? { note: String(raw.note).trim() } : {}),
+    }
+  })
+}
+function requireQualityPlanRound(db: DB, roundId: string): Round {
+  const round = getRound(db, roundId)
+  if (!round) throw new Error('监测期次不存在')
+  return round
+}
+export function getQualityPlan(db: DB, roundId: string): QualityPlan | null {
+  const row = db.prepare(`SELECT * FROM quality_plans WHERE round_id=?`).get(roundId) as any
+  return row ? parseQualityPlan(row) : null
+}
+export function saveQualityPlan(
+  db: DB, roundId: string,
+  input: { adjustments?: QualityPlanRequirement[]; requirements?: QualityPlanRequirement[] },
+  actor: User,
+): QualityPlan {
+  const officer = requireQualityOfficer(db, actor)
+  const round = requireQualityPlanRound(db, roundId)
+  assertWorkflowEditable(db, 'quality_plan', roundId)
+  const existing = getQualityPlan(db, roundId)
+  if (existing && existing.author_username !== officer.username) throw new Error('只有原编制人可以修改质量计划')
+  const adjustments = normaliseQualityAdjustments(input?.adjustments ?? input?.requirements ?? [])
+  const merged = new Map<string, QualityPlanRequirement>()
+  for (const baseline of roundQcRequirements(db, roundId)) merged.set(qualityRequirementKey(baseline), baseline)
+  for (const adjustment of adjustments) merged.set(qualityRequirementKey(adjustment), adjustment)
+  const requirements = [...merged.values()]
+  const updatedAt = now()
+  db.prepare(`INSERT INTO quality_plans
+    (subject_id,round_id,batch_id,contract_id,requirements_json,adjustments_json,author_username,updated_at)
+    VALUES (?,?,NULL,?,?,?,?,?)
+    ON CONFLICT(subject_id) DO UPDATE SET requirements_json=excluded.requirements_json,
+      adjustments_json=excluded.adjustments_json, author_username=excluded.author_username, updated_at=excluded.updated_at`)
+    .run(roundId, roundId, round.contract_id, JSON.stringify(requirements), JSON.stringify(adjustments), officer.username, updatedAt)
+  logAction(db, roundId, officer, 'quality_plan_save', { requirementCount: requirements.length, adjustmentCount: adjustments.length })
+  return getQualityPlan(db, roundId)!
+}
+export function submitQualityPlan(db: DB, roundId: string, actor: User) {
+  const officer = requireQualityOfficer(db, actor)
+  const round = requireQualityPlanRound(db, roundId)
+  const plan = getQualityPlan(db, roundId)
+  if (!plan) throw new Error('请先保存质量计划再提交审核')
+  if (plan.author_username !== officer.username) throw new Error('只有质量计划编制人可以提交审核')
+  if (!getProjectAssignment(db, round.contract_id, 'quality')) throw new Error('项目尚未指定质控复核人和审核人')
+  return submitWorkflowRevision(db, {
+    contractId: round.contract_id, roundId, scope: 'quality', subjectType: 'quality_plan', subjectId: roundId,
+    snapshot: {
+      requirements: plan.requirements,
+      adjustments: plan.adjustments,
+      authorUsername: plan.author_username,
+      updatedAt: plan.updated_at,
+    },
+  }, officer)
+}
+function requireApprovedQualityPlan(db: DB, roundId: string | null | undefined) {
+  if (!roundId) throw new Error('检测任务缺少期次，无法核验已批准质量计划')
+  const round = getRound(db, roundId)
+  if (!round) throw new Error('监测期次不存在，无法核验已批准质量计划')
+  if (!getProjectAssignment(db, round.contract_id, 'quality')) throw new Error('项目尚未指定质控复核人和审核人，不能开始实验室工作')
+  if (!getQualityPlan(db, roundId)) throw new Error('质量计划尚未保存并批准，不能开始实验室工作')
+  if (getWorkflowView(db, 'quality_plan', roundId)?.status !== 'approved') throw new Error('质量计划批准后才能开始实验室工作')
 }
 
 // ============ 检测任务通知单 HJ-TC-137（批次一切片2）============
@@ -978,6 +1121,7 @@ export function issueTestNotice(db: DB, id: string, actor: { name: string; usern
   const n = getTestNotice(db, id)
   if (!n) throw new Error('任务通知单不存在')
   if (n.status === 'issued') throw new Error('通知单已下达，不能重复下达')
+  requireApprovedQualityPlan(db, n.round_id)
   return inTx(db, () => {
     const at = now()
     for (const g of n.groups) for (const analyte of g.analytes) {
@@ -1024,9 +1168,26 @@ function settleSampleDone(db: DB, sampleId: string) {
   }
 }
 // 提交后本人撤回（发现录错不用等复核员打回）：submitted → draft，只限编制人本人
-export function withdrawRecord(db: DB, recordId: string, actor: { name: string; username?: string }): RecordRow {
+export function withdrawRecord(db: DB, recordId: string, actor: { name: string; username?: string }, reason = ''): RecordRow {
   const rec = getRecordById(db, recordId)
   if (!rec) throw new Error('记录不存在')
+  const workflow = getWorkflowView(db, 'lab_record', recordId)
+  if (workflow) {
+    if (!actor.username) throw new Error('撤回实验室记录必须使用实名登录账号')
+    const user = getUser(db, actor.username)
+    if (!user || user.status !== 'active') throw new Error('当前账号无效')
+    const withdrawalReason = String(reason || '').trim()
+    if (workflow.status === 'approved' && !withdrawalReason) throw new Error('已批准实验室记录撤回必须填写原因')
+    return inTx(db, () => {
+      const result = withdrawProfessionalWorkflow(db, workflow.id, withdrawalReason || '编制人撤回修改', user)
+      writeAudit(db, recordId, actor.name, 'withdraw', {
+        reason: withdrawalReason || '编制人撤回修改',
+        workflowRevision: workflow.current_revision,
+        invalidatedArchiveIds: result.invalidation.invalidatedArchiveIds,
+      }, now(), actor.username)
+      return syncLabRecordProjection(db, recordId)
+    })
+  }
   if (rec.status !== 'submitted') throw new Error('只有「已提交待复核」的记录能撤回；复核开始后请走打回')
   const own = samePerson({ name: (rec as any).author, username: (rec as any).author_username }, { name: actor.name, username: actor.username })
   if (!own) throw new Error('只有编制人本人能撤回自己的提交')
@@ -1241,10 +1402,10 @@ export function judgeCompareGroup(g: CompareGroup): {
 // ============ 真盲（拍板2）：纯检测员看不到样品对应的受检单位与点位，只见编号 ============
 // 盲的对象是"编号↔点位/单位"的映射，不是编号本身（编号已按盲样新规不含点位段）。
 // 兼 qc/采样/登记/管理/tech/签字岗的不盲（各自业务需要真实信息）；检测员兼复核/审核仍盲（核数不需点位）。
-const BLIND_EXEMPT_ROLES = ['admin', 'tech', 'qc', 'registrar', 'sampler', 'signer']
+const BLIND_EXEMPT_ROLES = ['admin', 'tech', 'qc', 'sales', 'sampler', 'signer']
 export function isBlindViewer(u: { roles?: string[] } | null | undefined): boolean {
   const roles = u?.roles || []
-  return roles.includes('tester') && !roles.some(r => BLIND_EXEMPT_ROLES.includes(r))
+  return roles.includes('analyst') && !roles.some(r => BLIND_EXEMPT_ROLES.includes(r))
 }
 export function maskSampleForUser<T extends Partial<Sample>>(u: { roles?: string[] } | null | undefined, s: T): T {
   if (!isBlindViewer(u)) return s
@@ -1287,9 +1448,9 @@ export const ATTACH_ENTITY_TYPES = Object.keys(ATTACH_TARGET) as AttachEntityTyp
 // 不改 PERM 矩阵（前后端镜像被测试钉住），在这里做实体级第二道闸。
 const ATTACH_ENTITY_ROLES: Partial<Record<AttachEntityType, { roles: string[]; label: string }>> = {
   round_sheet:   { roles: ['sampler', 'tech'], label: '采样单附件需要 采样员/技术负责人 权限' },
-  report:        { roles: ['registrar', 'reviewer', 'approver', 'signer', 'tech'], label: '报告附件需要 登记员/复核员/审核员/授权签字人/技术负责人 权限' },
+  report:        { roles: ['report_editor', 'signer', 'tech'], label: '报告附件需要 报告编制人员/授权签字人/技术负责人 权限' },
   system_record: { roles: ['tech'], label: '体系记录附件需要 技术负责人 权限' },
-  delivery:      { roles: ['registrar', 'signer', 'qc', 'tech'], label: '发放回执需要 登记员/授权签字人/质控员/技术负责人 权限' },
+  delivery:      { roles: ['sales', 'signer', 'qc', 'tech'], label: '发放回执需要 业务员/授权签字人/质控员/技术负责人 权限' },
 }
 // 某人能否增删某类实体的附件：特殊实体按白名单，其余维持 attach_upload 现状
 export function canManageAttachment(user: User | null, entityType: string): boolean {
@@ -1302,7 +1463,7 @@ export function attachRoleErrorText(entityType: string): string {
 }
 export type Attachment = {
   id: string; entity_type: string; entity_id: string
-  orig_name: string; stored_name: string; mime: string | null; size: number | null
+  orig_name: string; stored_name: string; mime: string | null; size: number | null; content_hash: string | null
   who: string; username: string | null; at: string
   deleted_at: string | null; deleted_by: string | null
 }
@@ -1327,6 +1488,8 @@ function attachmentRoundId(entityType: string, entityId: string) {
 // 定稿即冻结（泛化到全部有终态的实体）：定稿/签收/签发之后附件不能再增删——现场证据链不许事后换照片
 function attachTargetFrozen(db: DB, entityType: AttachEntityType, entityId: string): boolean {
   if (entityType === 'record') {
+    const workflow = getWorkflowView(db, 'lab_record', entityId)
+    if (workflow) return workflow.status === 'approved'
     const r = db.prepare(`SELECT status FROM records WHERE id=?`).get(entityId) as any
     return r?.status === 'approved'
   }
@@ -1339,8 +1502,10 @@ function attachTargetFrozen(db: DB, entityType: AttachEntityType, entityId: stri
     return r?.status === 'issued' || !!r?.voided
   }
   if (entityType === 'round' || entityType === 'round_sheet') {
+    const roundId = attachmentRoundId(entityType, entityId)
+    if (getWorkflowView(db, 'round_sampling', roundId)?.status === 'approved') return true
     // 期次出了（未作废的）签发报告后，现场照片冻结
-    const rep = db.prepare(`SELECT 1 FROM reports WHERE round_id=? AND status='issued' AND voided=0 LIMIT 1`).get(attachmentRoundId(entityType, entityId))
+    const rep = db.prepare(`SELECT 1 FROM reports WHERE round_id=? AND status='issued' AND voided=0 LIMIT 1`).get(roundId)
     return !!rep
   }
   return false
@@ -1348,20 +1513,31 @@ function attachTargetFrozen(db: DB, entityType: AttachEntityType, entityId: stri
 
 export function addAttachment(
   db: DB,
-  input: { entityType: AttachEntityType; entityId: string; origName: string; storedName: string; mime?: string; size?: number },
+  input: { entityType: AttachEntityType; entityId: string; origName: string; storedName: string; mime?: string; size?: number; contentHash?: string },
   actor: { name: string; username?: string; roles?: string[] },
 ): Attachment {
   if (!ATTACH_ENTITY_TYPES.includes(input.entityType)) throw new Error('不支持的记录类型')
   if (!input.origName || !input.storedName) throw new Error('文件名必填')
   assertAttachTarget(db, input.entityType, input.entityId)
-  if ((input.entityType === 'round' || input.entityType === 'round_sheet') && actor.roles) assertRoundAccess(db, attachmentRoundId(input.entityType, input.entityId), actor as User)
+  if (input.entityType === 'round' || input.entityType === 'round_sheet') {
+    const roundId = attachmentRoundId(input.entityType, input.entityId)
+    if (actor.roles) assertRoundAccess(db, roundId, actor as User)
+    assertWorkflowEditable(db, 'round_sampling', roundId)
+  }
+  if (input.entityType === 'record') assertWorkflowEditable(db, 'lab_record', input.entityId)
+  if (input.entityType === 'report') {
+    const report = getReport(db, input.entityId)
+    if (report?.contract_id && actor.username !== report.author_username) throw httpError(403, '只有报告原编制人可以管理审核前附件', 'WORKFLOW_WRONG_ASSIGNEE')
+    assertWorkflowEditable(db, 'report', input.entityId)
+  }
   if (attachTargetFrozen(db, input.entityType, input.entityId)) throw new Error('记录已定稿，附件已冻结，不能再增删')
   const id = randomUUID()
   const at = now()
-  db.prepare(`INSERT INTO attachments (id, entity_type, entity_id, orig_name, stored_name, mime, size, who, username, at)
-    VALUES (?,?,?,?,?,?,?,?,?,?)`)
+  if (input.contentHash != null && !/^[a-f0-9]{64}$/.test(input.contentHash)) throw new Error('附件哈希无效')
+  db.prepare(`INSERT INTO attachments (id, entity_type, entity_id, orig_name, stored_name, mime, size, who, username, at, content_hash)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
     .run(id, input.entityType, input.entityId, input.origName, input.storedName,
-      input.mime ?? null, input.size ?? null, actor.name, actor.username ?? null, at)
+      input.mime ?? null, input.size ?? null, actor.name, actor.username ?? null, at, input.contentHash ?? null)
   logAction(db, input.entityId, { name: actor.name, username: actor.username } as User, 'attach_add',
     { attachment_id: id, entity_type: input.entityType, name: input.origName })
   return getAttachment(db, id)!
@@ -1388,7 +1564,17 @@ export function getAttachment(db: DB, id: string, actor?: User): Attachment | nu
 export function deleteAttachment(db: DB, id: string, actor: { name: string; username?: string; roles?: string[] }, supervisor = false) {
   const a = getAttachment(db, id)
   if (!a) throw new Error('附件不存在或已删除')
-  if ((a.entity_type === 'round' || a.entity_type === 'round_sheet') && actor.roles) assertRoundAccess(db, attachmentRoundId(a.entity_type, a.entity_id), actor as User)
+  if (a.entity_type === 'round' || a.entity_type === 'round_sheet') {
+    const roundId = attachmentRoundId(a.entity_type, a.entity_id)
+    if (actor.roles) assertRoundAccess(db, roundId, actor as User)
+    assertWorkflowEditable(db, 'round_sampling', roundId)
+  }
+  if (a.entity_type === 'record') assertWorkflowEditable(db, 'lab_record', a.entity_id)
+  if (a.entity_type === 'report') {
+    const report = getReport(db, a.entity_id)
+    if (report?.contract_id && actor.username !== report.author_username) throw httpError(403, '只有报告原编制人可以管理审核前附件', 'WORKFLOW_WRONG_ASSIGNEE')
+    assertWorkflowEditable(db, 'report', a.entity_id)
+  }
   if (attachTargetFrozen(db, a.entity_type as AttachEntityType, a.entity_id)) {
     throw new Error('记录已定稿，附件已冻结，不能再增删')
   }
@@ -1412,13 +1598,132 @@ export function getRecord(db: DB, sampleId: string, code: string): RecordRow | n
     `SELECT * FROM records WHERE sample_id = ? AND template_code = ?`
   ).get(sampleId, code) as any
   if (!r) return null
-  return { ...r, data: safeJson(r.data, {}) }
+  return projectLabRecord(db, { ...r, data: safeJson(r.data, {}) })
 }
 
 export function getRecordById(db: DB, id: string): RecordRow | null {
   const r = db.prepare(`SELECT * FROM records WHERE id = ?`).get(id) as any
   if (!r) return null
-  return { ...r, data: safeJson(r.data, {}) }
+  return projectLabRecord(db, { ...r, data: safeJson(r.data, {}) })
+}
+
+const LAB_RECORD_STATUS: Record<string, string> = {
+  pending_review: 'submitted', pending_approval: 'reviewed', approved: 'approved', rejected: 'rejected', withdrawn: 'draft', draft: 'draft',
+}
+function displayName(db: DB, username: string | null | undefined): string | null {
+  if (!username) return null
+  return ((db.prepare(`SELECT name FROM users WHERE username=?`).get(username) as { name: string } | undefined)?.name) ?? username
+}
+function labProjection(db: DB, workflow: WorkflowView) {
+  const decisions = workflow.decisions.filter(decision => decision.revision === workflow.current_revision)
+  const review = decisions.find(decision => decision.level === 'review')
+  const approval = decisions.find(decision => decision.level === 'approve')
+  const rejection = [...decisions].reverse().find(decision => decision.decision === 'reject')
+  return {
+    status: LAB_RECORD_STATUS[workflow.status] ?? 'draft',
+    author: displayName(db, workflow.created_by), author_username: workflow.created_by,
+    reviewer: displayName(db, review?.decided_by), reviewer_username: review?.decided_by ?? null,
+    reviewed_at: review?.decided_at ?? null,
+    approver: displayName(db, approval?.decided_by), approved_at: approval?.decision === 'approve' ? approval.decided_at : null,
+    reject_reason: rejection?.comment ?? '',
+  }
+}
+function projectLabRecord(db: DB, record: RecordRow): RecordRow {
+  const workflow = getWorkflowView(db, 'lab_record', record.id)
+  if (workflow) return { ...record, ...labProjection(db, workflow) } as RecordRow
+  const sample = db.prepare(`SELECT contract_id FROM samples WHERE id=?`).get(record.sample_id) as { contract_id: string | null } | undefined
+  const legacyReviewedState = record.status !== 'draft'
+  return sample?.contract_id && legacyReviewedState ? { ...record, status: 'migration_required' } : record
+}
+function syncLabRecordProjection(db: DB, recordId: string): RecordRow {
+  const workflow = getWorkflowView(db, 'lab_record', recordId)
+  if (!workflow) throw new Error('实验室记录工作流不存在')
+  const projection = labProjection(db, workflow)
+  db.prepare(`UPDATE records SET status=?, author=?, author_username=?, reviewer=?, reviewer_username=?, reviewed_at=?, approver=?, approved_at=?, reject_reason=? WHERE id=?`).run(
+    projection.status, projection.author, projection.author_username, projection.reviewer, projection.reviewer_username,
+    projection.reviewed_at, projection.approver, projection.approved_at, projection.reject_reason, recordId,
+  )
+  return getRecordById(db, recordId)!
+}
+
+function relevantLaboratoryWorkflows(db: DB, sampleId?: string, roundId?: string): { status: string }[] {
+  const where: string[] = [], args: any[] = []
+  if (sampleId) { where.push('r.sample_id=?'); args.push(sampleId) }
+  if (roundId) { where.push('s.round_id=?'); args.push(roundId) }
+  if (!where.length) return []
+  return db.prepare(`SELECT DISTINCT w.status FROM workflow_instances w
+    JOIN records r ON w.subject_type='lab_record' AND w.subject_id=r.id
+    JOIN samples s ON s.id=r.sample_id WHERE ${where.join(' OR ')}`).all(...args) as { status: string }[]
+}
+function assertLaboratoryEvidenceEditable(db: DB, sampleId?: string, roundId?: string) {
+  const workflows = relevantLaboratoryWorkflows(db, sampleId, roundId)
+  if (workflows.some(workflow => workflow.status === 'approved')) throw new Error('已批准内容已冻结')
+  if (workflows.some(workflow => ['pending_review', 'pending_approval'].includes(workflow.status))) throw new Error('实验室内容已提交审核并冻结')
+}
+
+function assertScopedLabAuthor(db: DB, sample: Sample, analyte: string, actor: User, recordId?: string) {
+  const stored = getUser(db, actor.username)
+  if (!stored || stored.status !== 'active') throw new Error('只有在职的实验室分析人员可以编制记录')
+  if (!stored.roles.includes('analyst')) throw new Error('此操作需要实验室分析人员权限')
+  const tasks = listTestTasks(db, { sampleId: sample.id })
+  const assigned = tasks.some(task => task.assignee_username === actor.username && (!analyte || task.analyte === analyte))
+  if (!assigned) throw new Error('当前账号不是该检测任务的有效分析员；请质控员调整派工')
+  if (sample.contract_id) {
+    const assignment = getProjectAssignment(db, sample.contract_id, 'laboratory')
+    if (!assignment) throw new Error('项目尚未指定实验室复核人和审核人')
+    if (!isSingleActorWorkflowAssignment(db, actor, assignment)
+      && (actor.username === assignment.reviewer_username || actor.username === assignment.approver_username)) {
+      throw new Error('编制人与复核人和审核人必须不同')
+    }
+  }
+  const workflow = recordId ? getWorkflowView(db, 'lab_record', recordId) : null
+  if (workflow && workflow.created_by !== actor.username) throw new Error('只有原编制人可以修改或重新提交记录')
+}
+
+function rawRecordById(db: DB, id: string): RecordRow | null {
+  const row = db.prepare(`SELECT * FROM records WHERE id=?`).get(id) as any
+  return row ? { ...row, data: safeJson(row.data, {}) } : null
+}
+function laboratorySnapshot(db: DB, record: RecordRow, sample: Sample) {
+  const attachments = db.prepare(`SELECT id,content_hash FROM attachments
+    WHERE entity_type='record' AND entity_id=? AND deleted_at IS NULL ORDER BY rowid`).all(record.id) as { id: string; content_hash: string | null }[]
+  for (const attachment of attachments) {
+    if (!attachment.content_hash || !/^[a-f0-9]{64}$/.test(attachment.content_hash)) throw new Error('实验室附件哈希不可验证')
+  }
+  const qcRows = db.prepare(`SELECT * FROM qc_records WHERE sample_id=? OR (? IS NOT NULL AND round_id=?) ORDER BY id`)
+    .all(sample.id, sample.round_id, sample.round_id) as any[]
+  const pretreatments = db.prepare(`SELECT * FROM pretreatments WHERE sample_id=? ORDER BY id`).all(sample.id) as any[]
+  return {
+    contractId: sample.contract_id, roundId: sample.round_id ?? null,
+    record: {
+      id: record.id, serial: record.serial, sampleId: record.sample_id, templateCode: record.template_code,
+      templateName: record.template_name, sheetType: record.sheet_type, method: record.method, analyte: record.analyte,
+      matrix: record.matrix, instrumentId: record.instrument_id, data: record.data,
+      recheck: Number(record.recheck), recheckReason: record.recheck_reason, updatedAt: record.updated_at,
+    },
+    instrumentIds: record.instrument_id ? [record.instrument_id] : [],
+    analyticalQcResults: qcRows.map(row => ({
+      id: Number(row.id), qcType: row.qc_type, roundId: row.round_id, sampleId: row.sample_id, analyte: row.analyte,
+      data: safeJson(row.data, {}), unit: row.unit, result: row.result, verdict: row.verdict, criterion: row.criterion,
+      note: row.note, username: row.username, at: row.at,
+    })),
+    pretreatments: pretreatments.map(row => ({
+      id: Number(row.id), method: row.method, reagent: row.reagent, condition: row.condition, volFinal: row.vol_final,
+      note: row.note, username: row.username, at: row.at,
+    })),
+    attachments: attachments.map(attachment => ({ id: attachment.id, hash: attachment.content_hash! })),
+  }
+}
+export function submitLaboratoryRecord(db: DB, recordId: string, actor: User) {
+  const record = rawRecordById(db, recordId)
+  if (!record) throw new Error('记录不存在')
+  const sample = getSample(db, record.sample_id)
+  if (!sample?.contract_id) throw new Error('项目实验室记录必须关联合同')
+  const workflow = submitWorkflowRevision(db, {
+    contractId: sample.contract_id, roundId: sample.round_id ?? undefined, scope: 'laboratory',
+    subjectType: 'lab_record', subjectId: record.id, snapshot: laboratorySnapshot(db, record, sample),
+  }, actor)
+  return syncLabRecordProjection(db, workflow.subject_id)
 }
 
 // 保存记录：不存在则新建(create)，存在则更新(update)，并写留痕（含字段级 diff）
@@ -1430,10 +1735,13 @@ export function saveRecord(
     data: any; who?: string; whoUsername?: string; submit?: boolean
     baseUpdatedAt?: string   // 乐观锁：客户端打开时的 updated_at，不一致=有人先存过，拒绝覆盖
   },
-  // 路由层必传：主流程两道闸（交接签收 + 任务归属）。supervisor（tech/admin）兜底放行。
-  guard?: { supervisor: boolean },
+  // 路由层必传真实 actor；主流程同时校验交接、精确账号派工和 analyst 岗位。
+  // workflowTransaction 仅供本函数在提交时建立原子保存点，调用方不得传。
+  guard?: { supervisor?: boolean; actor?: User; workflowTransaction?: boolean },
 ): RecordRow {
-  const who = input.who || '（未署名）'   // 路由层必传真实登录人；兜底绝不能写死某个人名（留痕造假）
+  const actor = guard?.actor
+  const who = actor?.name || input.who || '（未署名）'   // 路由层必传真实登录人；兜底绝不能写死某个人名（留痕造假）
+  const whoUsername = actor?.username ?? input.whoUsername ?? null
   const at = now()
   // 拒收终态：任何人（含监督放行）都不能给拒收样录数据——正路是补采（resampleSample）
   const s0 = getSample(db, input.sampleId) as any
@@ -1442,7 +1750,12 @@ export function saveRecord(
   }
   // 终止合同冻结检测线：原来只在出报告一步才拦，白做一整段定稿记录
   if (s0?.contract_id) assertContractNotTerminated(db, s0.contract_id, '录入检测数据')
-  if (guard && !guard.supervisor) {
+  const existing = getRecord(db, input.sampleId, input.code)
+  if (actor && s0?.contract_id) assertScopedLabAuthor(db, s0, input.analyte || existing?.analyte || '', actor, existing?.id)
+  if (input.submit && actor && s0?.contract_id && !guard?.workflowTransaction) {
+    return inTx(db, () => saveRecord(db, input, { ...guard, workflowTransaction: true }))
+  }
+  if (guard) {
     const s = getSample(db, input.sampleId)
     if (!s) throw new Error('样品不存在')
     requireHandoverConfirmed(db, s)   // 闸1：没签收不能录（决策13）
@@ -1450,7 +1763,7 @@ export function saveRecord(
     const tasks = listTestTasks(db, { sampleId: input.sampleId })
     if (tasks.length) {
       // 归属比对优先登录名（重名不互串、改名不绕过）；任一方缺 username（历史派工）回退姓名
-      const mine = tasks.filter(t => samePerson({ name: t.assignee, username: t.assignee_username }, { name: who, username: input.whoUsername }))
+      const mine = tasks.filter(t => samePerson({ name: t.assignee, username: t.assignee_username }, { name: who, username: whoUsername }))
       if (!mine.length) throw new Error('该样品的检测任务没有派给你；如有疑问请质控员调整派工')
       if (input.analyte && !mine.some(t => t.analyte === input.analyte) && tasks.some(t => t.analyte === input.analyte)) {
         throw new Error(`项目「${input.analyte}」派给了别人，你不能录这一项`)
@@ -1460,7 +1773,7 @@ export function saveRecord(
       throw new Error('质控员还没给这个样品派检测任务，暂不能录入——请先在样品页派任务')
     }
   }
-  const existing = getRecord(db, input.sampleId, input.code)
+  if (existing && getWorkflowView(db, 'lab_record', existing.id)) assertWorkflowEditable(db, 'lab_record', existing.id)
   // 定稿保护：已提交/已复核/已审核的记录不能被静默改写——必须先「打回」再改，
   // 杜绝提交前打开的旧标签页在复核期间继续改数据
   if (existing && ['submitted', 'reviewed', 'approved'].includes(existing.status)) {
@@ -1522,12 +1835,12 @@ export function saveRecord(
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(id, serial, input.sampleId, input.code, input.name ?? '', input.sheetType ?? '',
       input.method ?? '', input.analyte ?? '', input.matrix ?? '', input.instrumentId ?? null,
-      JSON.stringify(input.data), status, who, input.whoUsername ?? null, at)
-    writeAudit(db, id, who, 'create', { rows: (input.data?.rows ?? []).length }, at, input.whoUsername ?? null)
+      JSON.stringify(input.data), status, who, whoUsername, at)
+    writeAudit(db, id, who, 'create', { rows: (input.data?.rows ?? []).length }, at, whoUsername)
     // 有记录开始录入 → 样品进入「检测中」
     db.prepare(`UPDATE samples SET status='testing' WHERE id=? AND status='pending'`).run(input.sampleId)
-    if (dateWarning) writeAudit(db, id, who, 'date_warning', { msg: dateWarning }, at, input.whoUsername ?? null)
-    const made = getRecordById(db, id)!
+    if (dateWarning) writeAudit(db, id, who, 'date_warning', { msg: dateWarning }, at, whoUsername)
+    const made = input.submit && actor && s0?.contract_id ? submitLaboratoryRecord(db, id, actor) : getRecordById(db, id)!
     return warn(made)
   }
 
@@ -1542,14 +1855,14 @@ export function saveRecord(
        instrument_id=COALESCE(NULLIF(?,''),instrument_id),
        author=?, author_username=?, updated_at=? WHERE id=?`
   ).run(JSON.stringify(input.data), status, rejectReason, input.name ?? '', input.method ?? '',
-    input.analyte ?? '', input.instrumentId ?? '', who, input.whoUsername ?? null, at, existing.id)
+    input.analyte ?? '', input.instrumentId ?? '', who, whoUsername, at, existing.id)
   if (input.submit && existing.status !== 'submitted') {
-    writeAudit(db, existing.id, who, 'submit', { changes }, at, input.whoUsername ?? null)
+    writeAudit(db, existing.id, who, 'submit', { changes }, at, whoUsername)
   } else {
-    writeAudit(db, existing.id, who, 'update', { changes }, at, input.whoUsername ?? null)
+    writeAudit(db, existing.id, who, 'update', { changes }, at, whoUsername)
   }
-  if (dateWarning) writeAudit(db, existing.id, who, 'date_warning', { msg: dateWarning }, at, input.whoUsername ?? null)
-  const saved = getRecordById(db, existing.id)!
+  if (dateWarning) writeAudit(db, existing.id, who, 'date_warning', { msg: dateWarning }, at, whoUsername)
+  const saved = input.submit && actor && s0?.contract_id ? submitLaboratoryRecord(db, existing.id, actor) : getRecordById(db, existing.id)!
   return warn(saved)
 }
 
@@ -1565,7 +1878,7 @@ export function saveRecordsBatch(
     entries: { sampleId: string; row: Record<string, any>; resultSummary?: any }[]
     who?: string; whoUsername?: string; submit?: boolean
   },
-  guard?: { supervisor: boolean },
+  guard?: { supervisor?: boolean; actor?: User },
 ): RecordRow[] {
   if (!input.entries?.length) throw new Error('至少要有一行样品数据')
   const ids = new Set(input.entries.map(e => e.sampleId))
@@ -1615,11 +1928,12 @@ export function saveRecordsBatch(
 export function flagRecheck(
   db: DB, recordId: string, reason: string, flag = true, who = '',
   // 体检19：检测员只能标自己名下的记录（编制人或任务受派人，登录名优先）；
-  // reviewer/approver/tech/admin 由路由层传 restrictToOwn=false 不受限
+  // 经项目指派的分析/报告岗位及 tech/admin 由路由层传 restrictToOwn=false 不受限
   opts: { username?: string | null; restrictToOwn?: boolean } = {},
 ): RecordRow {
   const rec = getRecordById(db, recordId)
   if (!rec) throw new Error('记录不存在')
+  assertWorkflowEditable(db, 'lab_record', recordId)
   if (opts.restrictToOwn) {
     const me = { name: who, username: opts.username ?? null }
     const isAuthor = samePerson({ name: (rec as any).author, username: (rec as any).author_username }, me)
@@ -1642,14 +1956,22 @@ export function flagRecheck(
 // —— 列出记录（审核台/报告用）——
 export function listRecords(db: DB, filter: { status?: string; sampleId?: string; instrumentId?: string } = {}): RecordRow[] {
   const where: string[] = [], args: any[] = []
-  if (filter.status) { where.push('status = ?'); args.push(filter.status) }
   if (filter.sampleId) { where.push('sample_id = ?'); args.push(filter.sampleId) }
   if (filter.instrumentId) { where.push('instrument_id = ?'); args.push(filter.instrumentId) }   // 期间核查不合格按仪器追溯
   // 带出所属合同/单位：三级审核队列按合同分组用（路由层对盲用户走 maskSheetForUser 脱敏）
-  const sql = `SELECT r.*, s.contract_id AS contract_id, s.client AS client FROM records r
+  const sql = `SELECT r.*, s.contract_id AS contract_id, s.client AS client,
+      w.status AS workflow_status, w.created_by AS workflow_created_by
+    FROM records r
     LEFT JOIN samples s ON s.id = r.sample_id
+    LEFT JOIN workflow_instances w ON w.subject_type='lab_record' AND w.subject_id=r.id
     ${where.length ? 'WHERE ' + where.map(w => 'r.' + w).join(' AND ') : ''} ORDER BY r.updated_at DESC`
-  return (db.prepare(sql).all(...args) as any[]).map(r => ({ ...r, data: safeJson(r.data, {}) }))
+  const records = (db.prepare(sql).all(...args) as any[]).map(row => {
+    const { workflow_status: workflowStatus, workflow_created_by: _workflowCreatedBy, ...record } = row
+    const hydrated = { ...record, data: safeJson(record.data, {}) } as RecordRow
+    if (workflowStatus) return { ...hydrated, status: LAB_RECORD_STATUS[workflowStatus] ?? hydrated.status }
+    return hydrated.contract_id && hydrated.status !== 'draft' ? { ...hydrated, status: 'migration_required' } : hydrated
+  })
+  return filter.status ? records.filter(record => record.status === filter.status) : records
 }
 
 // —— 三级审核：检验(提交) → 复核 → 审核 ——
@@ -1672,6 +1994,28 @@ export function reviewRecord(
   }
   const rec = getRecordById(db, recordId)
   if (!rec) throw new Error('记录不存在')
+  const workflow = getWorkflowView(db, 'lab_record', recordId)
+  if (workflow) {
+    if (op === 'revoke') throw new Error('已批准内容已冻结，不能打回修改')
+    if (!whoUsername) throw new Error('实验室复核和审核必须使用实名登录账号')
+    const actor = getUser(db, whoUsername)
+    if (!actor || actor.status !== 'active') throw new Error('当前复核或审核账号无效')
+    const action = ({
+      review_pass: ['review', 'approve'], review_reject: ['review', 'reject'],
+      approve: ['approve', 'approve'], reject: ['approve', 'reject'],
+    } as const)[op]
+    if (!action) throw new Error('未知审核动作')
+    return inTx(db, () => {
+      decideWorkflow(db, workflow.id, workflow.current_revision, action[0], action[1], comment, actor)
+      const projected = syncLabRecordProjection(db, recordId)
+      settleSampleDone(db, rec.sample_id)
+      writeAudit(db, recordId, actor.name, op, { comment, workflowRevision: workflow.current_revision }, now(), actor.username)
+      return projected
+    })
+  }
+  if (whoUsername && getSample(db, rec.sample_id)?.contract_id) {
+    throw new Error('项目实验室记录尚未提交统一工作流，不能使用旧状态列审核')
+  }
   // —— 定稿打回通道（revoke）：审核定稿后发现问题，审核人给原因打回重改（approved → rejected）——
   if (op === 'revoke') {
     if (rec.status !== 'approved') throw new Error(`只有「审核定稿」的记录才能打回（当前状态「${rec.status}」）`)
@@ -2254,14 +2598,24 @@ export function getRound(db: DB, roundId: string): Round | null {
   }
 }
 
-// 期次对象级访问：管理派工的角色可查全部；采样员必须同时具备角色、当前有效派工和 immutable username。
-// 历史歧义/已撤销派工一律 fail closed，只有管理角色能进入核对。
+// 期次对象级访问：计划员/技术负责人可查全部；采样员必须同时具备角色、当前有效派工和 immutable username。
+// 历史歧义/已撤销派工一律 fail closed，只有派工职责岗位能进入现场核对。
 export function assertRoundAccess(db: DB, roundId: string, actor: User): Round {
   const r = getRound(db, roundId)
   if (!r) throw httpError(404, '监测期次不存在', 'ROUND_NOT_FOUND')
   if (hasRole(actor, ...PERM.round_assign)) return r
   if (!hasRole(actor, 'sampler') || r.assignment_status !== 'active' || !r.sampler_ids.includes(actor.username)) {
     throw httpError(403, '无权访问该期次：需要当前有效派工或期次管理权限', 'ROUND_FORBIDDEN')
+  }
+  return r
+}
+
+// 质控记录和质控要求不包含现场详情，使用独立的最小权限边界，不能复用现场期次访问权。
+export function assertQualityRoundAccess(db: DB, roundId: string, actor: User): Round {
+  const r = getRound(db, roundId)
+  if (!r) throw httpError(404, '监测期次不存在', 'ROUND_NOT_FOUND')
+  if (!hasRole(actor, 'qc', 'tech')) {
+    throw httpError(403, '无权访问该期次质控数据', 'ROUND_QUALITY_FORBIDDEN')
   }
   return r
 }
@@ -2292,6 +2646,7 @@ function requireStagedAttachmentScope(db: DB, input: Pick<StagedAttachmentInput,
 
 // 文件正文由 HTTP 层安全落入 staging 目录；本函数提供可迁移到对象存储的幂等账本协议。
 export function stageAttachment(db: DB, input: StagedAttachmentInput, bytes: Uint8Array, actor: User, policy: StagedAttachmentPolicy = {}) {
+  assertWorkflowEditable(db, 'round_sampling', input.roundId)
   requireStagedAttachmentScope(db, input, actor, policy)
   if (!/^[a-f0-9]{64}$/.test(input.hash) || createHash('sha256').update(bytes).digest('hex') !== input.hash) throw new Error('ATTACHMENT_HASH_MISMATCH')
   if (bytes.byteLength !== input.size || input.size <= 0 || input.size > 10 * 1024 * 1024) throw new Error('ATTACHMENT_SIZE_MISMATCH')
@@ -2330,6 +2685,7 @@ export function getStagedAttachmentStatus(db: DB, roundId: string, clientAttachm
 }
 
 export function cancelStagedAttachment(db: DB, roundId: string, clientAttachmentId: string, actor: User, policy: StagedAttachmentPolicy = {}) {
+  assertWorkflowEditable(db, 'round_sampling', roundId)
   assertRoundAccess(db, roundId, actor)
   if (!policy.managedDeviceId) throw new Error('MANAGED_DEVICE_REQUIRED')
   const row = db.prepare(`SELECT receipt_id,status,stored_name FROM staged_attachments WHERE round_id=? AND owner_id=? AND device_id=? AND client_attachment_id=?`).get(roundId, actor.username, policy.managedDeviceId, clientAttachmentId) as any
@@ -2479,6 +2835,7 @@ function assertRoundSampler(db: DB, r: Round, actor: { name: string; username?: 
 export function saveRoundField(db: DB, roundId: string, info: any, actor?: { name: string; username?: string }, guard?: { supervisor: boolean }): Round {
   const r = getRound(db, roundId)
   if (!r) throw new Error('监测期次不存在')
+  assertWorkflowEditable(db, 'round_sampling', roundId)
   assertRoundFieldEditable(db, r)
   if (guard && !guard.supervisor) assertRoundSampler(db, r, actor!)
   // 留痕只记变更字段的旧值→新值（不塞整个 body），上限 50 条防膨胀
@@ -2502,6 +2859,7 @@ export function saveRoundSheet(db: DB, roundId: string, code: string, data: any,
   const r = getRound(db, roundId)
   if (!r) throw new Error('监测期次不存在')
   if (!code) throw new Error('表号必填')
+  assertWorkflowEditable(db, 'round_sampling', roundId)
   assertRoundFieldEditable(db, r)                     // 冻结：收样入库/报告签发后不能再改现场记录
   if (guard && !guard.supervisor) assertRoundSampler(db, r, actor)  // 归属：只有本期派工采样员能填（tech/admin 放行）
   // 乐观锁：两名采样员现场同填一张采样单是常态，后保存的不许把前一个人的行悄悄抹掉
@@ -2540,6 +2898,67 @@ export function listRoundSheets(db: DB, roundId: string, actor?: User): RoundShe
   if (actor) assertRoundAccess(db, roundId, actor)
   const rows = db.prepare(`SELECT * FROM round_sheets WHERE round_id=? ORDER BY template_code`).all(roundId) as any[]
   return rows.map(r => ({ ...r, data: roundSheetData(r) }))
+}
+
+// The professional-review snapshot is deliberately assembled from persisted
+// evidence only. Local drafts and a pending upload stay outside this boundary.
+export function samplingWorkflowSnapshot(db: DB, roundId: string): Record<string, unknown> {
+  const round = getRound(db, roundId)
+  if (!round) throw new Error('监测期次不存在')
+  const roundSheets = listRoundSheets(db, roundId).map(sheet => ({
+    templateCode: sheet.template_code, data: sheet.data, updatedAt: sheet.updated_at,
+  }))
+  const directAttachments = (db.prepare(`SELECT id,content_hash FROM attachments
+    WHERE deleted_at IS NULL AND (entity_type='round' AND entity_id=? OR entity_type='round_sheet' AND entity_id LIKE ?)
+    ORDER BY entity_type, entity_id, rowid`).all(roundId, `${roundId}::%`) as any[])
+    .map(row => {
+      if (!/^[a-f0-9]{64}$/.test(String(row.content_hash || ''))) throw new Error('现场附件哈希不可验证，不能提交审核')
+      return { id: row.id, hash: row.content_hash }
+    })
+  const stagedAttachments = (db.prepare(`SELECT receipt_id,content_hash,sample_slot_id,client_attachment_id,revision
+    FROM staged_attachments WHERE round_id=? AND status='uploaded_staged'
+    ORDER BY receipt_id`).all(roundId) as any[]).map(row => ({
+    receiptId: row.receipt_id, hash: row.content_hash, sampleSlotId: row.sample_slot_id,
+    clientAttachmentId: row.client_attachment_id, revision: Number(row.revision),
+  }))
+  const committedMobileSubmissions = (db.prepare(`SELECT client_submission_id,receipt_id,payload_hash,attachment_receipts,publication_json,completed_at
+    FROM mobile_submissions WHERE round_id=? AND status='complete' ORDER BY completed_at, client_submission_id`).all(roundId) as any[]).map(row => ({
+    clientSubmissionId: row.client_submission_id, receiptId: row.receipt_id, payloadHash: row.payload_hash,
+    attachmentReceipts: safeJson(row.attachment_receipts, []), publication: row.publication_json ? safeJson(row.publication_json, null) : null,
+    completedAt: row.completed_at,
+  }))
+  const committedAttachmentReceipts = committedMobileSubmissions.flatMap((submission: any) => (submission.attachmentReceipts as string[]).map(receiptId => ({ submissionId: submission.clientSubmissionId, receiptId }))).map(ref => {
+    const row = db.prepare(`SELECT content_hash FROM staged_attachments WHERE receipt_id=?`).get(ref.receiptId) as any
+    if (!/^[a-f0-9]{64}$/.test(String(row?.content_hash || ''))) throw new Error('移动提交引用的附件哈希不可验证，不能提交审核')
+    return { ...ref, hash: row.content_hash }
+  })
+  const mobileConfirmations = (db.prepare(`SELECT client_submission_id,confirmer_id,task_version,draft_revision,rule_version,summary_hash,confirmed_at
+    FROM mobile_submission_confirmations WHERE round_id=? ORDER BY client_submission_id, confirmed_at, confirmer_id`).all(roundId) as any[]).map(row => ({
+    clientSubmissionId: row.client_submission_id, confirmerId: row.confirmer_id, taskVersion: row.task_version,
+    draftRevision: Number(row.draft_revision), ruleVersion: row.rule_version, summaryHash: row.summary_hash, confirmedAt: row.confirmed_at,
+  }))
+  const sampleSlots = (db.prepare(`SELECT sample_slot_id,temporary_id,matrix,items,sequence,state,parent_slot_id,official_sample_id
+    FROM mobile_sample_slots WHERE round_id=? ORDER BY matrix,sequence,sample_slot_id`).all(roundId) as any[]).map(row => ({
+    sampleSlotId: row.sample_slot_id, temporaryId: row.temporary_id, matrix: row.matrix, items: safeJson(row.items, []),
+    sequence: Number(row.sequence), state: row.state, parentSlotId: row.parent_slot_id, officialSampleId: row.official_sample_id,
+  }))
+  const { confirmation_users: _derivedUsers, confirms: _derivedConfirms, ...fieldInfo } = round.field_info || {}
+  return {
+    roundId, contractId: round.contract_id, plan: round.items, fieldInfo, roundSheets, attachments: directAttachments,
+    stagedAttachments, committedMobileSubmissions, committedAttachmentReceipts, sampleSlots, mobileConfirmations,
+  }
+}
+
+export function submitSamplingWorkflow(db: DB, roundId: string, actor: User) {
+  const round = getRound(db, roundId)
+  if (!round) throw new Error('监测期次不存在')
+  if (!actor.roles.includes('sampler') || actor.status !== 'active' || round.assignment_status !== 'active' || !actor.username || !round.sampler_ids.includes(actor.username)) {
+    throw httpError(403, '只有当前有效派工的采样员可以提交采样审核', 'ROUND_SAMPLING_AUTHOR_REQUIRED')
+  }
+  return submitWorkflowRevision(db, {
+    contractId: round.contract_id, roundId, scope: 'sampling', subjectType: 'round_sampling', subjectId: roundId,
+    snapshot: samplingWorkflowSnapshot(db, roundId),
+  }, actor)
 }
 // 期次汇总状态（体检46）：flatMap 会把「有样品但一条记录都没有」的样品吞掉——那是「还没测」，
 // 不是「不存在」。逐样品看：有任何样品零记录就不能算 approved（全空=pending，测了一半=testing）。
@@ -2641,6 +3060,7 @@ function checkNoiseGate(field: any) {
 export function confirmRoundField(db: DB, roundId: string, actor: { name: string; username?: string }): Round {
   const r = getRound(db, roundId)
   if (!r) throw new Error('监测期次不存在')
+  assertWorkflowEditable(db, 'round_sampling', roundId)
   if (r.status === 'done') throw new Error('该期已收样入库，无需再确认')
   if (r.status === 'cancelled') throw new Error('这一期已终止，不用再确认采样表')
   assertRoundSampler(db, r, actor)
@@ -2665,8 +3085,15 @@ export function sampleRound(db: DB, roundId: string, actorOrYear: { name: string
   const round = getRound(db, roundId)
   if (!round) throw new Error('监测期次不存在')
   if (!supervisor) assertRoundSampler(db, round, actor)
+  const assignment = getProjectAssignment(db, round.contract_id, 'sampling')
+  if (!assignment) throw new Error('项目尚未指定采样复核人和审核人，不能发起交接/入库')
+  const samplingWorkflow = getWorkflowView(db, 'round_sampling', roundId)
+  if (!samplingWorkflow) throw new Error('采样内容尚未提交审核，不能发起交接/入库')
+  if (samplingWorkflow.status !== 'approved') throw new Error('采样审核通过后允许发起交接/入库')
+  const approvedSnapshot = samplingWorkflow.revisions.find(revision => revision.revision === samplingWorkflow.current_revision)?.snapshot as any
+  if (!Array.isArray(approvedSnapshot?.plan)) throw new Error('已批准采样快照不完整，不能发起交接/入库')
   const existing = listSamplesByRound(db, roundId)
-  if (round.status === 'done') return existing   // 幂等：这一期已采过就不重复建
+  if (round.status === 'done') return existing   // idempotency never bypasses professional authorization
   // 终态/异常态先拦（体检12/37）：终止的期次不许收样；标了采不成必须先改期，不能跳过直接收样
   if (round.status === 'cancelled') throw new Error('这一期已终止，不能收样入库')
   if (round.status === 'failed') throw new Error('这期标了采不成，先改期再收样')
@@ -2679,7 +3106,7 @@ export function sampleRound(db: DB, roundId: string, actorOrYear: { name: string
   // 体检38：方案改回草稿/被打回期间不许收样（没方案的老数据/快速登记路径放行，维持现状）
   if (c.scheme && c.scheme.status !== 'approved') throw new Error('方案还没批准，先让技术负责人审完再排采样')
   // 只采「本期到期」的项目（各项周期不同），本期清单在 round.items；旧数据兜底用合同全计划
-  const plan = round.items?.length ? round.items : c.plan
+  const plan = approvedSnapshot.plan
   // 新版现场工作流一旦持久化了选表信息，每个计划基质都必须有一张真正保存的采样单。
   // 完全没有选表结构的历史期次不追溯阻断；旧 field.sheets 和旧 round_sheets 均算已填。
   const fieldInfo = round.field_info || {}
@@ -2700,8 +3127,9 @@ export function sampleRound(db: DB, roundId: string, actorOrYear: { name: string
   if (listPoints(db, c.id).length && plan.some(p => !(p as any).point)) {
     throw new Error('本期清单有计划行没写点位，不能收样入库——请在方案里给每行填上点位（采样地点必须体现）')
   }
+  const completedMobile = db.prepare(`SELECT canonical_payload FROM mobile_submissions WHERE round_id=? AND status='complete' ORDER BY completed_at DESC, client_submission_id DESC LIMIT 1`).get(roundId) as any
   // §8.3 两人采样双确认：每名派工采样员都在系统里确认过采样表才能入库（tech/admin 兜底放行）
-  if (!supervisor) {
+  if (!supervisor && !completedMobile) {
     const confirmations = round.field_info?.confirmations || {}
     const missingIds = round.sampler_ids.filter(id => !confirmations[id])
     const assignedNames = round.sampler_ids.map(id => getUser(db, id)?.name ?? id)
@@ -2712,6 +3140,20 @@ export function sampleRound(db: DB, roundId: string, actorOrYear: { name: string
     if (missing.length) {
       throw new Error(`采样表还差 ${missing.join('、')} 确认——两人采样要求每名采样员都在系统里确认后才能收样入库`)
     }
+  }
+  // A completed offline receipt is persisted field evidence, not a handover.
+  // Once its professional workflow is approved, promote its stable labelled
+  // slots exactly once into the normal handover chain.
+  const mobilePayload = completedMobile ? safeJson(completedMobile.canonical_payload, null) as any : null
+  const mobileSamplingDate = typeof mobilePayload?.global?.samplingDate === 'string' ? mobilePayload.global.samplingDate : null
+  if (mobileSamplingDate) {
+    return inTx(db, () => {
+      materializeSampleSlots(db, roundId, mobileSamplingDate, actor, false)
+      const made = listSamplesByRound(db, roundId)
+      createHandoverSheetForRound(db, round, made, year)
+      markRoundDone(db, roundId)
+      return made
+    })
   }
   // 建样+质控样+交接+转已采是一个整体：中途失败全部回滚，不留半截
   return inTx(db, () => {
@@ -2735,7 +3177,7 @@ export function sampleRound(db: DB, roundId: string, actorOrYear: { name: string
     for (const s of made) {
       addHandover(db, s.id, { action: '采样交接', fromPerson: round.sampler, condition: '完好', note: `第${round.round_no}期现场采样交接` }, actor)
     }
-    // 交接单（批次一）：整期聚成一张单（草稿），采样员可改后发质控员整单签收
+    // 交接单（批次一）：整期聚成一张单（草稿），采样员可改后发样品管理员整单签收
     createHandoverSheetForRound(db, round, made, year)
     markRoundDone(db, roundId)
     return made
@@ -3302,6 +3744,53 @@ export type Report = {
   author?: string | null
   author_username?: string | null; checker_username?: string | null; issuer_username?: string | null   // 同人校验按登录名（老数据为空回退姓名）
   voided?: number; void_reason?: string | null; voided_by?: string | null; voided_at?: string | null; reissue_of?: string | null
+  archive_package_id?: string | null; archive_blocked_at?: string | null; archive_block_reason?: string | null
+  archive_requires_reissue?: number
+  receipt_id?: string | null; workflow_revision?: number | null; archive_version?: number | null
+}
+
+function projectReportAuthor(db: DB, username: string): User {
+  const user = getUser(db, username)
+  if (!user || user.status !== 'active' || !user.roles.includes('report_editor')) {
+    throw httpError(403, '项目报告只能由在职的报告编制人员创建和提交', 'REPORT_AUTHOR_REQUIRED')
+  }
+  return user
+}
+
+function canonicalSnapshotJson(value: unknown): string {
+  const normalise = (current: unknown): unknown => {
+    if (Array.isArray(current)) return current.map(normalise)
+    if (current && typeof current === 'object') {
+      const result: Record<string, unknown> = {}
+      for (const key of Object.keys(current as Record<string, unknown>).sort()) {
+        result[key] = normalise((current as Record<string, unknown>)[key])
+      }
+      return result
+    }
+    return current
+  }
+  return JSON.stringify(normalise(value))
+}
+
+function assertCurrentConfirmedArchiveForReport(
+  db: DB,
+  packageId: string,
+  expected: { contractId?: string | null; roundId?: string | null; roundIds?: string[]; recordIds?: string[] },
+) {
+  if (!packageId?.trim()) throw httpError(409, '项目报告必须绑定当前已确认归档版本', 'ARCHIVE_REQUIRED')
+  let archive
+  try {
+    archive = assertConfirmedArchiveForReport(db, packageId, expected)
+  } catch (error: any) {
+    throw httpError(409, error?.message || '项目报告必须绑定当前已确认归档版本', 'ARCHIVE_REQUIRED')
+  }
+  const current = archive.report_batch_id
+    ? db.prepare(`SELECT id,version FROM archive_packages WHERE report_batch_id=? AND status='confirmed' ORDER BY version DESC LIMIT 1`).get(archive.report_batch_id) as any
+    : db.prepare(`SELECT id,version FROM archive_packages WHERE contract_id=? AND report_batch_id IS NULL AND status='confirmed' ORDER BY version DESC LIMIT 1`).get(archive.contract_id) as any
+  if (!current || current.id !== archive.id) {
+    throw httpError(409, `报告必须使用当前最新的已确认归档版本（当前版本 ${current?.version ?? '不存在'}）`, 'ARCHIVE_REQUIRED')
+  }
+  return archive
 }
 // 报告串全过程（决策17）：合同→方案→谁何时去哪采了什么→交接→派了哪些检测。出报告时快照进 data.process。
 function buildReportProcess(db: DB, c: Contract, roundId?: string) {
@@ -3332,8 +3821,15 @@ function buildReportProcess(db: DB, c: Contract, roundId?: string) {
     points, sampling, handovers, tasks,
   }
 }
+function assertLaboratoryRecordsWorkflowBacked(db: DB, samples: Sample[]) {
+  const missingWorkflow = samples.flatMap(sample => listRecords(db, { sampleId: sample.id })
+    .filter(record => !getWorkflowView(db, 'lab_record', record.id)).map(record => record.id))
+  if (missingWorkflow.length) {
+    throw new Error(`项目有 ${missingWorkflow.length} 条实验室记录尚未提交或迁移到统一工作流，不能生成报告`)
+  }
+}
 // 一期一报告：汇总该期全部样品的已审核结果（真实报告的样子）
-export function generateRoundReport(db: DB, roundId: string, year = new Date().getFullYear(), reportAuthor = '', reportAuthorUsername = ''): Report {
+export function generateRoundReport(db: DB, roundId: string, year = new Date().getFullYear(), reportAuthor = '', reportAuthorUsername = '', archivePackageId = ''): Report {
   const round = getRound(db, roundId)
   if (!round) throw new Error('监测期次不存在')
   const c = getContract(db, round.contract_id)
@@ -3342,6 +3838,7 @@ export function generateRoundReport(db: DB, roundId: string, year = new Date().g
   // 报告只汇总普通样：质控样（空白/平行）走质控评价线；拒收样（终态）不进报告也不卡报告
   const samples = listSamplesByRound(db, roundId).filter(s => !s.qc_type && (s as any).status !== 'rejected')
   if (!samples.length) throw new Error('这一期还没有样品（或全部被拒收），先收样/补采入库')
+  assertLaboratoryRecordsWorkflowBacked(db, samples)
   // 一期一报告：本期已有未作废的报告就不许再生成；作废后允许重出并记 reissue_of 链
   const dup = listReports(db).find(r => r.round_id === roundId && !r.voided)
   if (dup) throw new Error(`第${round.round_no}期已生成报告 ${dup.id}，不要重复生成；如需修改请打开该报告（签发后要改先作废再重出）`)
@@ -3349,11 +3846,13 @@ export function generateRoundReport(db: DB, roundId: string, year = new Date().g
   const limits = c.scheme?.limits ?? []
   const results: any[] = []
   const compareBlocks: any[] = []
+  const archiveRecordIds: string[] = []
   const authors = new Set<string>()
   const reviewers = new Set<string>()
   for (const s of samples) {
     // 真"全部定稿"校验：该样品名下任何一条记录没走完三级审核都不能出报告（不能无声跳过缺项）
     const allRecs = listRecords(db, { sampleId: s.id })
+    archiveRecordIds.push(...allRecs.map(record => record.id))
     const unfinished = allRecs.filter(r => r.status !== 'approved')
     if (unfinished.length) {
       throw new Error(`样品 ${s.id} 还有 ${unfinished.length} 条记录未审核定稿（${unfinished.map(r => r.analyte || r.template_code).join('、')}），不能出报告`)
@@ -3386,6 +3885,8 @@ export function generateRoundReport(db: DB, roundId: string, year = new Date().g
       if (r.reviewer) reviewers.add(r.reviewer); if (r.approver) reviewers.add(r.approver)
     }
   }
+  const authorActor = projectReportAuthor(db, reportAuthorUsername)
+  if (!getProjectAssignment(db, c.id, 'report')) throw new Error('项目尚未指定报告复核人和审核人')
   // 质控联动：本期有"不合格"的质控评价 → 报告数据带警示（编制界面提示，不拦但必须看见）
   const qcFails = db.prepare(`SELECT COUNT(*) n FROM qc_records WHERE round_id=? AND verdict='不合格'`).get(roundId) as any
   const warnParts: string[] = []
@@ -3425,20 +3926,34 @@ export function generateRoundReport(db: DB, roundId: string, year = new Date().g
       .filter((p: any) => ptNames.has(p.name))
       .map((p: any) => ({ name: p.name, code: p.code, stack_info: p.stack_info || null }))
   }
+  const archive = assertCurrentConfirmedArchiveForReport(db, archivePackageId, {
+    contractId: c.id, roundId, recordIds: archiveRecordIds,
+  })
   const id = nextSeqId(db, 'reports', `BG${year}-`)
-  db.prepare(`INSERT INTO reports (id, sample_id, round_id, contract_id, client, title, conclusion, data, status, author, author_username, reissue_of, created_at)
-    VALUES (?,NULL,?,?,?,?,?,?,'draft',?,?,?,?)`)
+  db.prepare(`INSERT INTO reports (id, sample_id, round_id, contract_id, client, title, conclusion, data, status, author, author_username, reissue_of, archive_package_id, created_at)
+    VALUES (?,NULL,?,?,?,?,?,?,'draft',?,?,?,?,?)`)
     .run(id, roundId, c.id, c.client, `${c.client} 检测报告（第${round.round_no}期）`,
       compareBlocks.length ? '不予判定。' : buildConclusionDraft(results, limits),   // 比对报告总结论恒"不予判定"（6份样本一致）
-      JSON.stringify({ round: { id: roundId, no: round.round_no, due: round.due_date }, results, compareBlocks, stacks, fieldInfo: round.field_info || null, subNote, author, reviewer, qcWarning: qcWarning || undefined, process: buildReportProcess(db, c, roundId) }),
-      reportAuthor || null, reportAuthorUsername || null, voidedPrev?.id ?? null, now())
+      JSON.stringify({
+        reportBatchId: archive.report_batch_id, archiveVersion: archive.version,
+        round: { id: roundId, no: round.round_no, due: round.due_date }, results, compareBlocks, stacks,
+        fieldInfo: round.field_info || null, subNote, author, reviewer, qcWarning: qcWarning || undefined,
+        process: buildReportProcess(db, c, roundId),
+      }),
+      authorActor.name, authorActor.username, voidedPrev?.id ?? null, archivePackageId, now())
   return getReport(db, id)!
 }
 // 从某样品已「审核通过」的记录汇总生成报告草稿
-export function generateReport(db: DB, sampleId: string, year = new Date().getFullYear(), reportAuthor = '', reportAuthorUsername = ''): Report {
+export function generateReport(db: DB, sampleId: string, year = new Date().getFullYear(), reportAuthor = '', reportAuthorUsername = '', archivePackageId = ''): Report {
   const sample = getSample(db, sampleId)
   if (!sample) throw new Error('样品不存在')
   assertContractNotTerminated(db, sample.contract_id, '生成报告')   // 体检15（散样无合同不受影响）
+  let projectAuthor: User | null = null
+  if (sample.contract_id) {
+    assertLaboratoryRecordsWorkflowBacked(db, [sample])
+    projectAuthor = projectReportAuthor(db, reportAuthorUsername)
+    if (!getProjectAssignment(db, sample.contract_id, 'report')) throw new Error('项目尚未指定报告复核人和审核人')
+  }
   // 散样报告也查重：已有未作废的报告不许再生成（双击不会出两份）
   const dup = listReports(db).find(r => r.sample_id === sampleId && !r.voided)
   const voidedPrev0 = listReports(db).find(r => r.sample_id === sampleId && r.voided)
@@ -3448,6 +3963,15 @@ export function generateReport(db: DB, sampleId: string, year = new Date().getFu
   if (unfinished.length) throw new Error(`该样品还有 ${unfinished.length} 条记录未审核定稿（${unfinished.map(r => r.analyte || r.template_code).join('、')}），不能出报告`)
   const approved = allRecs
   if (!approved.length) throw new Error('该样品还没有「审核通过」的记录，无法出报告')
+  if (sample.contract_id) {
+    assertCurrentConfirmedArchiveForReport(db, archivePackageId, {
+      contractId: sample.contract_id, roundId: sample.round_id, recordIds: allRecs.map(record => record.id),
+    })
+  } else if (archivePackageId) {
+    assertConfirmedArchiveForReport(db, archivePackageId, {
+      contractId: sample.contract_id, roundId: sample.round_id, recordIds: allRecs.map(record => record.id),
+    })
+  }
   const scheme = sample.contract_id ? getScheme(db, sample.contract_id) : null
   const limits = scheme?.limits ?? []
   const authors = new Set<string>(), reviewers = new Set<string>()
@@ -3462,8 +3986,8 @@ export function generateReport(db: DB, sampleId: string, year = new Date().getFu
   })
   const std = scheme?.points?.[0]?.standard || ''
   const id = nextSeqId(db, 'reports', `BG${year}-`)
-  db.prepare(`INSERT INTO reports (id, sample_id, contract_id, client, title, conclusion, data, status, author, author_username, reissue_of, created_at) VALUES (?,?,?,?,?,?,?,'draft',?,?,?,?)`)
-    .run(id, sampleId, sample.contract_id, sample.client, `${sample.client} 检测报告`, buildConclusionDraft(results, limits), JSON.stringify({ sample, results, author: [...authors].join('、'), reviewer: [...reviewers].join('、') }), reportAuthor || null, reportAuthorUsername || null, voidedPrev0?.id ?? null, now())
+  db.prepare(`INSERT INTO reports (id, sample_id, contract_id, client, title, conclusion, data, status, author, author_username, reissue_of, archive_package_id, created_at) VALUES (?,?,?,?,?,?,?,'draft',?,?,?,?,?)`)
+    .run(id, sampleId, sample.contract_id, sample.client, `${sample.client} 检测报告`, buildConclusionDraft(results, limits), JSON.stringify({ sample, results, author: [...authors].join('、'), reviewer: [...reviewers].join('、') }), projectAuthor?.name ?? (reportAuthor || null), projectAuthor?.username ?? (reportAuthorUsername || null), voidedPrev0?.id ?? null, archivePackageId || null, now())
   return getReport(db, id)!
 }
 // 样号反查（批次二修补）：期次报告 sample_id 为空，按样品的 round_id 兜底匹配到报告
@@ -3477,7 +4001,38 @@ export function findReportsBySample(db: DB, sampleId: string): Report[] {
 export function getReport(db: DB, id: string): Report | null {
   const r = db.prepare(`SELECT * FROM reports WHERE id=?`).get(id) as any
   if (!r) return null
-  return { ...r, data: safeJson(r.data, {}) }
+  const data = safeJson(r.data, {})
+  const issuance = data?._issuance ?? null
+  return {
+    ...r,
+    data,
+    receipt_id: issuance?.receiptId ?? null,
+    workflow_revision: issuance?.workflowRevision ?? null,
+    archive_version: issuance?.archiveVersion ?? null,
+  }
+}
+function assertReportArchiveStillValid(db: DB, report: Report) {
+  const archivePackageId = report.archive_package_id
+  if (!archivePackageId) return
+  if (report.round_id) {
+    const recordIds = (db.prepare(`SELECT r.id FROM records r JOIN samples s ON s.id=r.sample_id
+      WHERE s.round_id=? AND s.qc_type IS NULL AND s.status<>'rejected' ORDER BY r.id`).all(report.round_id) as { id: string }[])
+      .map(record => record.id)
+    assertConfirmedArchiveForReport(db, archivePackageId, {
+      contractId: report.contract_id, roundId: report.round_id, recordIds,
+    })
+    return
+  }
+  if (report.sample_id) {
+    const sample = db.prepare(`SELECT contract_id,round_id FROM samples WHERE id=?`).get(report.sample_id) as any
+    const recordIds = (db.prepare(`SELECT id FROM records WHERE sample_id=? ORDER BY id`).all(report.sample_id) as { id: string }[])
+      .map(record => record.id)
+    assertConfirmedArchiveForReport(db, archivePackageId, {
+      contractId: sample?.contract_id ?? null, roundId: sample?.round_id ?? null, recordIds,
+    })
+    return
+  }
+  assertConfirmedArchiveForReport(db, archivePackageId, reportArchiveExpectation(db, report))
 }
 export function assertReportReadAccess(db: DB, id: string, actor: User): Report {
   if (!hasRole(actor, ...REPORT_READ_ROLES)) {
@@ -3488,14 +4043,176 @@ export function assertReportReadAccess(db: DB, id: string, actor: User): Report 
   return report
 }
 export function listReports(db: DB): Report[] {
-  return (db.prepare(`SELECT * FROM reports ORDER BY created_at DESC`).all() as any[]).map(r => ({ ...r, data: safeJson(r.data, {}) }))
+  return (db.prepare(`SELECT id FROM reports ORDER BY created_at DESC`).all() as { id: string }[])
+    .map(row => getReport(db, row.id)!)
 }
+
+function reportSnapshot(db: DB, report: Report) {
+  const archive = assertCurrentConfirmedArchiveForReport(db, report.archive_package_id || '', reportArchiveExpectation(db, report))
+  const attachments = listAttachments(db, 'report', report.id)
+  for (const attachment of attachments) {
+    if (!/^[a-f0-9]{64}$/.test(attachment.content_hash || '')) throw new Error(`报告附件 ${attachment.id} 哈希不可验证`)
+  }
+  const { _issuance: _ignored, ...contentData } = report.data || {}
+  return {
+    report: { id: report.id, title: report.title, conclusion: report.conclusion, data: contentData },
+    archive: { id: archive.id, version: archive.version, manifestSha256: archive.manifest_sha256 },
+    attachments: attachments.map(attachment => ({ id: attachment.id, hash: attachment.content_hash })),
+  }
+}
+
+function reportArchiveExpectation(db: DB, report: Report) {
+  if (report.round_id) {
+    const recordIds = (db.prepare(`SELECT r.id FROM records r JOIN samples s ON s.id=r.sample_id
+      WHERE s.round_id=? AND s.qc_type IS NULL AND s.status<>'rejected' ORDER BY r.id`).all(report.round_id) as { id: string }[])
+      .map(record => record.id)
+    return { contractId: report.contract_id, roundId: report.round_id, recordIds }
+  }
+  if (report.sample_id) {
+    const sample = db.prepare(`SELECT contract_id,round_id FROM samples WHERE id=?`).get(report.sample_id) as any
+    const recordIds = (db.prepare(`SELECT id FROM records WHERE sample_id=? ORDER BY id`).all(report.sample_id) as { id: string }[])
+      .map(record => record.id)
+    return { contractId: sample?.contract_id ?? null, roundId: sample?.round_id ?? null, recordIds }
+  }
+  const archive = getArchivePackage(db, report.archive_package_id || '')
+  const roundIds = archive?.readiness.roundIds ?? []
+  const recordIds = roundIds.flatMap(roundId => (db.prepare(`SELECT r.id FROM records r JOIN samples s ON s.id=r.sample_id
+    WHERE s.round_id=? AND s.qc_type IS NULL AND s.status<>'rejected' ORDER BY r.id`).all(roundId) as { id: string }[])
+    .map(record => record.id))
+  return { contractId: report.contract_id, roundIds, recordIds }
+}
+
+export function submitReportWorkflow(db: DB, reportId: string, actor: User) {
+  const report = getReport(db, reportId)
+  if (!report) throw new Error('报告不存在')
+  if (!report.contract_id) throw new Error('只有项目报告使用报告专业工作流')
+  const storedActor = projectReportAuthor(db, actor.username)
+  if (report.author_username !== storedActor.username) throw httpError(403, '只有报告原编制人可以提交审核', 'WORKFLOW_WRONG_ASSIGNEE')
+  if (report.voided || report.status === 'issued') throw new Error('已作废或已签发报告不能提交审核')
+  return submitWorkflowRevision(db, {
+    contractId: report.contract_id,
+    roundId: report.round_id ?? undefined,
+    scope: 'report',
+    subjectType: 'report',
+    subjectId: report.id,
+    snapshot: reportSnapshot(db, report),
+  }, storedActor)
+}
+
+function workflowViewByInstanceId(db: DB, instanceId: string): WorkflowView {
+  const row = db.prepare(`SELECT subject_type,subject_id FROM workflow_instances WHERE id=?`).get(instanceId) as any
+  if (!row) throw new Error('工作流不存在')
+  const view = getWorkflowView(db, row.subject_type, row.subject_id)
+  if (!view) throw new Error('工作流不存在')
+  return view
+}
+
+function assertWorkflowParticipant(db: DB, workflow: WorkflowView, actor: User) {
+  if (workflow.created_by === actor.username) return
+  const assignment = getProjectAssignment(db, workflow.contract_id, workflow.scope)
+  if (assignment && [assignment.reviewer_username, assignment.approver_username].includes(actor.username)) return
+  if (workflow.subject_type === 'report' && hasRole(actor, 'signer', 'tech')) return
+  throw httpError(403, '当前账号不是该工作流的编制人、指定复核人或指定审核人', 'WORKFLOW_FORBIDDEN')
+}
+
+export function getProfessionalWorkflow(db: DB, subjectType: string, subjectId: string, actor: User): WorkflowView | null {
+  if (!['round_sampling', 'quality_plan', 'lab_record', 'report'].includes(subjectType)) {
+    throw httpError(400, '不支持的工作流对象', 'WORKFLOW_SUBJECT_INVALID')
+  }
+  const workflow = getWorkflowView(db, subjectType as any, subjectId)
+  if (workflow) assertWorkflowParticipant(db, workflow, actor)
+  return workflow
+}
+
+export function submitProfessionalWorkflow(db: DB, subjectType: string, subjectId: string, actor: User) {
+  if (subjectType === 'round_sampling') return submitSamplingWorkflow(db, subjectId, actor)
+  if (subjectType === 'quality_plan') return submitQualityPlan(db, subjectId, actor)
+  if (subjectType === 'lab_record') return submitLaboratoryRecord(db, subjectId, actor)
+  if (subjectType === 'report') return submitReportWorkflow(db, subjectId, actor)
+  throw httpError(400, '不支持的工作流对象', 'WORKFLOW_SUBJECT_INVALID')
+}
+
+export function decideProfessionalWorkflow(
+  db: DB,
+  instanceId: string,
+  revision: number,
+  level: string,
+  decision: string,
+  comment: string,
+  actor: User,
+) {
+  const workflow = workflowViewByInstanceId(db, instanceId)
+  const decided = decideWorkflow(db, instanceId, revision, level as any, decision as any, comment, actor)
+  if (workflow.subject_type === 'report') {
+    const latest = workflowViewByInstanceId(db, instanceId)
+    const currentDecisions = latest.decisions.filter(item => item.revision === latest.current_revision)
+    const review = currentDecisions.find(item => item.level === 'review' && item.decision === 'approve')
+    const approval = currentDecisions.find(item => item.level === 'approve' && item.decision === 'approve')
+    const status = latest.status === 'approved' ? 'checked' : 'draft'
+    db.prepare(`UPDATE reports SET status=?,checker=?,checker_username=?,checked_at=? WHERE id=?`).run(
+      status,
+      approval ? displayName(db, approval.decided_by) : null,
+      approval?.decided_by ?? null,
+      approval?.decided_at ?? review?.decided_at ?? null,
+      workflow.subject_id,
+    )
+  }
+  return decided
+}
+
+export function withdrawProfessionalWorkflow(db: DB, instanceId: string, reason: string, actor: User) {
+  return inTx(db, () => {
+    const before = workflowViewByInstanceId(db, instanceId)
+    if (before.subject_type === 'report') {
+      const report = getReport(db, before.subject_id)
+      if (report?.status === 'issued') throw new Error('已正式签发报告不能撤回，只能作废并重新出具')
+    }
+    const workflow = withdrawWorkflow(db, instanceId, reason, actor)
+    const invalidation = invalidateAffectedArchives(db, instanceId, before.current_revision, reason, actor)
+    if (before.subject_type === 'report') {
+      db.prepare(`UPDATE reports SET status='draft',checker=NULL,checker_username=NULL,checked_at=NULL WHERE id=?`)
+        .run(before.subject_id)
+    }
+    return { workflow, invalidation }
+  })
+}
+function assertExpectedWorkflowRevision(workflow: WorkflowView, expectedRevision: unknown) {
+  const revision = Number(expectedRevision)
+  if (!Number.isInteger(revision) || revision < 1 || revision !== workflow.current_revision) {
+    throw httpError(409, `报告工作流版本已更新（当前版本 ${workflow.current_revision}），请刷新后重试`, 'WORKFLOW_STALE_REVISION')
+  }
+}
+
 // 报告三级第二关：审核（编制→审核）。审核通过才能签发。
-export function checkReport(db: DB, id: string, checker: string, checkerUsername = ''): Report {
+export function checkReport(db: DB, id: string, checker: string, checkerUsername = '', expectedRevision?: number): Report {
   const r = getReport(db, id)
   if (!r) throw new Error('报告不存在')
+  if ((r as any).archive_blocked_at) throw new Error(`报告已被上游归档失效阻断：${(r as any).archive_block_reason || '请重新归档'}`)
+  assertReportArchiveStillValid(db, r)
   if (r.voided) throw new Error('报告已作废，不能审核')
   if (r.status === 'issued') throw new Error('报告已签发，不能再审核')
+  if (r.contract_id) {
+    assertCurrentConfirmedArchiveForReport(db, r.archive_package_id || '', reportArchiveExpectation(db, r))
+    const actor = getUser(db, checkerUsername)
+    if (!actor || actor.status !== 'active') throw new Error('当前报告复核或审核账号无效')
+    const workflow = getWorkflowView(db, 'report', id)
+    if (!workflow) throw new Error('项目报告尚未提交统一工作流，不能使用旧审核路径')
+    assertExpectedWorkflowRevision(workflow, expectedRevision)
+    if (workflow.status === 'approved') return getReport(db, id)!
+    if (workflow.status !== 'pending_review' && workflow.status !== 'pending_approval') {
+      throw new Error('当前报告工作流不能审核，请由编制人修改后提交新版本')
+    }
+    decideProfessionalWorkflow(
+      db,
+      workflow.id,
+      workflow.current_revision,
+      workflow.status === 'pending_review' ? 'review' : 'approve',
+      'approve',
+      '',
+      actor,
+    )
+    return getReport(db, id)!
+  }
   if (r.status === 'checked') return r
   // 三级签字不可同一人：审核人 ≠ 编制人（老报告无编制人则不拦）。优先登录名比对，缺则回退姓名。
   const author = (r as any).author as string | null
@@ -3510,6 +4227,8 @@ export function checkReport(db: DB, id: string, checker: string, checkerUsername
 export function issueReport(db: DB, id: string, issuer: string, issuerUsername = ''): Report {
   const r = getReport(db, id)
   if (!r) throw new Error('报告不存在')
+  if ((r as any).archive_blocked_at) throw new Error(`报告已被上游归档失效阻断：${(r as any).archive_block_reason || '请重新归档'}`)
+  assertReportArchiveStillValid(db, r)
   // 2026新规"先授权后上岗"：授权签字人设了授权有效期且已过期 → 拦签发（没设效期的老账号不拦）
   if (issuerUsername) {
     const u = db.prepare(`SELECT cert_name, cert_until FROM users WHERE username=?`).get(issuerUsername) as any
@@ -3519,17 +4238,67 @@ export function issueReport(db: DB, id: string, issuer: string, issuerUsername =
   }
   if (r.voided) throw new Error('报告已作废，不能签发')
   if (r.status === 'issued') return r
+  if (r.contract_id) {
+    const signer = getUser(db, issuerUsername)
+    if (!signer || signer.status !== 'active' || !signer.roles.includes('signer')) {
+      throw httpError(403, '报告正式签发需要在职的授权签字人', 'REPORT_SIGNER_REQUIRED')
+    }
+    const workflow = getWorkflowView(db, 'report', r.id)
+    if (!workflow || workflow.status !== 'approved') throw new Error('报告专业复核和审核通过后才能正式签发')
+    const decisions = workflow.decisions.filter(decision => decision.revision === workflow.current_revision && decision.decision === 'approve')
+    const reviewer = decisions.find(decision => decision.level === 'review')
+    const approver = decisions.find(decision => decision.level === 'approve')
+    if (!reviewer || !approver) throw new Error('报告专业复核或审核记录缺失，不能签发')
+    const workflowActors = [workflow.created_by, reviewer.decided_by, approver.decided_by]
+    const reportAssignment = getProjectAssignment(db, workflow.contract_id, 'report')
+    const acceptanceOverride = isSingleActorWorkflowAssignment(db, signer, reportAssignment)
+      && workflowActors.every(username => username === signer.username)
+    if (!acceptanceOverride && workflowActors.includes(signer.username)) {
+      const role = workflow.created_by === signer.username ? '编制人' : reviewer.decided_by === signer.username ? '复核人' : '审核人'
+      throw httpError(409, `授权签字人不能同时是报告${role}`, 'WORKFLOW_PERSON_NOT_DISTINCT')
+    }
+    const revision = workflow.revisions.find(item => item.revision === workflow.current_revision)
+    if (!revision) throw new Error('报告批准版本不存在')
+    const freshSnapshot = reportSnapshot(db, r)
+    if (createHash('sha256').update(canonicalSnapshotJson(freshSnapshot)).digest('hex') !== revision.snapshot_sha256) {
+      throw httpError(409, '报告内容或归档绑定与批准版本不一致，不能签发', 'WORKFLOW_STALE_REVISION')
+    }
+    const archive = getArchivePackage(db, r.archive_package_id || '')!
+    const issuedAt = now()
+    const receiptId = `RPT-${randomUUID()}`
+    const data = {
+      ...(r.data || {}),
+      _issuance: {
+        receiptId,
+        serverTime: issuedAt,
+        workflowRevision: workflow.current_revision,
+        archivePackageId: archive.id,
+        archiveVersion: archive.version,
+      },
+    }
+    db.prepare(`UPDATE reports SET status='issued', issuer=?, issuer_username=?, issued_at=?, data=? WHERE id=?`)
+      .run(signer.name, signer.username, issuedAt, JSON.stringify(data), id)
+    if (acceptanceOverride) recordAcceptanceOverride(db, signer, 'report_issue', id,
+      '报告编制人、复核人、审核人与授权签字人必须使用不同账号', { workflowRevision: workflow.current_revision })
+    return getReport(db, id)!
+  }
   if (r.status !== 'checked') throw new Error('报告未经审核，不能签发；请先由报告审核人审核')
   // 三级签字不可同一人：签发人 ≠ 编制人、≠ 审核人。优先登录名比对，缺则回退姓名。
   const author = (r as any).author as string | null
   const authorU = (r as any).author_username as string | null
-  if ((author || authorU) && samePerson({ name: author, username: authorU }, { name: issuer, username: issuerUsername })) {
+  const issuerIdentity = { name: issuer, username: issuerUsername }
+  const authorIsIssuer = !!(author || authorU) && samePerson({ name: author, username: authorU }, issuerIdentity)
+  const checkerIsIssuer = !!r.checker && samePerson({ name: r.checker, username: (r as any).checker_username }, issuerIdentity)
+  const legacyAcceptanceOverride = isSingleActorAcceptance(db, issuerIdentity) && authorIsIssuer && checkerIsIssuer
+  if (!legacyAcceptanceOverride && authorIsIssuer) {
     throw new Error(`报告签发人不能是编制人本人（${author || authorU}）`)
   }
-  if (r.checker && samePerson({ name: r.checker, username: (r as any).checker_username }, { name: issuer, username: issuerUsername })) {
+  if (!legacyAcceptanceOverride && checkerIsIssuer) {
     throw new Error(`报告签发人不能与审核人（${r.checker}）同一人`)
   }
   db.prepare(`UPDATE reports SET status='issued', issuer=?, issuer_username=?, issued_at=? WHERE id=?`).run(issuer, issuerUsername || null, now(), id)
+  if (legacyAcceptanceOverride) recordAcceptanceOverride(db, { name: issuer, username: issuerUsername }, 'report_issue', id,
+    '报告编制人、审核人与签发人必须使用不同账号')
   return getReport(db, id)!
 }
 // 决策17：签发后锁死，要改走「作废重出」——作废留痕，重出的新报告记 reissue_of 链。
@@ -3556,23 +4325,79 @@ export function deleteReport(db: DB, id: string, actor: User | { name: string; u
   if (r.voided) throw new Error('已作废的报告要永久留档，不能删除')
   if (r.status === 'issued') throw new Error('已签发的报告不能删除；要撤回请走「作废重出」')
   if (r.status !== 'draft' && r.status !== 'checked') throw new Error(`当前状态「${r.status}」的报告不能删除`)
+  if (r.contract_id) {
+    if (!actor.username || actor.username !== r.author_username) throw httpError(403, '只有报告原编制人可以删除草稿', 'WORKFLOW_WRONG_ASSIGNEE')
+    assertWorkflowEditable(db, 'report', id)
+  }
   db.prepare(`DELETE FROM reports WHERE id=?`).run(id)
   // 留痕记下报告号/标题/原状态：表里行没了，留痕里还能查到删过什么
   logAction(db, id, actor as User, 'report_delete', { report_no: r.id, title: r.title, status: r.status })
   return { ok: true }
 }
 // 合同总报告（决策17）：项目结束按合同汇总一份——聚合各期报告的结果
-export function generateContractReport(db: DB, contractId: string, reportAuthor = '', year = new Date().getFullYear(), reportAuthorUsername = ''): Report {
+function assertAggregateChildReportEligible(db: DB, report: Report, archivePackageId: string, round: Round) {
+  if (report.archive_blocked_at) throw new Error(`第${round.round_no}期报告已被归档失效阻断，不能汇总`)
+  if (report.archive_requires_reissue) throw new Error(`第${round.round_no}期报告需先作废重出，不能汇总`)
+  if (report.archive_package_id !== archivePackageId) {
+    throw new Error(`第${round.round_no}期报告绑定的归档与当前合同总报告归档不一致`)
+  }
+  if (report.status !== 'checked' && report.status !== 'issued') {
+    throw new Error(`第${round.round_no}期报告仍是草稿或未签发，必须先完成专业批准`)
+  }
+  const workflow = getWorkflowView(db, 'report', report.id)
+  if (!workflow || workflow.status !== 'approved') {
+    throw new Error(`第${round.round_no}期报告专业工作流尚未批准`)
+  }
+  const revision = workflow.revisions.find(item => item.revision === workflow.current_revision)
+  if (!revision) throw new Error(`第${round.round_no}期报告批准版本不存在`)
+  const freshSnapshot = reportSnapshot(db, report)
+  const freshHash = createHash('sha256').update(canonicalSnapshotJson(freshSnapshot)).digest('hex')
+  if (freshHash !== revision.snapshot_sha256) {
+    throw new Error(`第${round.round_no}期报告与批准快照不一致，存在内容漂移`)
+  }
+}
+
+export function generateContractReport(
+  db: DB,
+  contractId: string,
+  reportAuthor = '',
+  year = new Date().getFullYear(),
+  reportAuthorUsername = '',
+  archivePackageId = '',
+): Report {
   const c = getContract(db, contractId)
   if (!c) throw new Error('合同不存在')
   if (c.status === 'terminated') throw new Error('合同已终止，不能再生成报告；已有数据仅供查看')   // 体检15
-  const roundReports = listReports(db).filter(r => r.contract_id === contractId && r.round_id && !r.voided)
-  if (!roundReports.length) throw new Error('该合同还没有期次报告，先按期出报告，项目结束再汇总总报告')
-  const rounds = listRounds(db, contractId)
+  // 无归档时先给存量项目一个可操作的迁移诊断；已选归档则只校验其精确合同/批次范围。
+  if (!archivePackageId?.trim()) assertLaboratoryRecordsWorkflowBacked(db, listSamplesByContract(db, contractId))
+  const authorActor = projectReportAuthor(db, reportAuthorUsername)
+  if (!getProjectAssignment(db, c.id, 'report')) throw new Error('项目尚未指定报告复核人和审核人')
+  if (!archivePackageId?.trim()) throw httpError(409, '合同总报告必须绑定当前已确认归档版本', 'ARCHIVE_REQUIRED')
+  const selectedArchive = getArchivePackage(db, archivePackageId)
+  if (!selectedArchive || selectedArchive.contract_id !== contractId) {
+    throw httpError(409, '归档版本不属于当前合同', 'ARCHIVE_REQUIRED')
+  }
+  const roundIds = [...new Set(selectedArchive.readiness.roundIds ?? [])]
+  const rounds = roundIds.map(id => getRound(db, id)).filter(Boolean) as Round[]
+  const samples = roundIds.flatMap(roundId => listSamplesByRound(db, roundId))
+  assertLaboratoryRecordsWorkflowBacked(db, samples)
+  const recordIds = samples.filter(sample => !sample.qc_type && sample.status !== 'rejected')
+    .flatMap(sample => listRecords(db, { sampleId: sample.id }).map(record => record.id))
+  const archive = assertCurrentConfirmedArchiveForReport(db, archivePackageId, { contractId, roundIds, recordIds })
   // cancelled 是终态（体检12）：终止的期次不算「未完成」，不再卡总报告
   const undone = rounds.filter(r => r.status !== 'done' && r.status !== 'cancelled')
   if (undone.length) throw new Error(`还有 ${undone.length} 期未完成采样（第${undone.map(r => r.round_no).join('、')}期），项目未结束不能出总报告`)
-  const dupTotal = listReports(db).find(r => r.contract_id === contractId && !r.round_id && !r.sample_id && !r.voided)
+  const allReports = listReports(db)
+  const requiredRounds = rounds.filter(round => round.status !== 'cancelled')
+  const roundReports = requiredRounds.map(round => {
+    const candidates = allReports.filter(report => report.contract_id === contractId && report.round_id === round.id && !report.voided)
+    if (!candidates.length) throw new Error(`缺少第${round.round_no}期报告，归档范围内每个非取消期次都必须有一份子报告`)
+    if (candidates.length !== 1) throw new Error(`第${round.round_no}期存在 ${candidates.length} 份未作废报告，无法确定精确汇总版本`)
+    assertAggregateChildReportEligible(db, candidates[0], archive.id, round)
+    return candidates[0]
+  })
+  const dupTotal = listReports(db).find(r => r.contract_id === contractId && !r.round_id && !r.sample_id && !r.voided &&
+    (r.data?.reportBatchId ?? null) === archive.report_batch_id)
   if (dupTotal) throw new Error(`该合同已有总报告 ${dupTotal.id}；要改先作废再重出`)
   // 聚合各期结果（带期次号），按期次顺序
   const results = roundReports
@@ -3580,27 +4405,64 @@ export function generateContractReport(db: DB, contractId: string, reportAuthor 
     .flatMap(r => (r.data?.results ?? []).map((x: any) => ({ ...x, roundNo: r.data?.round?.no })))
   const limits = c.scheme?.limits ?? []
   const id = nextSeqId(db, 'reports', `BG${year}-`)
-  db.prepare(`INSERT INTO reports (id, sample_id, round_id, contract_id, client, title, conclusion, data, status, author, author_username, created_at)
-    VALUES (?,NULL,NULL,?,?,?,?,?,'draft',?,?,?)`)
+  db.prepare(`INSERT INTO reports (id, sample_id, round_id, contract_id, client, title, conclusion, data, status, author, author_username, archive_package_id, created_at)
+    VALUES (?,NULL,NULL,?,?,?,?,?,'draft',?,?,?,?)`)
     .run(id, contractId, c.client, `${c.client} 检测总报告（${rounds.length}期汇总）`, buildConclusionDraft(results, limits),
-      JSON.stringify({ kind: 'total', rounds: rounds.map(r => ({ no: r.round_no, due: r.due_date, sampler: r.sampler, sampledAt: r.sampled_at })), results, roundReports: roundReports.map(r => r.id), process: buildReportProcess(db, c) }),
-      reportAuthor || null, reportAuthorUsername || null, now())
+      JSON.stringify({
+        kind: 'total', reportBatchId: archive.report_batch_id, archiveVersion: archive.version,
+        rounds: rounds.map(r => ({ no: r.round_no, due: r.due_date, sampler: r.sampler, sampledAt: r.sampled_at })),
+        results, roundReports: roundReports.map(r => r.id), process: buildReportProcess(db, c),
+      }),
+      authorActor.name, authorActor.username, archive.id, now())
   return getReport(db, id)!
 }
 // §8.1 审核通则：报告审核后发现问题 → 退回编制（带原因、留痕），不许审核后静默改内容
-export function rejectReport(db: DB, id: string, reason: string, actor: User | { name: string; username?: string }): Report {
+export function rejectReport(
+  db: DB,
+  id: string,
+  reason: string,
+  actor: User | { name: string; username?: string },
+  expectedRevision?: number,
+): Report {
   const r = getReport(db, id)
   if (!r) throw new Error('报告不存在')
   if (r.voided) throw new Error('报告已作废')
+  if (r.contract_id) {
+    if (!actor.username) throw new Error('报告退回必须使用实名登录账号')
+    const storedActor = getUser(db, actor.username)
+    if (!storedActor || storedActor.status !== 'active') throw new Error('当前报告复核或审核账号无效')
+    const workflow = getWorkflowView(db, 'report', id)
+    if (!workflow) throw new Error('项目报告尚未提交统一工作流，不能使用旧退回路径')
+    assertExpectedWorkflowRevision(workflow, expectedRevision)
+    if (workflow.status === 'approved') throw new Error('报告已审核定稿；如需修改由原编制人执行撤回并说明原因')
+    if (workflow.status !== 'pending_review' && workflow.status !== 'pending_approval') throw new Error('当前报告工作流不能退回')
+    decideProfessionalWorkflow(
+      db,
+      workflow.id,
+      workflow.current_revision,
+      workflow.status === 'pending_review' ? 'review' : 'approve',
+      'reject',
+      reason,
+      storedActor,
+    )
+    return getReport(db, id)!
+  }
   if (r.status !== 'checked') throw new Error('只有「已审核待签发」的报告能退回编制')
   if (!reason?.trim()) throw new Error('退回原因必填')
   db.prepare(`UPDATE reports SET status='draft', checker=NULL, checked_at=NULL WHERE id=?`).run(id)
   logAction(db, id, actor as User, 'report_reject', { reason: reason.trim() })
   return getReport(db, id)!
 }
-export function updateReport(db: DB, id: string, patch: { title?: string; conclusion?: string }): Report {
+export function updateReport(db: DB, id: string, patch: { title?: string; conclusion?: string }, actor?: User): Report {
   const r = getReport(db, id)
   if (!r) throw new Error('报告不存在')
+  if (r.contract_id) {
+    if (!actor || actor.username !== r.author_username) throw httpError(403, '只有报告原编制人可以修改内容', 'WORKFLOW_WRONG_ASSIGNEE')
+    projectReportAuthor(db, actor.username)
+    assertWorkflowEditable(db, 'report', id)
+  }
+  if ((r as any).archive_blocked_at) throw new Error(`报告已被上游归档失效阻断：${(r as any).archive_block_reason || '请重新归档'}`)
+  assertReportArchiveStillValid(db, r)
   if (r.voided) throw new Error('报告已作废，不能修改；请在重出的新报告上编辑')
   // 已签发报告是对外出具的正式文件，不许直接改；如需变更须走「作废重出」
   if (r.status === 'issued') throw new Error('报告已签发，不能直接修改。要改请先「作废」（留痕）再重新生成')
@@ -3654,33 +4516,211 @@ export function getProject(db: DB, contractId: string) {
   return { contract, plans, samples, reports, stats: projectStats(db, contractId), pipeline: getProjectPipeline(db, contractId) }
 }
 export function listProjects(db: DB) {
-  return listContracts(db).map(c => {
-    const plans = listPlans(db).filter(p => p.contract_id === c.id)
-    return { ...c, stats: projectStats(db, c.id), plan: plans[0] ?? null, pipeline: getProjectPipeline(db, c.id) }
+  // 项目列表是高频聚合接口。一次批量读取每类当前投影，禁止按项目/样品再加载工作流历史。
+  const contractRows = db.prepare(`SELECT c.*,cu.address AS customer_address,cu.phone AS customer_phone
+    FROM contracts c LEFT JOIN customers cu ON cu.name=c.client ORDER BY c.created_at DESC`).all() as any[]
+  const contractSamples = db.prepare(`SELECT * FROM contract_samples ORDER BY id`).all() as any[]
+  const samples = (db.prepare(`SELECT * FROM samples ORDER BY id`).all() as any[])
+    .map(row => ({ ...row, items: safeJson(row.items, []) })) as Sample[]
+  const schemeRows = db.prepare(`SELECT * FROM schemes ORDER BY created_at,id`).all() as any[]
+  const plans = db.prepare(`SELECT * FROM plans ORDER BY created_at DESC`).all() as Plan[]
+  const rounds = (db.prepare(`SELECT * FROM rounds ORDER BY contract_id,round_no,id`).all() as any[]).map(row => ({
+    ...row,
+    items: safeJson(row.items, []),
+    sampler_ids: safeJson(row.sampler_ids, []),
+    field_info: safeJson(row.field_info, null),
+  })) as Round[]
+  const records = listRecords(db)
+  const reports = db.prepare(`SELECT id,sample_id,round_id,contract_id,status,voided,created_at FROM reports ORDER BY created_at DESC`).all() as any[]
+  const workflows = db.prepare(`SELECT subject_type,subject_id,status FROM workflow_instances`).all() as any[]
+  const handoverSheets = db.prepare(`SELECT round_id,status FROM handover_sheets`).all() as { round_id: string; status: string }[]
+  const archivedRounds = db.prepare(`SELECT p.contract_id,i.entity_id AS round_id FROM archive_packages p
+    JOIN archive_items i ON i.archive_package_id=p.id
+    WHERE p.status='confirmed' AND i.entity_type='round'`).all() as { contract_id: string; round_id: string }[]
+  const confirmedProjectContracts = new Set((db.prepare(`SELECT contract_id FROM archive_packages
+    WHERE report_batch_id IS NULL AND status='confirmed'`).all() as { contract_id: string }[]).map(row => row.contract_id))
+
+  const group = <T>(rows: T[], keyOf: (row: T) => string | null | undefined) => {
+    const result = new Map<string, T[]>()
+    for (const row of rows) {
+      const key = keyOf(row)
+      if (!key) continue
+      if (!result.has(key)) result.set(key, [])
+      result.get(key)!.push(row)
+    }
+    return result
+  }
+  const contractSamplesByContract = group(contractSamples, row => row.contract_id)
+  const samplesByContract = group(samples, row => row.contract_id)
+  const samplesByRound = group(samples, row => row.round_id)
+  const recordsBySample = group(records, row => row.sample_id)
+  const plansByContract = group(plans, row => row.contract_id)
+  const roundsByContract = group(rounds, row => row.contract_id)
+  const reportsByContract = group(reports, row => row.contract_id)
+  const handoversByRound = group(handoverSheets, row => row.round_id)
+  const workflowStatus = new Map(workflows.map(row => [`${row.subject_type}:${row.subject_id}`, String(row.status)]))
+  const confirmedRoundKeys = new Set(archivedRounds.map(row => `${row.contract_id}:${row.round_id}`))
+  const schemeByContract = new Map<string, Scheme>()
+  for (const row of schemeRows) schemeByContract.set(row.contract_id, {
+    ...row, points: safeJson(row.points, []), limits: safeJson(row.limits, []),
+  })
+
+  const statsFor = (contractId: string) => {
+    const projectSamples = samplesByContract.get(contractId) ?? []
+    const enriched = projectSamples.map(sample => {
+      const projectRecords = recordsBySample.get(sample.id) ?? []
+      return { rollup: sampleRollup(projectRecords), hasRec: projectRecords.length > 0 }
+    })
+    const projectReports = reportsByContract.get(contractId) ?? []
+    const reportStatus: 'none' | 'draft' | 'checked' | 'issued' = projectReports.some(report => report.status === 'issued') ? 'issued'
+      : projectReports.some(report => report.status === 'checked') ? 'checked'
+      : projectReports.some(report => report.status === 'draft') ? 'draft' : 'none'
+    return {
+      samples: enriched.length,
+      tested: enriched.filter(item => item.hasRec).length,
+      approved: enriched.filter(item => item.rollup === 'approved').length,
+      reports: projectReports.length,
+      issued: projectReports.some(report => report.status === 'issued'),
+      reportStatus,
+    }
+  }
+
+  const reportIssuedForRound = (roundId: string) => {
+    const issued = reports.filter(report => report.status === 'issued' && !report.voided)
+    if (issued.some(report => report.round_id === roundId)) return true
+    const ordinarySamples = (samplesByRound.get(roundId) ?? []).filter(sample => !sample.qc_type)
+    return ordinarySamples.length > 0 && ordinarySamples.every(sample => issued.some(report => report.sample_id === sample.id))
+  }
+
+  const pipelineFor = (contract: Contract): PipelineInfo => {
+    const projectRounds = contract.scheme?.status === 'approved' ? (roundsByContract.get(contract.id) ?? []) : []
+    const projectReports = reportsByContract.get(contract.id) ?? []
+    if (projectRounds.length) {
+      const factsFor = (round: Round) => {
+        const roundSamples = samplesByRound.get(round.id) ?? []
+        const recordGroups = roundSamples.filter(sample => !sample.qc_type).map(sample => recordsBySample.get(sample.id) ?? [])
+        const sampled = round.status === 'done' && roundSamples.length > 0
+        const handovers = handoversByRound.get(round.id) ?? []
+        return {
+          roundSamples,
+          recordGroups,
+          sampling: sampled && workflowStatus.get(`round_sampling:${round.id}`) === 'approved',
+          handover: sampled && handovers.length > 0 && handovers.every(sheet => sheet.status === 'confirmed'),
+          quality: workflowStatus.get(`quality_plan:${round.id}`) === 'approved',
+          laboratory: sampled && recordGroups.every(groupedRecords => groupedRecords.length > 0
+            && groupedRecords.every(record => record.status === 'approved')),
+          archive: confirmedRoundKeys.has(`${contract.id}:${round.id}`),
+          report: reportIssuedForRound(round.id),
+        }
+      }
+      const complete = (round: Round) => {
+        const facts = factsFor(round)
+        return facts.sampling && facts.handover && facts.quality && facts.laboratory && facts.archive && facts.report
+      }
+      const active = projectRounds.find(round => round.status !== 'cancelled' && !complete(round))
+      if (!active) {
+        const completed = buildStages(STAGE_DEFS({
+          contract: contract.id, contractReview: contract.tech_review_result ?? '已通过', scheme: contract.scheme!.id,
+          dispatch: `${projectRounds.length} 期全部完成`, sampling: '全部定稿', handover: '全部确认', quality: '全部定稿',
+          laboratory: '全部定稿', archive: '全部已归档', report: `${projectRounds.length} 期报告已签发`,
+        }), Array(10).fill(true))
+        return { ...completed, round: { no: null, total: projectRounds.length } }
+      }
+      const facts = factsFor(active)
+      const dispatched = !!active.sampler || active.status === 'done'
+      const roundReport = projectReports.find(report => report.round_id === active.id)
+      const progress = buildStages(STAGE_DEFS({
+        contract: contract.id, contractReview: contract.tech_review_result ?? '待评审', scheme: contract.scheme!.id,
+        dispatch: active.sampler ? `${active.sampler} · ${active.plan_date || active.due_date}` : `截止 ${active.due_date}`,
+        sampling: facts.sampling ? '已审核定稿' : '待采样或待审核定稿',
+        handover: facts.handover ? `${facts.roundSamples.length} 个样品已确认` : '待交接确认',
+        quality: facts.quality ? '已审核定稿' : '待审核定稿',
+        laboratory: facts.laboratory ? `${facts.recordGroups.flat().length} 条记录已定稿` : '待审核定稿',
+        archive: facts.archive ? '已确认归档' : '待归档', report: roundReport?.id ?? '待生成',
+      }), [!!contract.accepted_at, contract.tech_review_result === 'approve', true, dispatched, facts.sampling,
+        facts.handover, facts.quality, facts.laboratory, facts.archive, facts.report])
+      return { ...progress, round: { no: active.round_no, total: projectRounds.length, due: active.due_date } }
+    }
+
+    const projectPlans = plansByContract.get(contract.id) ?? []
+    const projectSamples = samplesByContract.get(contract.id) ?? []
+    const recordGroups = projectSamples.map(sample => recordsBySample.get(sample.id) ?? [])
+    const sampled = projectSamples.length > 0
+    const dispatched = projectPlans.some(plan => plan.status === 'assigned' || plan.status === 'sampled') || sampled
+    const allApproved = sampled && recordGroups.every(groupedRecords => groupedRecords.length > 0
+      && groupedRecords.every(record => record.status === 'approved'))
+    const archived = allApproved && confirmedProjectContracts.has(contract.id)
+    const issued = projectReports.some(report => report.status === 'issued')
+    const serials = recordGroups.flat().map(record => record.serial).filter(Boolean)
+    const progress = buildStages(STAGE_DEFS({
+      contract: contract.id, contractReview: contract.tech_review_result ?? '待评审', scheme: contract.scheme?.id ?? '待编制',
+      dispatch: projectPlans[0]?.id ?? '免现场采样', sampling: sampled ? `${projectSamples.length} 个样品` : '待收样',
+      handover: sampled ? '免现场交接' : '待交接', quality: sampled ? '按项目要求执行' : '待质控',
+      laboratory: serials.length ? `${serials.length} 条记录` : '待录入', archive: archived ? '已确认归档' : '待归档',
+      report: projectReports[0]?.id ?? '待生成',
+    }), [!!contract.accepted_at, contract.tech_review_result === 'approve', contract.scheme?.status === 'approved', dispatched,
+      sampled, sampled, sampled, allApproved, archived, issued])
+    return { ...progress, round: null }
+  }
+
+  return contractRows.map(row => {
+    const { customer_address: address, customer_phone: customerPhone, quote_json: quoteJson, ...stored } = row
+    const projectSamples = samplesByContract.get(row.id) ?? []
+    const contract = {
+      ...stored,
+      address: address ?? null,
+      phone: stored.phone ?? customerPhone ?? null,
+      review_info: safeJson(stored.review_info, null),
+      quote: safeJson(quoteJson, null),
+      plan: (contractSamplesByContract.get(row.id) ?? []).map(sample => ({ ...sample, items: safeJson(sample.items, []) })),
+      samples: projectSamples,
+      scheme: schemeByContract.get(row.id) ?? null,
+    } as Contract
+    return {
+      ...contract,
+      stats: statsFor(contract.id),
+      plan: (plansByContract.get(contract.id) ?? [])[0] ?? null,
+      pipeline: pipelineFor(contract),
+    }
   })
 }
 
-// —— 主线状态机：算出一单走到 8 环里的哪一环、下一步该谁点什么 ——
+// —— 十阶段业务主线：列表和项目详情共用同一份服务端事实与直接阻塞原因 ——
 // 周期项目按「期」推进：第 1 期出完报告不算完，主线回到第 2 期采样，全部期都完才算完成。
 export type PipeStage = { key: string; label: string; code: string; who: string; status: 'done' | 'active' | 'todo'; action: string }
-export type PipelineInfo = { stages: PipeStage[]; activeIndex: number; round: { no: number | null; total: number; due?: string } | null }
+export type PipelineInfo = { stages: PipeStage[]; activeIndex: number; blockers: string[]; round: { no: number | null; total: number; due?: string } | null }
 
 const STAGE_DEFS = (codes: Record<string, string>): Omit<PipeStage, 'status'>[] => [
-  { key: 'accept',   label: '委托受理', code: codes.accept,   who: '登记员',        action: '确认受理 · 合同评审通过' },
-  { key: 'scheme',   label: '监测方案', code: codes.scheme,   who: '技术负责人',    action: '编制监测方案并审核通过' },
-  { key: 'dispatch', label: '采样派工', code: codes.dispatch, who: '调度 · 采样员', action: '给这一期派采样员' },
-  { key: 'sampleIn', label: '样品建档', code: codes.sampleIn, who: '采样员',        action: '现场采样 · 收样入库' },
-  { key: 'testing',  label: '检测记录', code: codes.testing,  who: '检测员',        action: '认领仪器 · 录入 · 提交' },
-  { key: 'review',   label: '三级审核', code: codes.review,   who: '复核 · 审核员', action: '复核通过 → 审核通过' },
-  { key: 'report',   label: '报告签发', code: codes.report,   who: '授权签字人',    action: '生成本期报告 · 签发盖章' },
-  { key: 'archive',  label: '归档留痕', code: codes.archive,  who: '系统',          action: '已归档' },
+  { key: 'contract', label: '① 编制委托合同', code: codes.contract, who: '业务员', action: '委托合同尚未确认受理' },
+  { key: 'contract-review', label: '② 合同评审', code: codes.contractReview, who: '技术负责人', action: '合同评审尚未通过' },
+  { key: 'scheme', label: '③ 编制监测方案', code: codes.scheme, who: '计划员 · 技术负责人', action: '监测方案尚未批准' },
+  { key: 'dispatch', label: '④ 采样指派', code: codes.dispatch, who: '计划员', action: '当前期次尚未指派采样员' },
+  { key: 'sampling', label: '⑤ 现场采样', code: codes.sampling, who: '采样编制 · 复核 · 审核', action: '现场采样尚未审核定稿' },
+  { key: 'handover', label: '⑥ 样品交接', code: codes.handover, who: '采样员 · 样品管理员', action: '样品交接尚未确认' },
+  { key: 'quality', label: '⑦ 质控', code: codes.quality, who: '质控编制 · 复核 · 审核', action: '质控安排尚未审核定稿' },
+  { key: 'laboratory', label: '⑧ 实验室分析', code: codes.laboratory, who: '实验室编制 · 复核 · 审核', action: '实验室记录尚未全部审核定稿' },
+  { key: 'archive', label: '⑨ 1–8 档案归档', code: codes.archive, who: '档案管理员', action: '前八阶段尚未形成当前已确认归档版本' },
+  { key: 'report', label: '⑩ 出具报告', code: codes.report, who: '报告编制 · 复核 · 审核 · 签字人', action: '报告尚未签发' },
 ]
-function buildStages(defs: Omit<PipeStage, 'status'>[], done: boolean[]): { stages: PipeStage[]; activeIndex: number } {
+function buildStages(defs: Omit<PipeStage, 'status'>[], done: boolean[]): { stages: PipeStage[]; activeIndex: number; blockers: string[] } {
   const activeIndex = done.findIndex(d => !d)
   return {
     stages: defs.map((d, i) => ({ ...d, status: done[i] ? 'done' : (i === activeIndex ? 'active' : 'todo') })),
     activeIndex,
+    blockers: activeIndex < 0 ? [] : [defs[activeIndex].action],
   }
+}
+
+function roundHasConfirmedHandover(db: DB, roundId: string) {
+  const rows = listHandoverSheets(db, { roundId })
+  return rows.length > 0 && rows.every(sheet => sheet.status === 'confirmed')
+}
+function roundHasConfirmedArchive(db: DB, contractId: string, roundId: string) {
+  return !!db.prepare(`SELECT 1 FROM archive_packages p JOIN archive_items i ON i.archive_package_id=p.id
+    WHERE p.contract_id=? AND p.status='confirmed' AND i.entity_type='round' AND i.entity_id=? LIMIT 1`).get(contractId, roundId)
+}
+function contractHasConfirmedArchive(db: DB, contractId: string) {
+  return !!db.prepare(`SELECT 1 FROM archive_packages WHERE contract_id=? AND report_batch_id IS NULL AND status='confirmed' LIMIT 1`).get(contractId)
 }
 
 export function getProjectPipeline(db: DB, contractId: string): PipelineInfo {
@@ -3691,36 +4731,47 @@ export function getProjectPipeline(db: DB, contractId: string): PipelineInfo {
 
   // ============ 周期路径：主线跟着「当前期」走 ============
   if (rounds.length) {
-    const isComplete = (r: (typeof rounds)[number]) =>
-      r.status === 'done' && r.sample_count > 0 && r.rollup === 'approved' && roundReportIssued(db, r.id)
+    const stageFacts = (round: (typeof rounds)[number]) => {
+      const roundSamples = listSamplesByRound(db, round.id)
+      const recordGroups = roundSamples.filter(sample => !sample.qc_type).map(sample => listRecords(db, { sampleId: sample.id }))
+      const sampled = round.status === 'done' && roundSamples.length > 0
+      const sampling = sampled && getWorkflowView(db, 'round_sampling', round.id)?.status === 'approved'
+      const handover = sampled && roundHasConfirmedHandover(db, round.id)
+      const quality = getWorkflowView(db, 'quality_plan', round.id)?.status === 'approved'
+      const laboratory = sampled && recordGroups.every(records => records.length > 0
+        && records.every(record => getWorkflowView(db, 'lab_record', record.id)?.status === 'approved'))
+      const archive = roundHasConfirmedArchive(db, c.id, round.id)
+      const report = roundReportIssued(db, round.id)
+      return { roundSamples, recordGroups, sampling, handover, quality, laboratory, archive, report }
+    }
+    const isComplete = (round: (typeof rounds)[number]) => {
+      const facts = stageFacts(round)
+      return facts.sampling && facts.handover && facts.quality && facts.laboratory && facts.archive && facts.report
+    }
     // cancelled 是终态（体检12）：终止的期次不再当「当前期」卡主线
     const active = rounds.find(r => r.status !== 'cancelled' && !isComplete(r))
     if (!active) {   // 所有期都走完
-      const { stages } = buildStages(STAGE_DEFS({
-        accept: c.id, scheme: c.scheme!.id, dispatch: `${rounds.length} 期全部完成`, sampleIn: '全部入库',
-        testing: '全部录入', review: '全部通过', report: `${rounds.length} 期报告已签发`, archive: '全链路可溯',
-      }), [true, true, true, true, true, true, true, true])
-      return { stages, activeIndex: -1, round: { no: null, total: rounds.length } }
+      const completed = buildStages(STAGE_DEFS({
+        contract: c.id, contractReview: c.tech_review_result ?? '已通过', scheme: c.scheme!.id,
+        dispatch: `${rounds.length} 期全部完成`, sampling: '全部定稿', handover: '全部确认', quality: '全部定稿',
+        laboratory: '全部定稿', archive: '全部已归档', report: `${rounds.length} 期报告已签发`,
+      }), Array(10).fill(true))
+      return { ...completed, round: { no: null, total: rounds.length } }
     }
-    const samples = listSamplesByRound(db, active.id)
+    const facts = stageFacts(active)
+    const samples = facts.roundSamples
     // 主线卡点只看普通样：质控样（空白/平行）走质控评价线，不卡报告
-    const recs = samples.filter(s => !s.qc_type).map(s => listRecords(db, { sampleId: s.id }))
+    const recs = facts.recordGroups
     const dispatched = !!active.sampler || active.status === 'done'
-    const sampled = active.status === 'done' && samples.length > 0
-    const tested = sampled && recs.every(rs => rs.length > 0)
-    const approvedAll = sampled && recs.every(rs => rs.length > 0 && rs.every(r => r.status === 'approved'))
-    const issued = roundReportIssued(db, active.id)
     const roundRep = listReports(db).find(r => r.round_id === active.id)
-    const { stages, activeIndex } = buildStages(STAGE_DEFS({
-      accept: c.id, scheme: c.scheme!.id,
+    const progress = buildStages(STAGE_DEFS({
+      contract: c.id, contractReview: c.tech_review_result ?? '待评审', scheme: c.scheme!.id,
       dispatch: active.sampler ? `${active.sampler} · ${active.plan_date || active.due_date}` : `截止 ${active.due_date}`,
-      sampleIn: sampled ? `${samples.length} 个样品` : '待收样入库',
-      testing: tested ? `${recs.flat().length} 条记录` : '待录入',
-      review: '记录复核审核',
-      report: roundRep?.id ?? '待生成',
-      archive: '全链路可溯',
-    }), [!!c.accepted_at, true, dispatched, sampled, tested, approvedAll, issued, issued])
-    return { stages, activeIndex, round: { no: active.round_no, total: rounds.length, due: active.due_date } }
+      sampling: facts.sampling ? '已审核定稿' : '待采样或待审核定稿', handover: facts.handover ? `${samples.length} 个样品已确认` : '待交接确认',
+      quality: facts.quality ? '已审核定稿' : '待审核定稿', laboratory: facts.laboratory ? `${recs.flat().length} 条记录已定稿` : '待审核定稿',
+      archive: facts.archive ? '已确认归档' : '待归档', report: roundRep?.id ?? '待生成',
+    }), [!!c.accepted_at, c.tech_review_result === 'approve', true, dispatched, facts.sampling, facts.handover, facts.quality, facts.laboratory, facts.archive, facts.report])
+    return { ...progress, round: { no: active.round_no, total: rounds.length, due: active.due_date } }
   }
 
   // ============ 单次路径（无排期/免采样散样）============
@@ -3730,20 +4781,18 @@ export function getProjectPipeline(db: DB, contractId: string): PipelineInfo {
   const reports = listReports(db).filter(r => r.contract_id === contractId)
   const sampled = samples.length > 0
   const dispatched = plans.some(p => p.status === 'assigned' || p.status === 'sampled') || sampled
-  const tested = sampled && recsBySample.every(rs => rs.length > 0)
-  const allApproved = sampled && recsBySample.every(rs => rs.length > 0 && rs.every(r => r.status === 'approved'))
+  const allApproved = sampled && recsBySample.every(rs => rs.length > 0 && rs.every(r => getWorkflowView(db, 'lab_record', r.id)?.status === 'approved'))
+  const archived = allApproved && contractHasConfirmedArchive(db, contractId)
   const issued = reports.some(r => r.status === 'issued')
   const serials = recsBySample.flat().map(r => r.serial).filter(Boolean)
-  const { stages, activeIndex } = buildStages(STAGE_DEFS({
-    accept: c.id, scheme: c.scheme?.id ?? '待编制',
-    dispatch: plans[0]?.id ?? '待下达',
-    sampleIn: sampled ? `${samples.length} 个样品` : '待收样',
-    testing: serials.length ? `${serials.length} 条记录` : '待录入',
-    review: '记录复核审核',
+  const progress = buildStages(STAGE_DEFS({
+    contract: c.id, contractReview: c.tech_review_result ?? '待评审', scheme: c.scheme?.id ?? '待编制',
+    dispatch: plans[0]?.id ?? '免现场采样', sampling: sampled ? `${samples.length} 个样品` : '待收样',
+    handover: sampled ? '免现场交接' : '待交接', quality: sampled ? '按项目要求执行' : '待质控',
+    laboratory: serials.length ? `${serials.length} 条记录` : '待录入', archive: archived ? '已确认归档' : '待归档',
     report: reports[0]?.id ?? '待生成',
-    archive: '全链路可溯',
-  }), [!!c.accepted_at, c.scheme?.status === 'approved', dispatched, sampled, tested, allApproved, issued, issued])
-  return { stages, activeIndex, round: null }
+  }), [!!c.accepted_at, c.tech_review_result === 'approve', c.scheme?.status === 'approved', dispatched, sampled, sampled, sampled, allApproved, archived, issued])
+  return { ...progress, round: null }
 }
 
 function safeJson<T>(s: any, fallback: T): T {

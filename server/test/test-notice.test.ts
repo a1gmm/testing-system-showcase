@@ -10,15 +10,17 @@ import {
   createNoticeFromSheet, getTestNotice, listTestNotices, issueTestNotice, updateTestNotice,
   listTestTasks, claimTestTask, assignTestTasks,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveRoundQuality } from './support/approved-quality.ts'
 
 const qcActor = { name: '吴质控', username: 'qianqc' }
 const samplerActor = { name: '赵采样', username: 'demo_sampler' }
 
 function setup(db: any, opts: { reject?: boolean; matrix?: string } = {}) {
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
-  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc'], password: 'x12345' })
-  createUser(db, { username: 'zhaoce', name: '赵检测', roles: ['tester'], password: 'x12345' })
-  createUser(db, { username: 'sunce', name: '孙检测', roles: ['tester'], password: 'x12345' })
+  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
+  createUser(db, { username: 'zhaoce', name: '赵分析', roles: ['analyst'], password: 'x12345' })
+  createUser(db, { username: 'sunce', name: '孙分析', roles: ['analyst'], password: 'x12345' })
   const c = createContract(db, { client: '通知厂', project: '例行', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
@@ -29,11 +31,13 @@ function setup(db: any, opts: { reject?: boolean; matrix?: string } = {}) {
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, samplerActor)
   const made = sampleRound(db, r.id, samplerActor)
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, samplerActor)
   const rejects = opts.reject ? [{ sampleId: made.filter(s => !s.qc_type)[0].id, reason: '破损' }] : []
   confirmHandoverSheet(db, sh.id, qcActor, { rejects })
+  approveRoundQuality(db, r.id, qcActor)
   return { c, r, made, sh }
 }
 
@@ -87,6 +91,7 @@ test('未签收的交接单不能生成通知单；同一交接单不能重复�
   const r2 = listRounds(db2, c2.id)[0]
   assignRound(db2, r2.id, ['李二'])
   confirmRoundField(db2, r2.id, { name: '李二' })
+  approveRoundSampling(db2, r2.id, { name: '李二' })
   sampleRound(db2, r2.id, { name: '李二' })
   const sh2 = listHandoverSheets(db2, { roundId: r2.id })[0]
   assert.throws(() => createNoticeFromSheet(db2, sh2.id, qcActor), /签收/)
@@ -115,13 +120,13 @@ test('检测员认领待认领任务；已认领的不能抢；质控员仍可�
   issueTestNotice(db, n.id, qcActor)
   const s0 = made.find(s => !s.qc_type)!
   const t = listTestTasks(db, { sampleId: s0.id })[0]
-  const claimed = claimTestTask(db, t.id, { name: '赵检测', username: 'zhaoce' })
-  assert.equal(claimed.assignee, '赵检测')
+  const claimed = claimTestTask(db, t.id, { name: '赵分析', username: 'zhaoce' })
+  assert.equal(claimed.assignee, '赵分析')
   // 孙检测再抢同一条 → 报错
-  assert.throws(() => claimTestTask(db, t.id, { name: '孙检测', username: 'sunce' }), /认领/)
+  assert.throws(() => claimTestTask(db, t.id, { name: '孙分析', username: 'sunce' }), /认领/)
   // 质控员改派给孙检测（沿用 assignTestTasks 覆盖语义）
-  const re = assignTestTasks(db, s0.id, [{ analyte: t.analyte, assignee: '孙检测', assigneeUsername: 'sunce' }], qcActor)
-  assert.equal(re.find(x => x.analyte === t.analyte)!.assignee, '孙检测')
+  const re = assignTestTasks(db, s0.id, [{ analyte: t.analyte, assignee: '孙分析', assigneeUsername: 'sunce' }], qcActor)
+  assert.equal(re.find(x => x.analyte === t.analyte)!.assignee, '孙分析')
 })
 
 test('草稿可改完成时限与备注；下达后不能改', () => {

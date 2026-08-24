@@ -12,10 +12,14 @@ import {
   setRetention, disposeRetention, getRetention,
   archiveIndex, getSample, claimTestTask, listTestTasks,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveRoundQuality } from './support/approved-quality.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
+import { generateTestRoundReport, issueTestReport } from './support/approved-report.ts'
 
 function fullChain(db: any) {
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
-  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc'], password: 'x12345' })
+  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
   const c = createContract(db, { client: '批三厂', project: '例行', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
@@ -26,25 +30,24 @@ function fullChain(db: any) {
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, { username: 'demo_sampler', name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样', username: 'demo_sampler' })
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, { name: '赵采样', username: 'demo_sampler' })
   confirmHandoverSheet(db, sh.id, { name: '吴质控', username: 'qianqc' })
+  approveRoundQuality(db, r.id, { name: '吴质控', username: 'qianqc' })
   const n = createNoticeFromSheet(db, sh.id, { name: '吴质控', username: 'qianqc' })
   issueTestNotice(db, n.id, { name: '吴质控', username: 'qianqc' })
   for (const s0 of made) {
     const s = getSample(db, s0.id)!
     const t = listTestTasks(db, { sampleId: s.id })[0]
     if (t && !t.assignee) claimTestTask(db, t.id, { name: '赵检测', username: 'zhaoce' })
-    let rec = saveRecord(db, {
+    approveLaboratoryRecord(db, {
       sampleId: s.id, code: 'HJ-TC-103', analyte: 'COD', method: 'HJ 828-2017',
       data: { rows: [], meta: {}, resultSummary: { analyte: 'COD', value: 30, unit: 'mg/L' } },
-      submit: true, who: '赵检测', whoUsername: 'zhaoce',
     })
-    rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-    reviewRecord(db, rec.id, 'approve', '孙审核')
   }
-  const rp = generateRoundReport(db, r.id, 2026, '周登记')
+  const rp = generateTestRoundReport(db, r.id, 2026)
   return { c, r, made, sh, n, rp }
 }
 
@@ -52,8 +55,7 @@ test('报告发放登记：只有已签发的能登记；登记后可查', () =>
   const db = openDb(':memory:')
   const { rp } = fullChain(db)
   assert.throws(() => addReportDelivery(db, rp.id, { copies: 2, method: '自取', receiver: '客户老王' }, { name: '周登记' }), /签发/)
-  checkReport(db, rp.id, '李审核', 'lish')
-  issueReport(db, rp.id, '王批准', 'wangpz')
+  issueTestReport(db, rp.id)
   const dv = addReportDelivery(db, rp.id, { copies: 2, method: '自取', receiver: '客户老王' }, { name: '周登记', username: 'demo_registrar' })
   assert.equal(dv.copies, 2)
   assert.equal(dv.receiver, '客户老王')

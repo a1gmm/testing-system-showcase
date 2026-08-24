@@ -11,7 +11,10 @@ export function markDirty(key: string) {
 export function clearDirty(key: string) {
   if (dirtyKeys.value.has(key)) { const s = new Set(dirtyKeys.value); s.delete(key); dirtyKeys.value = s }
 }
-export function hasDirty(): boolean { return dirtyKeys.value.size > 0 }
+export function hasDirty(prefix?: string): boolean {
+  if (!prefix) return dirtyKeys.value.size > 0
+  return [...dirtyKeys.value].some(key => key.startsWith(prefix))
+}
 
 // 有未保存内容时弹确认；用户选「离开」则清空登记并放行
 export async function confirmIfDirty(): Promise<boolean> {

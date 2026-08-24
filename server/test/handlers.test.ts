@@ -12,6 +12,7 @@ import {
   getProject, listProjects, sampleRollup,
   getPlanDetail, sampleIn,
 } from '../src/handlers.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
 
 function approvedRecord(db) {
   const s = createSample(db, { matrix: '废水' }, 2026)
@@ -260,9 +261,9 @@ test('项目视图：聚合合同下的样品/进度/报告', () => {
   assert.equal(proj0.stats.tested, 0)
   assert.equal(proj0.samples[0].rollup, 'pending')
   const sid = proj0.samples[0].id
-  let rec = saveRecord(db, { sampleId: sid, code: 'HJ-TC-003', data: { rows: [{ a: 0.06 }] }, submit: true })
-  rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-  rec = reviewRecord(db, rec.id, 'approve', '孙审核')
+  approveLaboratoryRecord(db, {
+    sampleId: sid, code: 'HJ-TC-003', analyte: '锌', data: { rows: [{ a: 0.06 }] },
+  })
   const proj = getProject(db, c.id)
   assert.equal(proj.stats.tested, 1)
   assert.equal(proj.stats.approved, 1)

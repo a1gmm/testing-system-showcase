@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, nextTick, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { api, currentUser, QC_TYPES, UNIT_OPTS, type DueRound, type RoundDetail, type FieldInfo, type QcRecord, type QcRequirement } from '../api'
-import { can } from '../permissions'
+import { api, currentUser, QC_TYPES, UNIT_OPTS, type DueRound, type RoundDetail, type FieldInfo, type QcRecord, type QcRequirement, type WorkflowAssignment, type WorkflowView, type WorkflowDecisionLevel } from '../api'
+import { can, PAGE_ROLES } from '../permissions'
 import { confirmIfDirty, hasDirty } from '../utils/dirty'
 import { todayLocal } from '../utils/date'
 import RecordAttachments from '../components/RecordAttachments.vue'
@@ -13,6 +13,13 @@ import { templatePhase } from '../data/phase'
 import { FORMS } from '../data/forms'
 import { defaultStage, type StageKey } from '../utils/roundStage'
 import { buildRoundSheetSeed, initialSheetCodes, samplingSheetsForMatrix } from '../utils/samplingWorkflow'
+import WorkflowReviewPanel from '../components/WorkflowReviewPanel.vue'
+import WorkflowAssignmentEditor from '../components/WorkflowAssignmentEditor.vue'
+import ProjectStageProgress from '../components/ProjectStageProgress.vue'
+import StageQueueNav from '../components/StageQueueNav.vue'
+import ProfessionalTaskQueue from '../components/ProfessionalTaskQueue.vue'
+import type { BusinessStageKey, StageQueueKey } from '../workflow/businessStages'
+import { matchesActorWorkflowQueue } from '../workflow/actorQueueMatching'
 
 // 采样单池 = 作业环节为"现场"的表（采样记录 + 挂在原始记录里的现场直读/比对表），按基质匹配；交接表在样品页挂附件
 type Tpl = { code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; file: string; raw?: string; phase?: string; stage?: string }
@@ -27,6 +34,7 @@ const SW_PORTIONS: [number, number][] = [[5, 5], [25, 8], [50, 13], [90, 20], [1
 const swMinPortions = (tons: number) => { for (const [cap, n] of SW_PORTIONS) if (tons <= cap) return n; return 100 }
 
 const router = useRouter()
+const route = useRoute()
 const rollupLabel: Record<string, string> = { pending: '待检测', testing: '检测中', review: '待审核', approved: '已审核' }
 const FILTERS = [['', '全部'], ['todo', '待派工'], ['assigned', '待采样'], ['done', '已采样']] as [string, string][]
 
@@ -36,6 +44,14 @@ const filter = ref('')
 const keyword = ref('')
 const loading = ref(false)
 const assign = ref({ samplers: [] as string[], planDate: '' })
+const workflowByRound = ref<Record<string, WorkflowView | null>>({})
+const assignmentByContract = ref<Record<string, WorkflowAssignment[]>>({})
+const reviewBusy = ref(false)
+const reviewError = ref<{ code: string; message: string }>({ code: '', message: '' })
+const activeStage = computed<BusinessStageKey>(() => route.query.stage === 'dispatch' ? 'dispatch' : 'sampling')
+const activeQueue = computed<StageQueueKey>(() => ['write', 'review', 'approve', 'rejected', 'final'].includes(String(route.query.queue)) ? route.query.queue as StageQueueKey : 'write')
+const hasBasePageAccess = computed(() => currentUser.value?.roles.includes('admin')
+  || PAGE_ROLES.plans.some(role => currentUser.value?.roles.includes(role)))
 
 function stateOf(r: DueRound) { return r.status === 'failed' ? 'failed' : (r.status === 'cancelled' ? 'cancelled' : (r.status === 'done' ? 'done' : (r.status === 'rescheduled' ? 'rescheduled' : (r.sampler ? 'assigned' : 'todo')))) }
 const stateLabel: Record<string, string> = { todo: '待派工', assigned: '已派工·待采样', done: '已采样', failed: '未采成·待改期', rescheduled: '已改期·待采样', cancelled: '已终止' }
@@ -48,11 +64,38 @@ async function refresh() {
   loading.value = true
   try {
     rounds.value = await api.listAllRounds()
+    await loadQueueContext()
     if (detail.value) detail.value = await api.getRoundDetail(detail.value.round.id)
   } catch (e: any) { ElMessage.error('后端未连接？' + (e?.message || e)) }
   finally { loading.value = false }
 }
+async function loadQueueContext() {
+  const workflowEntries = await Promise.all(rounds.value.map(async round => {
+    try { return [round.id, await api.getWorkflow('round_sampling', round.id)] as const }
+    catch { return [round.id, null] as const }
+  }))
+  workflowByRound.value = Object.fromEntries(workflowEntries)
+  const contractIds = [...new Set(rounds.value.map(round => round.contract_id))]
+  const assignmentEntries = await Promise.all(contractIds.map(async contractId => {
+    try { return [contractId, await api.listWorkflowAssignments(contractId)] as const }
+    catch { return [contractId, []] as const }
+  }))
+  assignmentByContract.value = Object.fromEntries(assignmentEntries)
+}
+function queueMatches(r: DueRound) {
+  if (activeStage.value === 'dispatch') {
+    const state = stateOf(r)
+    return activeQueue.value === 'write' ? state === 'todo'
+      : activeQueue.value === 'rejected' ? state === 'failed'
+        : activeQueue.value === 'final' ? ['assigned', 'done', 'rescheduled', 'cancelled'].includes(state) : false
+  }
+  const workflow = workflowByRound.value[r.id]
+  const assignment = assignmentByContract.value[r.contract_id]?.find(item => item.scope === 'sampling')
+  return !!r.sampler && matchesActorWorkflowQueue(activeQueue.value, workflow, assignment,
+    currentUser.value?.username || '', r.sampler_ids || [])
+}
 const shown = computed(() => rounds.value.filter(r => {
+  if (!queueMatches(r)) return false
   if (filter.value && stateOf(r) !== filter.value) return false
   if (keyword.value) {
     const k = keyword.value.toLowerCase()
@@ -134,12 +177,21 @@ function roundSheetAttachmentId(code: string) { return `${detail.value!.round.id
 
 // 三段式：dispatch 排产派工 / field 现场采样 / stock 样品与质控；按状态自动展开当前段
 const openStage = ref<StageKey | ''>('dispatch')
+const assignmentEditorTarget = ref<HTMLElement | null>(null)
 function toggleStage(k: StageKey) { openStage.value = openStage.value === k ? '' : k }
+async function focusSamplingAssignment() {
+  openStage.value = 'dispatch'
+  await nextTick()
+  const samplingTarget = assignmentEditorTarget.value?.querySelector<HTMLElement>('[data-assignment-scope="sampling"]')
+  samplingTarget?.focus()
+  samplingTarget?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+}
 
 async function open(id: string) {
   if (detail.value && detail.value.round.id !== id && !(await confirmIfDirty())) return
   try {
     detail.value = await api.getRoundDetail(id)
+    await loadReviewContext()
     openStage.value = defaultStage(detail.value.round)
     assign.value = {
       samplers: [...(detail.value.round.sampler_ids || [])],
@@ -154,11 +206,54 @@ async function open(id: string) {
     await loadRoundCheckouts()
   } catch (e: any) { ElMessage.error(e?.message || e) }
 }
+const currentWorkflow = computed(() => detail.value ? workflowByRound.value[detail.value.round.id] ?? null : null)
+const currentAssignments = computed(() => detail.value ? assignmentByContract.value[detail.value.round.contract_id] || [] : [])
+const samplingAssignment = computed(() => currentAssignments.value.find(item => item.scope === 'sampling') || null)
+const progressCompleted = computed<BusinessStageKey[]>(() => {
+  if (!detail.value) return []
+  const result: BusinessStageKey[] = ['contract']
+  if (detail.value.contract?.tech_review_result === 'approve') result.push('contract-review')
+  if (detail.value.contract?.scheme?.status === 'approved') result.push('scheme')
+  if (detail.value.round.sampler) result.push('dispatch')
+  if (currentWorkflow.value?.status === 'approved') result.push('sampling')
+  if (detail.value.round.status === 'done') result.push('handover')
+  return result
+})
+async function loadReviewContext() {
+  if (!detail.value) return
+  const roundId = detail.value.round.id, contractId = detail.value.round.contract_id
+  const [workflow, assignments] = await Promise.all([
+    api.getWorkflow('round_sampling', roundId).catch(() => null),
+    api.listWorkflowAssignments(contractId).catch(() => []),
+  ])
+  workflowByRound.value = { ...workflowByRound.value, [roundId]: workflow }
+  assignmentByContract.value = { ...assignmentByContract.value, [contractId]: assignments }
+}
+function onAssignmentSaved(assignment: WorkflowAssignment) {
+  const existing = currentAssignments.value.filter(item => item.scope !== assignment.scope)
+  assignmentByContract.value = { ...assignmentByContract.value, [assignment.contract_id]: [...existing, assignment] }
+}
+async function submitSamplingReview() {
+  if (!detail.value || reviewBusy.value) return
+  reviewBusy.value = true; reviewError.value = { code: '', message: '' }
+  try { await api.submitWorkflow('round_sampling', detail.value.round.id); await loadReviewContext() }
+  catch (error: any) { reviewError.value = { code: error?.response?.data?.error_code || '', message: error?.response?.data?.error || error?.message || '提交失败' } }
+  finally { reviewBusy.value = false }
+}
+async function decideSamplingReview(input: { revision: number; level: WorkflowDecisionLevel; decision: 'approve' | 'reject'; comment: string }) {
+  if (!currentWorkflow.value || reviewBusy.value) return
+  reviewBusy.value = true; reviewError.value = { code: '', message: '' }
+  try { await api.decideWorkflow(currentWorkflow.value.id, input); await loadReviewContext() }
+  catch (error: any) { reviewError.value = { code: error?.response?.data?.error_code || '', message: error?.response?.data?.error || error?.message || '审批失败' } }
+  finally { reviewBusy.value = false }
+}
+watch(() => [route.query.stage, route.query.queue], () => { detail.value = null })
 
 // —— 本期质控（6.1.5）：密码样 / 平行样 / 加标回收 / 空白，自动判合格 ——
 const QC_TYPES_ = QC_TYPES
 const canQc = computed(() => can('qc_add'))
 const canAssign = computed(() => can('round_assign'))
+const canAssignReviewers = computed(() => currentUser.value?.roles.some(role => role === 'planner' || role === 'admin') === true)
 const canFlow = computed(() => can('round_flow'))     // 采不成/改期
 const canField = computed(() => can('round_field'))   // 现场采样/收样入库
 const qc = ref<QcRecord[]>([])
@@ -296,7 +391,7 @@ const dueReached = computed(() => {
 })
 async function doSampleIn() {
   if (!detail.value) return
-  if (hasDirty()) {
+  if (hasDirty(`sheet:${detail.value.round.id}:`)) {
     ElMessage.warning('还有未保存的采样表，请先保存后再收样入库')
     return
   }
@@ -374,18 +469,22 @@ function samplerOptionLabel(s: { username: string; name: string }) {
 async function loadSamplers() {
   try { samplers.value = await api.listSamplers() } catch { samplers.value = [] }
 }
-onMounted(() => { refresh(); loadSamplers() })
+onMounted(() => { if (hasBasePageAccess.value) { refresh(); loadSamplers() } })
 </script>
 
 <template>
   <div class="pagewrap wide">
     <div class="phead">
       <div>
-        <h1 class="page">采样派工</h1>
-        <p class="sub">按期次排产 · 现场采样 · 收样入库</p>
+        <h1 class="page">{{ activeStage === 'dispatch' ? '④ 采样指派' : '⑤ 现场采样' }}</h1>
+        <p class="sub">按期次聚焦当前岗位的填写、复核、审核、退回和定稿任务</p>
       </div>
       <span v-if="alerts.length" class="hcount num">{{ alerts.length }} 项监测该采样了</span>
     </div>
+    <StageQueueNav v-if="hasBasePageAccess" :active="activeQueue" />
+
+    <ProfessionalTaskQueue v-if="!hasBasePageAccess" scope="sampling" :active-queue="activeQueue" />
+    <template v-else>
 
     <!-- 到期提醒：该采样的期次 -->
     <section v-if="alerts.length" class="alsec">
@@ -460,12 +559,13 @@ onMounted(() => { refresh(); loadSamplers() })
             </div>
           </div>
           <div class="dbody">
+            <ProjectStageProgress :current-stage="activeStage" :completed-stages="progressCompleted" />
             <!-- ① 排产派工：待采清单 + 选人派工 -->
             <div class="stage" :class="{ open: openStage === 'dispatch' }">
               <div class="stage-head" @click="toggleStage('dispatch')">
-                <span class="snum" :class="{ good: !!detail.round.sampler }">①</span>
+                <span class="snum" :class="{ good: !!detail.round.sampler && !!samplingAssignment, warn: !!detail.round.sampler && !samplingAssignment }">①</span>
                 <b>排产派工</b>
-                <span class="ssum">{{ detail.round.sampler ? `${detail.round.sampler} · ${detail.round.plan_date || detail.round.due_date}` : '待派工' }}</span>
+                <span class="ssum" :class="{ attention: !!detail.round.sampler && !samplingAssignment }">{{ detail.round.sampler ? (samplingAssignment ? `${detail.round.sampler} · ${detail.round.plan_date || detail.round.due_date} · 审核人员已指定` : '采样员已派 · 审核人员待指定') : '待派工' }}</span>
                 <span class="chev">{{ openStage === 'dispatch' ? '收起' : '展开' }}</span>
               </div>
               <div class="stage-body" v-show="openStage === 'dispatch'">
@@ -478,7 +578,7 @@ onMounted(() => { refresh(); loadSamplers() })
               </table>
             </div>
 
-            <!-- 派工：多选采样员（CMA 现场采样≥2人）——只有登记员/质控员/技术负责人能派 -->
+            <!-- 派工：多选采样员（CMA 现场采样≥2人）——只有计划员/技术负责人能派 -->
             <div class="sec" v-if="canAssign">
               <div class="sechead"><h2>选采样员</h2><span class="sec-note">现场采样至少 2 人（CMA）</span></div>
               <div class="assign">
@@ -491,6 +591,9 @@ onMounted(() => { refresh(); loadSamplers() })
                 <el-button v-if="assign.planDate && assign.planDate !== detail.round.due_date" size="small" plain title="客户要求改日子不用谎报采不成——直接微调，留痕" @click="doAdjustDue">把约定采样日改为 {{ assign.planDate }}</el-button>
               </div>
               <p v-if="!samplers.length" class="assign-hint">还没有在职采样员账号——先去「人员与权限」给同事挂上「采样员」角色</p>
+              <div v-if="canAssignReviewers" ref="assignmentEditorTarget" data-sampling-assignment-target tabindex="-1" class="assignment-focus-target">
+                <WorkflowAssignmentEditor :contract-id="detail.round.contract_id" :assignments="currentAssignments" @saved="onAssignmentSaved" />
+              </div>
             </div>
             <!-- 质控要求放派工区外：采样员没有派工权限也要看到现场带多少质控样 -->
             <div class="sec" v-if="qcReqs.length">
@@ -539,7 +642,7 @@ onMounted(() => { refresh(); loadSamplers() })
             <!-- 现场采样登记（S4）：通用现场信息 + 按基质填采样单 + 噪声/固废专项 -->
             <div class="sec">
               <div class="sechead"><h2>现场采样登记</h2><span class="sec-note">采样员现场填，收样入库前保存</span></div>
-              <!-- 非采样岗（质控员/登记员）能看不能填：CMA 要求现场记录由到场的人自己写 -->
+              <!-- 非采样岗能看不能填：CMA 要求现场记录由到场的人自己写 -->
               <p v-if="!canField" class="sp-hint">只读——现场记录只能由本期采样员本人填写，你的岗位没有这项权限。</p>
               <p v-if="canField && detail.round.status !== 'done' && !roundCheckouts.length" class="sp-hint">
                 本期还没有设备领用记录——出发前先到「资源台账」领设备并选中本期（台账才能对上号）
@@ -638,11 +741,20 @@ onMounted(() => { refresh(); loadSamplers() })
               </div>
             </div>
 
-            <!-- 收样入库：派工后才能入库（状态机）；已终止的期次不再入库 -->
+            <WorkflowReviewPanel v-if="detail.round.sampler" :workflow="currentWorkflow" :assignment="samplingAssignment"
+              :actor-username="currentUser?.username || ''"
+              :author-username="detail.round.sampler_ids.includes(currentUser?.username || '') ? (currentUser?.username || '') : detail.round.sampler_ids[0]"
+              :qualification-problem="samplingAssignment ? '' : (canAssignReviewers && canAssign ? '尚未指定采样复核人和审核人，指定后才能提交复核。' : '尚未指定采样复核人和审核人，请联系计划员或管理员。')"
+              :qualification-action-label="!samplingAssignment && canAssignReviewers && canAssign ? '立即指定人员' : ''"
+              :busy="reviewBusy" :error-code="reviewError.code" :error-message="reviewError.message"
+              @submit="submitSamplingReview" @decide="decideSamplingReview" @refresh="loadReviewContext"
+              @resolve-qualification-problem="focusSamplingAssignment" />
+
+            <!-- 收样入库：采样专业审核定稿后才能入库（状态机） -->
             <div class="sec" v-if="detail.round.status !== 'done' && detail.round.status !== 'cancelled'">
               <template v-if="detail.round.sampler">
-                <el-button v-if="canField" type="primary" @click="doSampleIn">现场采样 · 收样入库 →</el-button>
-                <span class="hint">采样员完成现场采样后点这里，系统按清单+质控规则自动建样品编号和采样交接</span>
+                <el-button v-if="canField && currentWorkflow?.status === 'approved'" type="primary" @click="doSampleIn">现场采样 · 收样入库（已定稿） →</el-button>
+                <span class="hint">{{ currentWorkflow?.status === 'approved' ? '系统按清单与质控规则自动建样品编号和交接记录' : '先保存现场记录并完成采样复核、审核；已上传不等于已审核定稿' }}</span>
               </template>
               <span v-else class="hint">先在上面「排产派工」选采样员，派工后才能收样入库</span>
             </div>
@@ -736,6 +848,7 @@ onMounted(() => { refresh(); loadSamplers() })
         <div v-else class="rest">左侧选一个期次</div>
       </div>
     </div>
+    </template>
   </div>
 </template>
 
@@ -813,7 +926,9 @@ onMounted(() => { refresh(); loadSamplers() })
 .stage-head b{font-size:13.5px;color:var(--ink);flex:none}
 .snum{flex:none;width:22px;height:22px;border-radius:50%;background:var(--surface-2);color:var(--muted);font-size:12px;display:inline-flex;align-items:center;justify-content:center;font-weight:600}
 .snum.good{background:var(--accent-soft);color:var(--accent-ink)}
+.snum.warn{background:var(--warn-soft);color:var(--warn)}
 .ssum{flex:1;min-width:0;font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ssum.attention{color:var(--warn);font-weight:600}
 .chev{flex:none;font-size:11.5px;color:var(--faint)}
 .stage-body{padding:4px 14px 14px;border-top:1px solid var(--line)}
 .stage-body .sec:first-child{margin-top:10px}
@@ -829,6 +944,7 @@ onMounted(() => { refresh(); loadSamplers() })
 .assign input{border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:7px 10px;font-size:12.5px;font-family:inherit;background:var(--surface);color:var(--ink)}
 .assign input:focus{outline:2px solid var(--accent);outline-offset:-1px}
 .assign-hint{font-size:12px;color:var(--warn);margin:6px 0 0}
+.assignment-focus-target{border-radius:7px}
 
 /* S4：质控要求 / 专项提示 / 采样单 */
 .qcreq{margin-top:10px;font-size:12.5px;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}

@@ -8,6 +8,7 @@ import {
   listRounds, assignRound, sampleRound, confirmRoundField, composeFreq,
   createUser,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
 
 const wj = { name: '许技术', username: 'demo_tech' }
 
@@ -59,6 +60,7 @@ test('样品编号盲样新规（2026-07-31拍板）：介质码+YYMMDD-序号�
   assignRound(db, r.id, ['赵采样', '许技术'])
   confirmRoundField(db, r.id, { name: '赵采样' })
   confirmRoundField(db, r.id, { name: '许技术' })
+  approveRoundSampling(db, r.id, { name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样' })
   const normal = made.filter(s => !s.qc_type)
   const qc = made.filter(s => s.qc_type)

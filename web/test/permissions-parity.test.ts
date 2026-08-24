@@ -8,9 +8,7 @@ describe('前后端权限矩阵对账', () => {
   it('动作清单一致', () => {
     expect(Object.keys(WEB).sort()).toEqual(Object.keys(SERVER).sort())
   })
-  it('每个动作的角色清单一致', () => {
-    for (const k of Object.keys(SERVER) as (keyof typeof SERVER)[]) {
-      expect([...(WEB as any)[k]].sort(), `动作 ${k} 两边不一致`).toEqual([...SERVER[k]].sort())
-    }
+  it('动作及角色清单按声明顺序完全一致', () => {
+    expect(JSON.stringify(WEB)).toBe(JSON.stringify(SERVER))
   })
 })

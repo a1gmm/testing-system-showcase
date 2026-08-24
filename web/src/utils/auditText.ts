@@ -1,6 +1,6 @@
 import type { Audit } from '../api'
 
-// 留痕明细渲染：把后端 diffData 的 change 记录翻成审核员看的人话。
+// 留痕明细渲染：把后端 diffData 的 change 记录翻成专业审核人员看的人话。
 // 归档页和录入页共用同一份——两边曾各存一份拷贝并已漂移，改一处漏一处。
 export const actionLabel: Record<string, string> = {
   create: '新建', update: '修改', submit: '提交',

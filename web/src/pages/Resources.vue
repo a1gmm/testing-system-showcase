@@ -23,7 +23,7 @@ const loading = ref(false)
 const canCheckout = computed(() => can('instrument_checkout'))
 function holderOf(instId: string) { return checkouts.value.find(c => c.instrument_id === instId && c.status === 'out') || null }
 // 与后端 /api/instruments|ref-materials|reagents 的 need(c,'admin','tech') 对齐。
-// 建/改台账限管理员·技术负责人——防止伪造检定/效期。检测员只读。
+// 建/改台账限管理员·技术负责人——防止伪造检定/效期。实验室分析人员只读。
 const canEdit = computed(() => can('resource_manage'))
 
 async function refresh() {

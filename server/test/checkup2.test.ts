@@ -25,15 +25,15 @@ function u(roles: string[], username = 'u1', name = '某人'): User {
 
 // ============ 【8a】合同商务字段脱敏 ============
 
-test('修8a 脱敏：采样员/检测员/质控看合同剥掉 quote/review_info，干活字段保留', () => {
+test('修8a 脱敏：非商务岗位看合同剥掉 quote/review_info，干活字段保留', () => {
   const db = freshDb()
   const c = createContract(db, {
     client: '甲厂', project: '年度监测',
     quote: { rows: [{ category: '废水', point: '总排口', items: ['COD'], price: 999, points: 1, perDay: 1, perYear: 1 }], invoice: '开票税号123' },
     review: { demand: '能做', risk: '无' },
   } as any, 2026)
-  assert.ok(c.quote, '登记员视角本来有报价')
-  for (const roles of [['sampler'], ['tester'], ['qc'], ['reviewer'], ['approver']]) {
+  assert.ok(c.quote, '业务员视角本来有报价')
+  for (const roles of [['sampler'], ['analyst'], ['qc'], ['planner'], ['report_editor'], ['archivist']]) {
     const seen: any = contractForUser(u(roles), c)
     assert.equal(seen.quote, undefined, `${roles} 不该看到报价`)
     assert.equal(seen.review_info, undefined, `${roles} 不该看到合同评审`)
@@ -43,8 +43,8 @@ test('修8a 脱敏：采样员/检测员/质控看合同剥掉 quote/review_info
     assert.equal(seen.project, '年度监测')
     assert.ok(Array.isArray(seen.plan))
   }
-  // 登记员/tech/签字人/admin 看全量
-  for (const roles of [['registrar'], ['tech'], ['signer'], ['admin']]) {
+  // 业务员/tech/签字人/admin 看全量
+  for (const roles of [['sales'], ['tech'], ['signer'], ['admin']]) {
     const seen: any = contractForUser(u(roles), c)
     assert.ok(seen.quote, `${roles} 应看到报价`)
     assert.ok(canSeeCommercial(u(roles)))
@@ -54,35 +54,33 @@ test('修8a 脱敏：采样员/检测员/质控看合同剥掉 quote/review_info
 
 // ============ 【9】记录留痕：编制人本人或 audit_view ============
 
-test('修9 留痕可见性：编制人本人（登录名优先/姓名回退）和复核审核链能看，路人检测员不能', () => {
+test('修9 留痕可见性：编制人本人（登录名优先/姓名回退）和报告岗位能看，路人分析人员不能', () => {
   const rec = { author: '陈检测', author_username: 'demo_tester' }
-  assert.ok(canSeeRecordAudit(u(['tester'], 'demo_tester', '陈检测改名'), rec), '本人改过姓名也认登录名')
-  assert.ok(!canSeeRecordAudit(u(['tester'], 'imposter', '陈检测'), rec), '重名冒充不放行')
-  assert.ok(canSeeRecordAudit(u(['reviewer'], 'demo_reviewer', '郑复核'), rec), 'audit_view 角色放行')
-  assert.ok(canSeeRecordAudit(u(['approver'], 'demo_approver', '孙审核'), rec))
+  assert.ok(canSeeRecordAudit(u(['analyst'], 'demo_tester', '陈检测改名'), rec), '本人改过姓名也认登录名')
+  assert.ok(!canSeeRecordAudit(u(['analyst'], 'imposter', '陈检测'), rec), '重名冒充不放行')
+  assert.ok(canSeeRecordAudit(u(['report_editor'], 'demo_reviewer', '李报告'), rec), 'audit_view 岗位放行')
   assert.ok(canSeeRecordAudit(u(['tech'], 'demo_tech', '许技术'), rec))
   assert.ok(canSeeRecordAudit(u(['admin'], 'root', '管理员'), rec))
   assert.ok(!canSeeRecordAudit(u(['sampler'], 'demo_sampler', '赵采样'), rec), '无关角色拦')
   // 历史数据只有姓名 → 回退姓名比对
   const old = { author: '老王', author_username: null }
-  assert.ok(canSeeRecordAudit(u(['tester'], 'laowang', '老王'), old))
-  assert.ok(!canSeeRecordAudit(u(['tester'], 'x', '小李'), old))
+  assert.ok(canSeeRecordAudit(u(['analyst'], 'laowang', '老王'), old))
+  assert.ok(!canSeeRecordAudit(u(['analyst'], 'x', '小李'), old))
 })
 
 // ============ 【17】附件按实体收口 ============
 
-test('修17 附件实体白名单：report 限报告链（签字人能传），system_record 只许 tech，其余维持现状', () => {
-  // report：registrar/reviewer/approver/signer/tech/admin 行，sampler/tester/qc 不行
-  for (const roles of [['registrar'], ['reviewer'], ['approver'], ['signer'], ['tech'], ['admin']]) {
+test('修17 附件实体白名单：report 限报告岗位和签字人，system_record 只许 tech，其余维持现状', () => {
+  for (const roles of [['report_editor'], ['signer'], ['tech'], ['admin']]) {
     assert.ok(canManageAttachment(u(roles), 'report'), `${roles} 应能动报告附件`)
   }
-  for (const roles of [['sampler'], ['tester'], ['qc']]) {
+  for (const roles of [['sales'], ['planner'], ['sampler'], ['analyst'], ['qc']]) {
     assert.ok(!canManageAttachment(u(roles), 'report'), `${roles} 不该动报告附件`)
   }
   // system_record：只有 tech/admin
   assert.ok(canManageAttachment(u(['tech']), 'system_record'))
   assert.ok(canManageAttachment(u(['admin']), 'system_record'))
-  for (const roles of [['registrar'], ['sampler'], ['tester'], ['qc'], ['signer'], ['reviewer']]) {
+  for (const roles of [['sales'], ['planner'], ['sampler'], ['analyst'], ['qc'], ['signer'], ['report_editor']]) {
     assert.ok(!canManageAttachment(u(roles), 'system_record'), `${roles} 不该动体系记录附件`)
   }
   // 其余实体维持 attach_upload 名单：sampler 能动 record/round，signer 不能
@@ -148,6 +146,7 @@ test('修23 老库迁移：must_change_pw/source 回填幂等，每次启动都�
     // 第一次开：加列 + 回填
     let db = openDb(path)
     assert.equal((db.prepare(`SELECT must_change_pw FROM users WHERE username='olduser'`).get() as any).must_change_pw, 1, '存量账号强制改密')
+    assert.equal((db.prepare(`SELECT roles FROM users WHERE username='olduser'`).get() as any).roles, '["analyst"]', '旧检测员迁为实验室分析人员')
     assert.equal((db.prepare(`SELECT source FROM samples WHERE id='W-1'`).get() as any).source, 'self', '无委托无期次 → 自送样')
     assert.equal((db.prepare(`SELECT source FROM samples WHERE id='W-2'`).get() as any).source, 'field', '有委托 → 受托采样')
     // 用户自己改过密（置 0）后再重启：回填只认 NULL，不会把 0 又翻回 1
@@ -160,9 +159,15 @@ test('修23 老库迁移：must_change_pw/source 回填幂等，每次启动都�
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
 
+test('附件新库结构包含采样快照所需的 content_hash', () => {
+  const db = freshDb()
+  const columns = (db.prepare(`PRAGMA table_info(attachments)`).all() as any[]).map(column => column.name)
+  assert.ok(columns.includes('content_hash'))
+})
+
 test('修23 新库不受影响：SCHEMA 自带列，回填条件永不命中', () => {
   const db = freshDb()
-  createUser(db, { username: 'n1', name: '新人', roles: ['tester'], password: 'abc123' })
+  createUser(db, { username: 'n1', name: '新人', roles: ['analyst'], password: 'abc123' })
   assert.equal((db.prepare(`SELECT must_change_pw FROM users WHERE username='n1'`).get() as any).must_change_pw, 1, '新账号本来就是 1（初始密码须改）')
   const s = createSample(db, { client: 'x', matrix: '废水', items: [] }, 2026)
   assert.equal((db.prepare(`SELECT source FROM samples WHERE id=?`).get(s.id) as any).source, 'self')
@@ -172,7 +177,7 @@ test('修23 新库不受影响：SCHEMA 自带列，回填条件永不命中', (
 
 test('修24 绝对有效期：签发起 7 天必过期，再活跃也不续命', () => {
   const db = freshDb()
-  createUser(db, { username: 'z', name: '张', roles: ['tester'], password: 'abc123' })
+  createUser(db, { username: 'z', name: '张', roles: ['analyst'], password: 'abc123' })
   const { token } = login(db, 'z', 'abc123')
   const born = Date.parse((db.prepare(`SELECT created_at FROM sessions WHERE token=?`).get(token) as any).created_at)
   // 6 天 23 小时：保持活跃（last_seen 刚续过）→ 还有效
@@ -186,7 +191,7 @@ test('修24 绝对有效期：签发起 7 天必过期，再活跃也不续命',
 
 test('修24 停用用户：旧 token 一律失效（直改库绕过踢下线也兜得住）', () => {
   const db = freshDb()
-  createUser(db, { username: 'gone', name: '离职', roles: ['tester'], password: 'abc123' })
+  createUser(db, { username: 'gone', name: '离职', roles: ['analyst'], password: 'abc123' })
   const { token } = login(db, 'gone', 'abc123')
   assert.equal(sessionUser(db, token)?.name, '离职')
   // 绕过 updateUser（那里会 revoke），直改状态模拟竞态/脏改库

@@ -9,8 +9,11 @@ import {
   createContract, acceptContract, createScheme, reviewScheme, composeFreq, createUser,
   listRounds, assignRound, confirmRoundField, sampleRound,
   listHandoverSheets, sendHandoverSheet, confirmHandoverSheet,
-  saveRecord, reviewRecord, generateRoundReport, getSample,
+  saveRecord, reviewRecord, getSample,
 } from '../src/handlers.ts'
+import { generateTestRoundReport } from './support/approved-report.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
 
 test('浓度分档：COD高档±15%相对误差、3对取2对', () => {
   // 实验室均值 123 ≥100 → ±15%；第2对超差但3取2仍合格
@@ -72,7 +75,7 @@ test('质控样：0.5倍量程标样±10%相对误差', () => {
 test('比对报告：记录带 data.compare → compareBlocks 判定入报告，总结论恒"不予判定。"', () => {
   const db = openDb(':memory:')
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
-  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc'], password: 'x12345' })
+  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
   const c = createContract(db, { client: '比对厂', project: '废水在线比对', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
@@ -83,13 +86,14 @@ test('比对报告：记录带 data.compare → compareBlocks 判定入报告，
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, { username: 'demo_sampler', name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样', username: 'demo_sampler' })
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, { name: '赵采样', username: 'demo_sampler' })
   confirmHandoverSheet(db, sh.id, { name: '吴质控', username: 'qianqc' })
   for (const s0 of made) {
     const s = getSample(db, s0.id)!
-    let rec = saveRecord(db, {
+    approveLaboratoryRecord(db, {
       sampleId: s.id, code: 'HJ-TC-501', analyte: 'COD比对', method: 'HJ 355-2019',
       data: {
         rows: [], meta: {},
@@ -98,12 +102,9 @@ test('比对报告：记录带 data.compare → compareBlocks 判定入报告，
           { type: 'flow', analyte: '流量', pairs: [{ online: 99.8, lab: 100 }] },
         ],
       },
-      submit: true,
     })
-    rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-    reviewRecord(db, rec.id, 'approve', '孙审核')
   }
-  const rp = generateRoundReport(db, r.id, 2026, '周登记')
+  const rp = generateTestRoundReport(db, r.id, 2026)
   assert.ok(Array.isArray(rp.data.compareBlocks) && rp.data.compareBlocks.length >= 2, '比对块进报告')
   const cod = rp.data.compareBlocks.find((b: any) => b.analyte === 'COD')
   assert.equal(cod.pass, true)

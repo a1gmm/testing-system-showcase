@@ -18,7 +18,12 @@ import {
   createRefMaterial, deleteRefMaterial, listRefMaterials, createReagent, deleteReagent, listReagents,
   upsertCustomer, createUser, updateUser, createInstrument,
   addSystemRecord, updateSystemRecord, addSubcontract, updateSubcontract, addAttachment,
+  techReviewContract, listHandoverSheets, sendHandoverSheet, confirmHandoverSheet,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
+import { generateTestContractReport, generateTestRoundReport, issueTestReport } from './support/approved-report.ts'
+import { approveRoundQuality } from './support/approved-quality.ts'
 
 function freshDb() { return openDb(':memory:') }
 // 派工要真实在职账号（体检39）：给测试库配一套人
@@ -26,12 +31,15 @@ function seedCrew(db: any) {
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
   createUser(db, { username: 'wangcy', name: '王采样', roles: ['sampler'], password: 'x12345' })
   createUser(db, { username: 'demo_tech', name: '许技术', roles: ['tech'], password: 'x12345' })
+  createUser(db, { username: 'sample-manager', name: '样品管理员', roles: ['sample_manager'], password: 'x12345' })
+  createUser(db, { username: 'quality-officer', name: '质控员', roles: ['qc'], password: 'x12345' })
 }
 // 建合同+方案+批准 → 排出期次
 function makeRound(db: any, opts: { period?: [string, string]; cycle?: number; perDay?: number } = {}) {
   const [ps, pe] = opts.period ?? ['2026-07-01', '2026-07-01']
   const c = createContract(db, { client: '甲厂', project: 'x', periodStart: ps, periodEnd: pe })
   acceptContract(db, c.id, '周登记')
+  techReviewContract(db, c.id, 'approve', { name: '许技术', username: 'demo_tech' })
   createScheme(db, {
     contractId: c.id, cycleMonths: 0, periodStart: ps, periodEnd: pe,
     points: [{ element: '废水', point: '1#口', items: ['COD'], freq: composeFreq(opts.perDay ?? 1, opts.cycle ?? 0), standard: '' }],
@@ -41,20 +49,21 @@ function makeRound(db: any, opts: { period?: [string, string]; cycle?: number; p
 }
 // 一条记录走完三级审核
 function approveSample(db: any, sampleId: string) {
-  let rec = saveRecord(db, { sampleId, code: 'HJ-TC-001', analyte: 'COD', method: 'm', data: { rows: [{ v: 1 }], resultSummary: { analyte: 'COD', value: 1, unit: 'mg/L' } }, who: '陈检测', submit: true })
-  rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-  return reviewRecord(db, rec.id, 'approve', '孙审核')
+  return approveLaboratoryRecord(db, {
+    sampleId, code: 'HJ-TC-001', analyte: 'COD', method: 'm',
+    data: { rows: [{ v: 1 }], resultSummary: { analyte: 'COD', value: 1, unit: 'mg/L' } },
+  })
 }
 
 // ============ 【10】交接闸报错能指路 ============
 
-test('修10 交接闸：报错告诉人先记交接、再质控签收', () => {
+test('修10 交接闸：报错告诉人先记交接、再由样品管理员签收', () => {
   const db = freshDb()
   const c = createContract(db, { client: '甲' })
   const s = createSample(db, { client: '甲', matrix: '废水', items: ['COD'], contractId: c.id })
   assert.throws(
     () => saveRecord(db, { sampleId: s.id, code: 'T', data: { rows: [] }, who: '陈检测' }, { supervisor: false }),
-    /先在样品页记一条交接.*质控员签收/,
+    /先在样品页记一条交接.*样品管理员签收/,
   )
 })
 
@@ -109,7 +118,12 @@ test('修12 期次终止：failed/未派工可终止、原因必填、终态冻�
   assert.throws(() => cancelRound(db, r.id, '再来', actor), /已经终止/)
   // 终态冻结：派工/收样/填表/标未采成全拦
   assert.throws(() => assignRound(db, r.id, '赵采样'), /终止/)
-  assert.throws(() => sampleRound(db, r.id, { name: '赵采样' }, undefined, { supervisor: true }), /终止/)
+  const sampleDb = freshDb(); seedCrew(sampleDb)
+  const sampleRoundFixture = makeRound(sampleDb).rounds[0]
+  assignRound(sampleDb, sampleRoundFixture.id, ['赵采样'])
+  approveRoundSampling(sampleDb, sampleRoundFixture.id, { name: '赵采样' })
+  cancelRound(sampleDb, sampleRoundFixture.id, '终止采样验证', actor)
+  assert.throws(() => sampleRound(sampleDb, sampleRoundFixture.id, { name: '赵采样' }, undefined, { supervisor: true }), /终止/)
   assert.throws(() => saveRoundField(db, r.id, { weather: '晴' }), /终止/)
   assert.throws(() => failRound(db, r.id, 'x'), /终止/)
   assert.ok(listAudit(db, r.id).some(a => a.action === 'round_cancel'), '留痕 round_cancel')
@@ -129,16 +143,16 @@ test('修12 合同总报告：cancelled 期次是终态，不再卡「项目未�
   assignRound(db, rounds[0].id, ['赵采样', '王采样'])
   confirmRoundField(db, rounds[0].id, { name: '赵采样' })
   confirmRoundField(db, rounds[0].id, { name: '王采样' })
+  approveRoundSampling(db, rounds[0].id, { name: '赵采样' })
   const normal = sampleRound(db, rounds[0].id, { name: '赵采样' }).filter(s => !s.qc_type)
   for (const s of normal) approveSample(db, s.id)
-  const rep = generateRoundReport(db, rounds[0].id, 2026)
-  checkReport(db, rep.id, '孙审核')
-  issueReport(db, rep.id, '王签发')
+  const rep = generateTestRoundReport(db, rounds[0].id, 2026)
+  issueTestReport(db, rep.id)
   // 第 2 期采不成 → 终止；此前总报告会报「还有 1 期未完成」
   assignRound(db, rounds[1].id, ['赵采样'])
   failRound(db, rounds[1].id, '停产')
   cancelRound(db, rounds[1].id, '客户下半年注销', actor)
-  const total = generateContractReport(db, c.id, '周登记')
+  const total = generateTestContractReport(db, c.id, 2026)
   assert.ok(total.id, '终止期次不再挡总报告')
 })
 
@@ -190,6 +204,8 @@ test('修15 合同终止：draft/confirmed 都可终止、原因必填、新动�
   const db = freshDb(); seedCrew(db)
   const actor = { name: '周登记', username: 'demo_registrar' }
   const { c, rounds } = makeRound(db)
+  assignRound(db, rounds[0].id, '赵采样')
+  approveRoundSampling(db, rounds[0].id, { name: '赵采样' })
   // 2026-08-01 放宽：周期线合同一直是 draft，也必须能终止（原来这里会把客户注销的合同卡死）
   generateSamples(db, c.id)                                                          // → confirmed
   assert.throws(() => terminateContract(db, c.id, '', actor), /原因/)
@@ -232,11 +248,16 @@ test('修21 作废后：期次进度退回「待出报告」，不再和报告�
   assignRound(db, rounds[0].id, ['赵采样', '王采样'])
   confirmRoundField(db, rounds[0].id, { name: '赵采样' })
   confirmRoundField(db, rounds[0].id, { name: '王采样' })
+  approveRoundSampling(db, rounds[0].id, { name: '赵采样' })
   const normal = sampleRound(db, rounds[0].id, { name: '赵采样' }).filter(s => !s.qc_type)
+  for (const sheet of listHandoverSheets(db, { roundId: rounds[0].id })) {
+    sendHandoverSheet(db, sheet.id, { name: '赵采样', username: 'demo_sampler' })
+    confirmHandoverSheet(db, sheet.id, { name: '样品管理员', username: 'sample-manager' })
+  }
+  approveRoundQuality(db, rounds[0].id, { name: '质控员', username: 'quality-officer' })
   for (const s of normal) approveSample(db, s.id)
-  const rep = generateRoundReport(db, rounds[0].id, 2026)
-  checkReport(db, rep.id, '孙审核')
-  issueReport(db, rep.id, '王签发')
+  const rep = generateTestRoundReport(db, rounds[0].id, 2026)
+  issueTestReport(db, rep.id)
   assert.equal(getProjectPipeline(db, c.id).activeIndex, -1, '签发后本期完结')
   voidReport(db, rep.id, '结果有误重出', { name: '许技术', username: 'demo_tech' }, true)
   const pipe = getProjectPipeline(db, c.id)
@@ -274,11 +295,12 @@ test('修37 未采成期次：跳过改期直接收样被拦，改期后放行',
   const db = freshDb(); seedCrew(db)
   const { rounds } = makeRound(db)
   assignRound(db, rounds[0].id, ['赵采样', '王采样'])
+  confirmRoundField(db, rounds[0].id, { name: '赵采样' })
+  confirmRoundField(db, rounds[0].id, { name: '王采样' })
+  approveRoundSampling(db, rounds[0].id, { name: '赵采样' })
   failRound(db, rounds[0].id, '停产')
   assert.throws(() => sampleRound(db, rounds[0].id, { name: '赵采样' }), /先改期/)
   rescheduleRound(db, rounds[0].id, '2026-08-01')
-  confirmRoundField(db, rounds[0].id, { name: '赵采样' })
-  confirmRoundField(db, rounds[0].id, { name: '王采样' })
   assert.ok(sampleRound(db, rounds[0].id, { name: '赵采样' }).length >= 1)
 })
 
@@ -294,6 +316,7 @@ test('修38 方案改回草稿期间：派工/收样都拦；没方案的老数�
     points: [{ element: '废水', point: '1#口', items: ['COD', '氨氮'], freq: composeFreq(1, 0), standard: '' }],
   })
   assert.throws(() => assignRound(db, rounds[0].id, '赵采样'), /还没批准/)
+  approveRoundSampling(db, rounds[0].id, { name: '赵采样' })
   assert.throws(() => sampleRound(db, rounds[0].id, { name: '赵采样' }), /还没批准/)
   // 重新批准后恢复
   reviewScheme(db, c.id, 'approve', '许技术')
@@ -308,7 +331,7 @@ test('修38 方案改回草稿期间：派工/收样都拦；没方案的老数�
 
 test('修39 派工必须是在职采样员：写错名/岗位不符/离职都拦；plan_date 清洗', () => {
   const db = freshDb(); seedCrew(db)
-  createUser(db, { username: 'zl', name: '陈检测', roles: ['tester'], password: 'x12345' })
+  createUser(db, { username: 'zl', name: '陈检测', roles: ['analyst'], password: 'x12345' })
   const { rounds } = makeRound(db)
   assert.throws(() => assignRound(db, rounds[0].id, '不存在的人'), /「不存在的人」不是在职采样员/)
   assert.throws(() => assignRound(db, rounds[0].id, ['赵采样', '陈检测']), /「陈检测」不是在职采样员/)   // 检测员不许被派采样
@@ -364,6 +387,7 @@ test('修46 期次汇总：有样品零记录 → 不能亮绿灯（全空=pendi
   assignRound(db, rounds[0].id, ['赵采样', '王采样'])
   confirmRoundField(db, rounds[0].id, { name: '赵采样' })
   confirmRoundField(db, rounds[0].id, { name: '王采样' })
+  approveRoundSampling(db, rounds[0].id, { name: '赵采样' })
   const normal = sampleRound(db, rounds[0].id, { name: '赵采样' }).filter(s => !s.qc_type)
   assert.equal(normal.length, 2)
   assert.equal(listRounds(db, c.id)[0].rollup, 'pending', '全没录 → pending')

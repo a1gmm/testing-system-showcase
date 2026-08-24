@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import templates from '../data/templates.json'
 import { api, currentUser, ROLE_LABEL, hasRole } from '../api'
 import { PAGE_ROLES } from '../permissions'
+import { BUSINESS_STAGES } from '../workflow/businessStages'
 import OfflineRecoveryCenter from '../offline/OfflineRecoveryCenter.vue'
 import { recoveryIdentityHint, resolveRecoveryNamespace } from '../offline/recoveryIdentity'
 
@@ -27,15 +28,14 @@ async function doLogout() { await api.logout(); router.push('/login') }
 const top = { to: '/dashboard', label: '工作台', icon: 'Odometer' }
 // 每项标注哪些岗位可见（不标 = 人人可见；admin 万能）——每个人只看自己岗位的菜单
 // 菜单准入与路由守卫共用 PAGE_ROLES（permissions.ts），只此一份，不再各处手写
-// 业务主线严格照 2026-07-31 确认的 7 步流程排：①合同（含方案）→②采样→③④质控交接→⑤检测→⑥审核→⑦报告
 const allGroups = [
   { label: '业务主线 · 按流程', items: [
-    { to: '/contracts', label: '① 合同与方案', icon: 'Folder', roles: PAGE_ROLES.contracts },
-    { to: '/plans', label: '② 采样派工', icon: 'Calendar', roles: PAGE_ROLES.plans },
-    { to: '/qc', label: '③ 质控交接', icon: 'Box', roles: PAGE_ROLES.qc },
-    { to: '/samples', label: '④ 检测录入', icon: 'EditPen', roles: PAGE_ROLES.samples },
-    { to: '/review', label: '⑤ 三级审核', icon: 'CircleCheck', roles: PAGE_ROLES.review },
-    { to: '/reports', label: '⑥ 报告签发', icon: 'Files', roles: PAGE_ROLES.reports },
+    ...BUSINESS_STAGES.map((stage, index) => ({
+      to: stage.to,
+      label: stage.label,
+      icon: ['Document', 'CircleCheck', 'EditPen', 'Calendar', 'Position', 'Box', 'Checked', 'DataAnalysis', 'Finished', 'Files'][index],
+      roles: [...stage.roles],
+    })),
   ] },
   { label: '台账 · 基础', items: [
     { to: '/customers', label: '客户档案', icon: 'OfficeBuilding', roles: PAGE_ROLES.customers },
@@ -48,13 +48,20 @@ const allGroups = [
     { to: '/system-records', label: '体系运行记录', icon: 'Postcard', roles: PAGE_ROLES['system-records'] },
     { to: '/subcontracts', label: '分包管理', icon: 'Share', roles: PAGE_ROLES.subcontracts },
   ] },
-] as { label: string; items: { to: string; label: string; icon: string; badge?: string; roles?: string[] }[] }[]
+] as { label: string; items: { to: any; label: string; icon: string; badge?: string; roles?: string[] }[] }[]
 
 const groups = computed(() =>
   allGroups
     .map(g => ({ ...g, items: g.items.filter(n => !n.roles || hasRole(...n.roles)) }))
     .filter(g => g.items.length),
 )
+function navTarget(to: any) { return typeof to === 'string' ? to : router.resolve(to).fullPath }
+function navActive(to: any) {
+  const resolved = router.resolve(to)
+  if (route.path !== resolved.path) return false
+  const stage = resolved.query.stage
+  return stage ? route.query.stage === stage : !route.query.stage
+}
 
 // —— ⌘K 全局快捷跳转：页面 + 项目一把搜（方案C 交互） ——
 const kOpen = ref(false)
@@ -82,7 +89,7 @@ const kHits = computed<KHit[]>(() => {
   const q = kQuery.value.trim().toLowerCase()
   const pages: KHit[] = [{ to: top.to, label: top.label, sub: '页面', kind: 'page' as const },
     ...allGroups.flatMap(g => g.items.filter(n => !n.roles || hasRole(...n.roles)))
-      .map(n => ({ to: n.to, label: n.label, sub: '页面', kind: 'page' as const }))]
+      .map(n => ({ to: navTarget(n.to), label: n.label, sub: '页面', kind: 'page' as const }))]
   const projs: KHit[] = kProjects.value.map(p => ({
     kind: 'proj' as const, label: p.client, sub: `${p.id}${p.project ? ' · ' + p.project : ''} · ${p.stage}`,
     to: `/contracts?open=${encodeURIComponent(p.id)}`,
@@ -119,7 +126,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       </router-link>
       <template v-for="g in groups" :key="g.label">
         <div class="navlabel">{{ g.label }}</div>
-        <router-link v-for="n in g.items" :key="n.to" :to="n.to" class="nav" active-class="active">
+        <router-link v-for="n in g.items" :key="n.label" :to="n.to" class="nav" :class="{ active: navActive(n.to) }">
           <el-icon><component :is="n.icon" /></el-icon>
           <span>{{ n.label }}</span>
           <span v-if="n.badge" class="badge">{{ n.badge }}</span>

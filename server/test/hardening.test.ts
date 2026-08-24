@@ -11,7 +11,7 @@ function freshDb() { return openDb(':memory:') }
 // ============ 会话空闲超时 ============
 test('会话空闲超时：超过 TTL 的 token 失效并被清理', () => {
   const db = freshDb()
-  createUser(db, { username: 'z', name: '张', roles: ['tester'], password: 'abc123' })
+  createUser(db, { username: 'z', name: '张', roles: ['analyst'], password: 'abc123' })
   const { token } = login(db, 'z', 'abc123')
   // 刚登录：正常换回用户
   assert.equal(sessionUser(db, token)?.name, '张')
@@ -24,7 +24,7 @@ test('会话空闲超时：超过 TTL 的 token 失效并被清理', () => {
 
 test('会话滑动续期：TTL 内持续使用不掉线', () => {
   const db = freshDb()
-  createUser(db, { username: 'z', name: '张', roles: ['tester'], password: 'abc123' })
+  createUser(db, { username: 'z', name: '张', roles: ['analyst'], password: 'abc123' })
   const { token } = login(db, 'z', 'abc123')
   const t0 = Date.now()
   // 在 TTL 快到时访问一次 → 续期
@@ -37,7 +37,7 @@ test('会话滑动续期：TTL 内持续使用不掉线', () => {
 
 test('会话时间戳损坏 → 失败即失效（fail closed，不放行）', () => {
   const db = freshDb()
-  createUser(db, { username: 'z', name: '张', roles: ['tester'], password: 'abc123' })
+  createUser(db, { username: 'z', name: '张', roles: ['analyst'], password: 'abc123' })
   const { token } = login(db, 'z', 'abc123')
   // 把时间戳写坏（模拟脏数据/迁移遗留）
   db.prepare(`UPDATE sessions SET last_seen='坏日期', created_at='坏日期' WHERE token=?`).run(token)
@@ -48,7 +48,7 @@ test('会话时间戳损坏 → 失败即失效（fail closed，不放行）', (
 
 test('会话续期节流：60s 内不重复写 last_seen，超窗才写', () => {
   const db = freshDb()
-  createUser(db, { username: 'z', name: '张', roles: ['tester'], password: 'abc123' })
+  createUser(db, { username: 'z', name: '张', roles: ['analyst'], password: 'abc123' })
   const { token } = login(db, 'z', 'abc123')
   const first = (db.prepare(`SELECT last_seen FROM sessions WHERE token=?`).get(token) as any).last_seen
   const base = Date.parse(first)
@@ -66,13 +66,13 @@ test('管理员建的账号、种子账号：标记必须改密', () => {
   const db = freshDb()
   seedUsers(db)
   assert.equal(login(db, 'demo_admin', '123456').user.must_change_pw, true)
-  createUser(db, { username: 'z', name: '张', roles: ['tester'], password: 'init123' })
+  createUser(db, { username: 'z', name: '张', roles: ['analyst'], password: 'init123' })
   assert.equal(login(db, 'z', 'init123').user.must_change_pw, true)
 })
 
 test('本人改密后清除必须改密标记；管理员重置又置回', () => {
   const db = freshDb()
-  createUser(db, { username: 'z', name: '张', roles: ['tester'], password: 'init123' })
+  createUser(db, { username: 'z', name: '张', roles: ['analyst'], password: 'init123' })
   changeOwnPassword(db, 'z', 'init123', 'newpass1')
   assert.equal(login(db, 'z', 'newpass1').user.must_change_pw, false)
   resetPassword(db, 'z', 'reset123')
@@ -80,7 +80,7 @@ test('本人改密后清除必须改密标记；管理员重置又置回', () =>
 })
 
 test('未改密时：除白名单接口外一律拦截', () => {
-  const stale = { username: 'z', name: '张', roles: ['tester'], status: 'active', created_at: '', must_change_pw: true }
+  const stale = { username: 'z', name: '张', roles: ['analyst'], status: 'active', created_at: '', must_change_pw: true }
   // 业务接口被拦
   assert.equal(needsPasswordChange(stale, '/api/samples'), true)
   // 白名单放行

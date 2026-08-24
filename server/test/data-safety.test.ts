@@ -5,8 +5,12 @@ import { openDb } from '../src/db.ts'
 import {
   createSample, saveRecord, saveRoundSheet, getRoundSheet,
   createContract, acceptContract, getContract, createScheme, reviewScheme,
-  sampleRound, getRound, confirmRoundField,
+  sampleRound, getRound, confirmRoundField, createUser,
+  submitReportWorkflow, updateReport,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
+import { generateTestSampleReport, reportTestActors } from './support/approved-report.ts'
 
 test('记录乐观锁：带旧 baseUpdatedAt 保存被拒；带最新的能存', () => {
   const db = openDb(':memory:')
@@ -23,6 +27,8 @@ test('记录乐观锁：带旧 baseUpdatedAt 保存被拒；带最新的能存',
 })
 
 function makeRoundedContract(db: any) {
+  createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
+  createUser(db, { username: 'demo_tech', name: '许技术', roles: ['tech'], password: 'x12345' })
   const c = createContract(db, { client: '事务厂', project: 'x', periodStart: '2026-07-01', periodEnd: '2026-07-01', plan: [{ matrix: '废水', items: ['COD'], qty: 1, cycleMonths: 0 }] })
   acceptContract(db, c.id, '周登记')
   createScheme(db, { contractId: c.id, cycleMonths: 0, periodStart: '2026-07-01', periodEnd: '2026-07-01', points: [{ element: '废水', point: '1#口', items: ['COD'], freq: '每天1次 · 单次', standard: '' }], limits: [] })
@@ -56,6 +62,7 @@ test('sampleRound 事务：中途失败全回滚，不留半截样品，期次�
   db.exec(`CREATE TRIGGER boom BEFORE INSERT ON samples WHEN NEW.matrix='炸' BEGIN SELECT RAISE(ABORT,'boom'); END`)
   db.prepare(`UPDATE rounds SET items=? WHERE id=?`)
     .run(JSON.stringify([{ matrix: '废水', items: ['COD'], qty: 1, point: '1#口' }, { matrix: '炸', items: [], qty: 1, point: '1#口' }]), roundId)
+  approveRoundSampling(db, roundId, { username: 'demo_sampler', name: '赵采样' })
   assert.throws(() => sampleRound(db, roundId, { name: '赵采样', username: 'demo_sampler' }))
   // 回滚干净：没有半截样品，期次仍是待采
   const left = db.prepare(`SELECT COUNT(*) n FROM samples WHERE round_id=?`).get(roundId) as any
@@ -63,7 +70,6 @@ test('sampleRound 事务：中途失败全回滚，不留半截样品，期次�
   assert.equal(getRound(db, roundId)!.status, 'pending')
   // 修好数据后重试能正常入库（假幂等已修：不会把半截当已采）
   db.exec(`DROP TRIGGER boom`)
-  db.prepare(`UPDATE rounds SET items=? WHERE id=?`).run(JSON.stringify([{ matrix: '废水', items: ['COD'], qty: 1, point: '1#口' }]), roundId)
   const made = sampleRound(db, roundId, { name: '赵采样', username: 'demo_sampler' })
   assert.ok(made.length >= 1)
   assert.equal(getRound(db, roundId)!.status, 'done')
@@ -75,4 +81,20 @@ test('确认受理不带评审时，保留建单时填的评审记录', () => {
   assert.ok(getContract(db, c.id)!.review_info)
   acceptContract(db, c.id, '周登记')   // 不带 review
   assert.deepEqual(getContract(db, c.id)!.review_info, { conclusion: '能做' })
+})
+
+test('项目报告提交后冻结内容，不允许原编制人静默改写已快照版本', () => {
+  const db = openDb(':memory:')
+  const contract = createContract(db, { client: '报告冻结厂' }, 2026)
+  const sample = createSample(db, { client: contract.client, matrix: '废水', items: ['COD'], contractId: contract.id }, 2026)
+  approveLaboratoryRecord(db, {
+    sampleId: sample.id, code: 'HJ-TC-LOCK', analyte: 'COD',
+    data: { rows: [], resultSummary: { analyte: 'COD', value: 12, unit: 'mg/L' } },
+  })
+  const report = generateTestSampleReport(db, sample.id, 2026)
+  submitReportWorkflow(db, report.id, reportTestActors.author)
+  assert.throws(
+    () => updateReport(db, report.id, { conclusion: '未经退回的静默修改' }, reportTestActors.author),
+    /提交审核.*冻结|内容.*冻结/,
+  )
 })

@@ -11,6 +11,7 @@ import {
   getRoundDetail, getRoundSheet, listAllRounds, listAttachments, listRoundSheets, sampleRound, saveRoundField,
   saveRoundSheet, terminateContract, updateUser,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
 
 function freshDb() { return openDb(':memory:') }
 
@@ -68,8 +69,8 @@ test('期次任务列表和详情按角色、对象存在及当前 ID 派工过�
     (e: any) => e.httpCode === 404 && e.errorCode === 'ROUND_NOT_FOUND',
   )
 
-  const supervisor = user('qc-user', '质控', ['qc'])
-  assert.deepEqual((listAllRounds(db, undefined, supervisor) as any[]).map(r => r.id), [roundA, roundB])
+  const qualityOfficer = user('qc-user', '质控', ['qc'])
+  assert.deepEqual((listAllRounds(db, undefined, qualityOfficer) as any[]).map(r => r.id), [])
 })
 
 test('现场字段、表单、附件与确认都按当前派工 ID 做对象级读写授权', () => {
@@ -147,16 +148,24 @@ test('同名采样员确认投影不折叠，并且必须逐个 ID 确认后才�
     { user_id: 'same-a', name: '同名采样员', confirmed_at: afterFirst.field_info.confirmations['same-a'].at },
     { user_id: 'same-b', name: '同名采样员', confirmed_at: null },
   ])
+  approveRoundSampling(db, roundId, { username: 'same-a', name: '同名采样员' })
   assert.throws(
     () => sampleRound(db, roundId, user('same-a', '同名采样员', ['sampler'])),
     /同名采样员（same-b）/,
   )
 
-  confirmRoundField(db, roundId, user('same-b', '同名采样员', ['sampler']))
-  const afterSecond = getRound(db, roundId) as any
+  const completeDb = freshDb()
+  const completeRoundId = makeRound(completeDb, 'ROUND-SAME-NAME-COMPLETE')
+  createUser(completeDb, { username: 'same-a', name: '同名采样员', roles: ['sampler'], password: 'secret1' })
+  createUser(completeDb, { username: 'same-b', name: '同名采样员', roles: ['sampler'], password: 'secret2' })
+  assignRound(completeDb, completeRoundId, ['same-a', 'same-b'])
+  confirmRoundField(completeDb, completeRoundId, user('same-a', '同名采样员', ['sampler']))
+  confirmRoundField(completeDb, completeRoundId, user('same-b', '同名采样员', ['sampler']))
+  const afterSecond = getRound(completeDb, completeRoundId) as any
   assert.equal(afterSecond.field_info.confirmation_users.length, 2)
   assert.ok(afterSecond.field_info.confirmation_users.every((x: any) => x.confirmed_at))
-  assert.doesNotThrow(() => sampleRound(db, roundId, user('same-b', '同名采样员', ['sampler'])))
+  approveRoundSampling(completeDb, completeRoundId, { username: 'same-b', name: '同名采样员' })
+  assert.doesNotThrow(() => sampleRound(completeDb, completeRoundId, user('same-b', '同名采样员', ['sampler'])))
 })
 
 test('收样入库要求每个计划基质至少有一张已保存采样单，并兼容旧 field.sheets', () => {
@@ -172,15 +181,18 @@ test('收样入库要求每个计划基质至少有一张已保存采样单，�
 
   const missing = prepare('ROUND-SHEET-REQUIRED')
   saveRoundField(missing.db, missing.roundId, { sheetCodes: { 废水: ['HJ-TC-136'] } }, missing.actor, { supervisor: false })
+  approveRoundSampling(missing.db, missing.roundId, missing.actor)
   assert.throws(() => sampleRound(missing.db, missing.roundId, missing.actor), /废水.*采样单|采样单.*废水/)
 
   const exact = prepare('ROUND-SHEET-EXACT')
   saveRoundField(exact.db, exact.roundId, { sheetCodes: { 废水: ['HJ-TC-136'] } }, exact.actor, { supervisor: false })
   saveRoundSheet(exact.db, exact.roundId, 'HJ-TC-136', { rows: [{ point: '排污口' }] }, exact.actor, undefined, { supervisor: false })
+  approveRoundSampling(exact.db, exact.roundId, exact.actor)
   assert.doesNotThrow(() => sampleRound(exact.db, exact.roundId, exact.actor))
 
   const legacy = prepare('ROUND-SHEET-LEGACY')
   saveRoundField(legacy.db, legacy.roundId, { sheets: { 废水: { code: 'HJ-TC-136', name: '旧版采样单', point: '排污口' } } }, legacy.actor, { supervisor: false })
+  approveRoundSampling(legacy.db, legacy.roundId, legacy.actor)
   assert.doesNotThrow(() => sampleRound(legacy.db, legacy.roundId, legacy.actor))
 })
 
@@ -200,10 +212,10 @@ test('改派和撤销立即收回旧采样员访问，并使旧确认失效', ()
   assert.throws(() => getRoundDetail(db, roundId, samplerA), (e: any) => e.errorCode === 'ROUND_FORBIDDEN')
   assert.equal((getRoundDetail(db, roundId, samplerB) as any).round.id, roundId)
 
-  cancelRound(db, roundId, '客户撤销采样', user('qc-user', '质控', ['qc']))
+  cancelRound(db, roundId, '客户撤销采样', user('planner-user', '计划', ['planner']))
   assert.equal((getRound(db, roundId) as any).assignment_status, 'revoked')
   assert.throws(() => getRoundDetail(db, roundId, samplerB), (e: any) => e.errorCode === 'ROUND_FORBIDDEN')
-  assert.equal((getRoundDetail(db, roundId, user('qc-user', '质控', ['qc'])) as any).round.id, roundId)
+  assert.equal((getRoundDetail(db, roundId, user('planner-user', '计划', ['planner'])) as any).round.id, roundId)
 })
 
 test('合同终止批量取消期次时同步撤销派工访问', () => {
@@ -214,7 +226,7 @@ test('合同终止批量取消期次时同步撤销派工访问', () => {
   assignRound(db, roundId, ['sampler-a'])
   const contractId = (getRound(db, roundId) as any).contract_id
 
-  terminateContract(db, contractId, '客户终止合同', user('registrar-user', '登记', ['registrar']))
+  terminateContract(db, contractId, '客户终止合同', user('sales-user', '业务', ['sales']))
 
   assert.equal((getRound(db, roundId) as any).assignment_status, 'revoked')
   assert.throws(() => getRoundDetail(db, roundId, samplerA), (e: any) => e.errorCode === 'ROUND_FORBIDDEN')
@@ -284,15 +296,24 @@ test('真实 HTTP API 对任务详情、表单、附件和确认执行同一对�
     createUser(db, { username: 'http-a', name: 'HTTP同名', roles: ['sampler'], password: 'secret1' })
     createUser(db, { username: 'http-b', name: 'HTTP同名', roles: ['sampler'], password: 'secret2' })
     createUser(db, { username: 'http-qc', name: 'HTTP质控', roles: ['qc'], password: 'secret3' })
-    createUser(db, { username: 'http-registrar', name: 'HTTP登记', roles: ['registrar'], password: 'secret4' })
-    createUser(db, { username: 'http-reviewer', name: 'HTTP复核', roles: ['reviewer'], password: 'secret5' })
-    createUser(db, { username: 'http-approver', name: 'HTTP审核', roles: ['approver'], password: 'secret6' })
+    createUser(db, { username: 'http-registrar', name: 'HTTP业务计划报告', roles: ['sales', 'planner', 'report_editor'], password: 'secret4' })
+    createUser(db, { username: 'http-reviewer', name: 'HTTP报告', roles: ['report_editor'], password: 'secret5' })
+    createUser(db, { username: 'http-approver', name: 'HTTP报告', roles: ['report_editor'], password: 'secret6' })
     createUser(db, { username: 'http-signer', name: 'HTTP签发', roles: ['signer'], password: 'secret7' })
-    createUser(db, { username: 'http-unrelated', name: 'HTTP无关', roles: ['tester'], password: 'secret8' })
+    createUser(db, { username: 'http-unrelated', name: 'HTTP无关', roles: ['analyst'], password: 'secret8' })
     db.prepare(`UPDATE users SET must_change_pw=0 WHERE username LIKE 'http-%'`).run()
     assignRound(db, roundA, ['http-a'])
     assignRound(db, roundB, ['http-b'])
     assignRound(db, roundC, ['http-b'])
+    const roundSheetTarget = `${roundA}::HJ-TC-136`
+    // Pre-existing QC-owned attachments let the HTTP delete checks prove object
+    // access is denied before the normal "only delete your own" rule applies.
+    db.prepare(`INSERT INTO attachments (id, entity_type, entity_id, orig_name, stored_name, who, username, at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run('QC-OWNED-ROUND-ATTACHMENT', 'round', roundA, '质控期次附件.jpg', 'qc-round.jpg', 'HTTP质控', 'http-qc', '2026-08-01T00:00:00.000Z')
+    db.prepare(`INSERT INTO attachments (id, entity_type, entity_id, orig_name, stored_name, who, username, at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run('QC-OWNED-ROUND-SHEET-ATTACHMENT', 'round_sheet', roundSheetTarget, '质控采样单附件.jpg', 'qc-sheet.jpg', 'HTTP质控', 'http-qc', '2026-08-01T00:00:00.000Z')
     const contractC = (getRound(db, roundC) as any).contract_id
     db.prepare(`INSERT INTO reports (id, round_id, contract_id, client, title, conclusion, data, status, created_at)
       VALUES ('REPORT-ROUND-A', ?, (SELECT contract_id FROM rounds WHERE id=?), '客户', '报告A', '', '[]', 'draft', '2026-08-01T00:00:00.000Z')`).run(roundA, roundA)
@@ -333,8 +354,8 @@ test('真实 HTTP API 对任务详情、表单、附件和确认执行同一对�
     })
     const tokenRegistrar = (await loginRegistrar.json() as any).token
     const reportRoleTokens = Object.fromEntries(await Promise.all([
-      ['reviewer', 'http-reviewer', 'secret5'],
-      ['approver', 'http-approver', 'secret6'],
+      ['reportEditor', 'http-reviewer', 'secret5'],
+      ['archiveEditor', 'http-approver', 'secret6'],
       ['signer', 'http-signer', 'secret7'],
       ['unrelated', 'http-unrelated', 'secret8'],
     ].map(async ([key, username, password]) => {
@@ -389,16 +410,16 @@ test('真实 HTTP API 对任务详情、表单、附件和确认执行同一对�
       fetch(base + '/api/reports/REPORT-NOT-FOUND', { headers: auth(reportRoleTokens.unrelated) }),
       fetch(base + '/api/reports/REPORT-ROUND-A/archive-index', { headers: auth(reportRoleTokens.unrelated) }),
       fetch(base + '/api/reports/REPORT-NOT-FOUND/archive-index', { headers: auth(reportRoleTokens.unrelated) }),
-      fetch(base + '/api/reports/REPORT-ROUND-A', { headers: auth(reportRoleTokens.reviewer) }),
-      fetch(base + '/api/reports/REPORT-NOT-FOUND', { headers: auth(reportRoleTokens.reviewer) }),
-      fetch(base + '/api/reports/REPORT-ROUND-A/archive-index', { headers: auth(reportRoleTokens.reviewer) }),
-      fetch(base + '/api/reports/REPORT-NOT-FOUND/archive-index', { headers: auth(reportRoleTokens.reviewer) }),
+      fetch(base + '/api/reports/REPORT-ROUND-A', { headers: auth(reportRoleTokens.reportEditor) }),
+      fetch(base + '/api/reports/REPORT-NOT-FOUND', { headers: auth(reportRoleTokens.reportEditor) }),
+      fetch(base + '/api/reports/REPORT-ROUND-A/archive-index', { headers: auth(reportRoleTokens.reportEditor) }),
+      fetch(base + '/api/reports/REPORT-NOT-FOUND/archive-index', { headers: auth(reportRoleTokens.reportEditor) }),
     ])
     assert.deepEqual(reportReadResponses.map(r => r.status), [403, 403, 403, 403, 200, 404, 200, 404],
       '无报告读取权时 detail/archive 不得泄露 ID 是否存在；合法角色才区分 200/404')
     const archiveRoleResponses = await Promise.all([
       fetch(base + '/api/reports/REPORT-ROUND-A/archive-index', { headers: auth(tokenA) }),
-      fetch(base + '/api/reports/REPORT-ROUND-A/archive-index', { headers: auth(reportRoleTokens.approver) }),
+      fetch(base + '/api/reports/REPORT-ROUND-A/archive-index', { headers: auth(reportRoleTokens.archiveEditor) }),
       fetch(base + '/api/reports/REPORT-ROUND-A/archive-index', { headers: auth(reportRoleTokens.signer) }),
     ])
     assert.deepEqual(archiveRoleResponses.map(r => r.status), [403, 200, 200])
@@ -423,8 +444,37 @@ test('真实 HTTP API 对任务详情、表单、附件和确认执行同一对�
     })
     assert.equal(validQc.status, 200)
 
+    const qcEndpoints = await Promise.all([
+      fetch(base + `/api/rounds/${roundA}/qc`, { headers: auth(tokenQc) }),
+      fetch(base + `/api/rounds/${roundA}/qc-requirements`, { headers: auth(tokenQc) }),
+    ])
+    assert.deepEqual(qcEndpoints.map(response => response.status), [200, 200], '质控仅可访问质控记录和要求')
+
+    const qcForbidden = await Promise.all([
+      fetch(base + `/api/rounds/${roundA}/assign`, {
+        method: 'POST', headers: { ...auth(tokenQc), 'content-type': 'application/json' }, body: JSON.stringify({ samplerIds: ['http-b'] }),
+      }),
+      fetch(base + `/api/rounds/${roundA}/detail`, { headers: auth(tokenQc) }),
+      fetch(base + `/api/rounds/${roundA}/sheets/HJ-TC-136`, { headers: auth(tokenQc) }),
+      fetch(base + `/api/rounds/${roundA}/sheets/HJ-TC-136`, {
+        method: 'POST', headers: { ...auth(tokenQc), 'content-type': 'application/json' }, body: JSON.stringify({ rows: [{ value: '越权' }] }),
+      }),
+      fetch(base + `/api/attachments/round/${roundA}`, { headers: auth(tokenQc) }),
+      fetch(base + `/api/attachments/round/${roundA}?name=qc-forbidden.jpg`, {
+        method: 'POST', headers: auth(tokenQc), body: Buffer.from('forbidden'),
+      }),
+      fetch(base + '/api/attachments/QC-OWNED-ROUND-ATTACHMENT/delete', { method: 'POST', headers: auth(tokenQc) }),
+      fetch(base + `/api/attachments/round_sheet/${encodeURIComponent(roundSheetTarget)}`, { headers: auth(tokenQc) }),
+      fetch(base + `/api/attachments/round_sheet/${encodeURIComponent(roundSheetTarget)}?name=qc-sheet-forbidden.jpg`, {
+        method: 'POST', headers: auth(tokenQc), body: Buffer.from('forbidden'),
+      }),
+      fetch(base + '/api/attachments/QC-OWNED-ROUND-SHEET-ATTACHMENT/delete', { method: 'POST', headers: auth(tokenQc) }),
+    ])
+    assert.deepEqual(qcForbidden.map(response => response.status), Array(10).fill(403),
+      '质控不得经通用期次、采样单或附件接口读取或修改现场数据')
+
     const reassign = await fetch(base + `/api/rounds/${roundA}/assign`, {
-      method: 'POST', headers: { ...auth(tokenQc), 'content-type': 'application/json' },
+      method: 'POST', headers: { ...auth(tokenRegistrar), 'content-type': 'application/json' },
       body: JSON.stringify({ samplerIds: ['http-b'] }),
     })
     assert.equal(reassign.status, 200)
@@ -446,12 +496,12 @@ test('真实 HTTP API 对任务详情、表单、附件和确认执行同一对�
     assert.equal(newAssigneeUpload.status, 200)
     const newAttachmentId = (await newAssigneeUpload.json() as any).id
     const newAssigneeList = await fetch(base + `/api/attachments/round/${roundA}`, { headers: auth(tokenB) })
-    assert.equal((await newAssigneeList.json() as any[]).length, 2)
+    assert.equal((await newAssigneeList.json() as any[]).length, 3)
     const newAssigneeDelete = await fetch(base + `/api/attachments/${newAttachmentId}/delete`, { method: 'POST', headers: auth(tokenB) })
     assert.equal(newAssigneeDelete.status, 200)
 
     const cancel = await fetch(base + `/api/rounds/${roundA}/cancel`, {
-      method: 'POST', headers: { ...auth(tokenQc), 'content-type': 'application/json' }, body: JSON.stringify({ reason: '撤销' }),
+      method: 'POST', headers: { ...auth(tokenRegistrar), 'content-type': 'application/json' }, body: JSON.stringify({ reason: '撤销' }),
     })
     assert.equal(cancel.status, 200)
     for (const [method, url, body] of [

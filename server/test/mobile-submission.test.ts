@@ -7,8 +7,10 @@ import { join } from 'node:path'
 import { createHash, generateKeyPairSync, sign } from 'node:crypto'
 import { openDb } from '../src/db.ts'
 import { createSubmission, finalizeSubmission, getSubmissionReceipt, recoverSubmissions } from '../src/submissions.ts'
-import { createUser, assignRound, currentOfflineTaskScope } from '../src/handlers.ts'
+import { createUser, assignRound, currentOfflineTaskScope, type User } from '../src/handlers.ts'
 import { ensureSampleSlots } from '../src/mobileSampleSlots.ts'
+import { assignProjectReviewers, setUserQualifications } from '../src/qualifications.ts'
+import { decideWorkflow, submitWorkflowRevision } from '../src/workflow.ts'
 
 const actor = { username: 'sampler-a', name: '采样员甲', roles: ['sampler'], status: 'active' } as any
 
@@ -108,6 +110,26 @@ test('restart recovery isolates one failed finalization and continues with the r
 test('server requires canonical JSON rather than trusting an equivalent client serialization',()=>{
   const db=fixture(),noncanonical=input();noncanonical.canonicalPayload=JSON.stringify(JSON.parse(noncanonical.canonicalPayload),null,2);noncanonical.payloadHash=createHash('sha256').update(noncanonical.canonicalPayload).digest('hex')
   assert.throws(()=>createSubmission(db,noncanonical,actor,{managedDeviceId:'device-a',expectedTaskVersion:'round-1@task-v1',expectedRuleVersion:'HJ-TC-136@provisional-v1'}),(error:any)=>error.code==='PAYLOAD_NOT_CANONICAL')
+})
+
+test('approved sampling does not turn an offline upload into an editable post-approval revision', () => {
+  const db = fixture()
+  const admin = { username: 'admin', name: 'admin', roles: ['admin'], status: 'active' } as User
+  const planner = { username: 'planner', name: 'planner', roles: ['planner'], status: 'active' } as User
+  const reviewer = { username: 'reviewer', name: 'reviewer', roles: [], status: 'active' } as User
+  const approver = { username: 'approver', name: 'approver', roles: [], status: 'active' } as User
+  for (const user of [reviewer, approver]) createUser(db, { username: user.username, name: user.name, roles: [], password: 'secret1' })
+  setUserQualifications(db, reviewer.username, ['sampling_review'], admin)
+  setUserQualifications(db, approver.username, ['sampling_approve'], admin)
+  assignProjectReviewers(db, 'c-1', 'sampling', reviewer.username, approver.username, planner)
+  const workflow = submitWorkflowRevision(db, {
+    contractId: 'c-1', roundId: 'round-1', scope: 'sampling', subjectType: 'round_sampling', subjectId: 'round-1', snapshot: { saved: true },
+  }, actor)
+  decideWorkflow(db, workflow.id, 1, 'review', 'approve', '', reviewer)
+  decideWorkflow(db, workflow.id, 1, 'approve', 'approve', '', approver)
+  assert.throws(() => createSubmission(db, input(), actor, {
+    managedDeviceId: 'device-a', expectedTaskVersion: 'round-1@task-v1', expectedRuleVersion: 'HJ-TC-136@provisional-v1',
+  }), /已批准内容已冻结/)
 })
 
 test('real HTTP explicitly creates a no-store pending receipt and replayed device proof is rejected', async () => {

@@ -9,6 +9,7 @@ import {
   listHandoverSheets, sendHandoverSheet, confirmHandoverSheet, createNoticeFromSheet, listTestNotices,
   maskSheetForUser, generateSamples, saveRecord, listRecords,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
 
 function freshDb() { return openDb(':memory:') }
 
@@ -32,6 +33,7 @@ test('getContract 客户没建档/没填地址时 address 为空不报错', () =
 test('listHandoverSheets / listTestNotices 带 client+project——质控页不再只有一排单号', () => {
   const db = freshDb()
   createUser(db, { username: 'licy2', name: '赵采样', roles: ['sampler'], password: 'x12345' })
+  createUser(db, { username: 'qzk', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
   const c = createContract(db, { client: '聚合验证厂', project: '例行监测', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
@@ -42,6 +44,7 @@ test('listHandoverSheets / listTestNotices 带 client+project——质控页不�
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, { username: 'licy2', name: '赵采样' })
   sampleRound(db, r.id, { name: '赵采样', username: 'licy2' })
   const sh = listHandoverSheets(db, { roundId: r.id })[0] as any
   assert.equal(sh.client, '聚合验证厂')
@@ -61,17 +64,19 @@ test('listRecords 带 contract_id+client；盲用户经 maskSheetForUser 后脱�
   acceptContract(db, c.id, '周登记')
   const made = generateSamples(db, c.id, 2026)
   const rec = saveRecord(db, { sampleId: made[0].id, code: 'HJ-TC-103', analyte: 'COD', method: '重铬酸盐法', data: { rows: [], meta: {}, reg: {}, resultSummary: { analyte: 'COD', value: 20, unit: 'mg/L' } }, submit: true })
-  const row = listRecords(db, { status: 'submitted' }).find(r => r.id === rec.id) as any
+  const row = listRecords(db).find(r => r.id === rec.id) as any
+  assert.equal(row.status, 'migration_required', '项目存量审批状态不能绕过工作流')
   assert.equal(row.contract_id, c.id)
   assert.equal(row.client, '审核聚合厂')
-  const masked = maskSheetForUser({ roles: ['tester', 'reviewer'] }, row) as any
-  assert.ok(!masked.client && !masked.contract_id, '检测员兼复核仍盲')
+  const masked = maskSheetForUser({ roles: ['analyst'] }, row) as any
+  assert.ok(!masked.client && !masked.contract_id, '纯实验室分析人员仍盲')
 })
 
 // 真盲不因此破口：纯检测员拉交接单/通知单列表，单位/项目/委托号/期次一律脱掉
 test('盲用户视角的交接单/通知单列表：client/project/contract_id/round_id 全脱', () => {
   const db = freshDb()
   createUser(db, { username: 'licy3', name: '赵采样', roles: ['sampler'], password: 'x12345' })
+  createUser(db, { username: 'qzk', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
   const c = createContract(db, { client: '盲测厂', project: '例行', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
@@ -82,12 +87,13 @@ test('盲用户视角的交接单/通知单列表：client/project/contract_id/r
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, { username: 'licy3', name: '赵采样' })
   sampleRound(db, r.id, { name: '赵采样', username: 'licy3' })
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, { name: '赵采样', username: 'licy3' })
   confirmHandoverSheet(db, sh.id, { name: '吴质控', username: 'qzk' })
   createNoticeFromSheet(db, sh.id, { name: '吴质控', username: 'qzk' })
-  const blind = { roles: ['tester'] }
+  const blind = { roles: ['analyst'] }
   const bs = maskSheetForUser(blind, listHandoverSheets(db)[0]) as any
   assert.ok(!bs.client && !bs.project && !bs.contract_id && !bs.round_id, `盲交接单还漏：${JSON.stringify({ c: bs.client, p: bs.project, id: bs.contract_id })}`)
   const bn = maskSheetForUser(blind, listTestNotices(db)[0]) as any
