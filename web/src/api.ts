@@ -87,6 +87,9 @@ export type QualityPlan = {
   requirements: QualityPlanRequirement[]; adjustments: QualityPlanRequirement[]; author_username: string; updated_at: string
 }
 export const currentUser = ref<User | null>(null)
+function refreshRecoveryIdentityBestEffort(username: string) {
+  void issueAuthenticatedRecoveryCredential(username).catch(() => undefined)
+}
 export function getToken() { return localStorage.getItem('tc_token') || '' }
 export function hasRole(...roles: string[]) {
   const u = currentUser.value
@@ -254,11 +257,11 @@ export const api = {
   // 登录 / 人员
   login: async (username: string, password: string) => {
     const { data } = await http.post<{ token: string; user: User }>('/login', { username, password })
-    localStorage.setItem('tc_token', data.token); currentUser.value = data.user; await issueAuthenticatedRecoveryCredential(data.user.username)
+    localStorage.setItem('tc_token', data.token); currentUser.value = data.user; refreshRecoveryIdentityBestEffort(data.user.username)
     return data.user
   },
   logout: async () => { try { await http.post('/logout') } catch { /* */ } finally { try { localStorage.removeItem('tc_token') } catch { /* */ }; currentUser.value = null; publishAuthLogout(); await Promise.resolve(clearRecoveryIdentity()).catch(() => undefined) } },
-  me: async () => { const { data } = await http.get<User | null>('/me'); currentUser.value = data; if (data) await issueAuthenticatedRecoveryCredential(data.username); return data },
+  me: async () => { const { data } = await http.get<User | null>('/me'); currentUser.value = data; if (data) refreshRecoveryIdentityBestEffort(data.username); return data },
   listUsers: () => http.get<User[]>('/users').then(r => r.data),
   listUserQualifications: (username: string) => http.get<UserQualification[]>(`/users/${encodeURIComponent(username)}/qualifications`).then(r => r.data),
   setUserQualifications: (username: string, qualifications: QualificationInput[]) =>
