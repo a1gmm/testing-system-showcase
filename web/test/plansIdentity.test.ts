@@ -157,10 +157,11 @@ test('收样入库失败时显示后端的具体卡点，不再静默无响应',
   expect(error).toHaveBeenCalledWith(expect.stringContaining('采样表还差王采样确认'))
 })
 
-test('现场记录保存失败时中止收样入库并显示原因', async () => {
-  mocks.saveRoundField.mockRejectedValueOnce(new Error('现场记录冲突'))
-  const confirm = vi.spyOn(ElMessageBox, 'confirm').mockResolvedValue('confirm' as any)
-  const error = vi.spyOn(ElMessage, 'error').mockImplementation(() => undefined as any)
+test('已批准采样入库不再尝试保存已冻结的现场记录', async () => {
+  mocks.saveRoundField.mockRejectedValueOnce(new Error('已批准内容已冻结'))
+  vi.spyOn(ElMessageBox, 'confirm').mockResolvedValue('confirm' as any)
+  const success = vi.spyOn(ElMessage, 'success').mockImplementation(() => undefined as any)
+  mocks.sampleRound.mockResolvedValueOnce([{ id: 'Q2026-0001' }] as any)
   const wrapper = mount(Plans, { global: { stubs } })
   await flushPromises()
   await wrapper.find('.item.ingrp').trigger('click')
@@ -168,9 +169,9 @@ test('现场记录保存失败时中止收样入库并显示原因', async () =>
   const button = wrapper.findAll('button').find(b => b.text().includes('现场采样 · 收样入库'))!
   await button.trigger('click')
   await flushPromises()
-  expect(confirm).not.toHaveBeenCalled()
-  expect(mocks.sampleRound).not.toHaveBeenCalled()
-  expect(error).toHaveBeenCalledWith(expect.stringContaining('现场记录冲突'))
+  expect(mocks.saveRoundField).not.toHaveBeenCalled()
+  expect(mocks.sampleRound).toHaveBeenCalledWith('ROUND-WEB-ID')
+  expect(success).toHaveBeenCalledWith(expect.stringContaining('已入库 1 个样品'))
 })
 
 test('有未保存采样表时中止收样入库', async () => {
@@ -199,7 +200,6 @@ test('其他期次残留未保存标记不阻断当前已定稿期次收样入�
   await button.trigger('click')
   await flushPromises()
 
-  expect(mocks.saveRoundField).toHaveBeenCalledWith('ROUND-WEB-ID', expect.any(Object))
   expect(mocks.sampleRound).toHaveBeenCalledWith('ROUND-WEB-ID')
 })
 

@@ -395,13 +395,7 @@ async function doSampleIn() {
     ElMessage.warning('还有未保存的采样表，请先保存后再收样入库')
     return
   }
-  // 收样入库前先把现场登记存了——不能让"入库"这一下把没保存的登记内容丢掉
-  try {
-    await api.saveRoundField(detail.value.round.id, field.value)
-  } catch (e: any) {
-    ElMessage.error('收样入库已中止：现场记录保存失败，' + (e?.response?.data?.error || e?.message || e))
-    return
-  }
+  // 已定稿时现场记录已冻结；入库必须使用服务端保存的批准快照，不能再写回页面数据。
   const r = detail.value.round
   const total = detail.value.planItems.reduce((s, p) => s + p.qty, 0)
   const qcNote = qcReqs.value.length ? `\n同时按质控规则自动建质控样：${qcReqText.value}` : ''
