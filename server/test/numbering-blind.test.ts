@@ -7,6 +7,7 @@ import {
   nextBlindSampleId, createSample, createContract, acceptContract, createScheme, reviewScheme,
   listRounds, assignRound, confirmRoundField, sampleRound, composeFreq, createUser,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
 
 function ymdToday(): string {
   const d = new Date()
@@ -82,6 +83,7 @@ test('sampleRound：期次收样整批走新格式且互不重号', () => {
   assignRound(db, r.id, ['赵采样', '许技术'])
   confirmRoundField(db, r.id, { name: '赵采样' })
   confirmRoundField(db, r.id, { name: '许技术' })
+  approveRoundSampling(db, r.id, { name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样' })
   const ymd = ymdToday()
   for (const s of made) {

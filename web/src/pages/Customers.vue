@@ -8,7 +8,7 @@ const loading = ref(false)
 const selected = ref<Customer | null>(null)
 const contracts = ref<Contract[]>([])
 const contractsError = ref(false)
-const canEdit = computed(() => hasRole('registrar', 'tech', 'admin'))
+const canEdit = computed(() => hasRole('sales', 'tech', 'admin'))
 
 // 客户一多就翻不动了：按名称/联系人/电话过滤
 const keyword = ref('')

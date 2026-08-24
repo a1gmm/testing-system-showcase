@@ -9,6 +9,18 @@ import {
   listTestTasks, cancelTestTask, resampleSample,
   getSample, listPendingHandovers, saveRecord, reviewRecord, generateRoundReport,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveRoundQuality } from './support/approved-quality.ts'
+import {
+  approveLaboratoryRecord,
+  laboratoryTestActors,
+  submitLaboratoryRecord,
+} from './support/approved-laboratory-record.ts'
+import {
+  approveTestReport,
+  generateTestRoundReport,
+  generateTestSampleReport,
+} from './support/approved-report.ts'
 
 const sampler = { name: '赵采样', username: 'demo_sampler' }
 const qc = { name: '吴质控', username: 'qzk' }
@@ -16,6 +28,7 @@ const qc = { name: '吴质控', username: 'qzk' }
 // 一个合同一期两只样（COD+氨氮各一行计划），走到交接单已发出
 function setup(db: any, opts: { items?: string[][] } = {}) {
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
+  createUser(db, { username: 'qzk', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
   const rows = opts.items ?? [['COD'], ['氨氮']]
   const c = createContract(db, { client: '死锁验证厂', project: '例行', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
@@ -27,20 +40,24 @@ function setup(db: any, opts: { items?: string[][] } = {}) {
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, sampler)
   const made = sampleRound(db, r.id, sampler)
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, sampler)
   return { c, r, made, sh }
 }
 
+function receive(db: any, sheetId: string, opts: { rejects?: { sampleId: string; reason: string }[] } = {}) {
+  const sheet = confirmHandoverSheet(db, sheetId, qc, opts)
+  approveRoundQuality(db, sheet.round_id, qc)
+  return sheet
+}
+
 function approveRecord(db: any, sampleId: string, code: string, analyte: string) {
-  let rec = saveRecord(db, {
+  return approveLaboratoryRecord(db, {
     sampleId, code, analyte, method: '通用法',
     data: { rows: [], meta: {}, reg: {}, resultSummary: { analyte, value: 1.2, unit: 'mg/L' } },
-    submit: true,
   })
-  rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-  return reviewRecord(db, rec.id, 'approve', '孙审核')
 }
 
 test('拒收样品：终态rejected、不再挂待签收、也不再卡整期报告', () => {
@@ -48,7 +65,7 @@ test('拒收样品：终态rejected、不再挂待签收、也不再卡整期报
   const { r, sh } = setup(db)
   const normals = sh.sample_ids
   const rejectId = normals[0]
-  confirmHandoverSheet(db, sh.id, qc, { rejects: [{ sampleId: rejectId, reason: '采样瓶破损' }] })
+  receive(db, sh.id, { rejects: [{ sampleId: rejectId, reason: '采样瓶破损' }] })
   // 终态落库
   assert.equal(getSample(db, rejectId)!.status, 'rejected')
   // 不再挂在逐条待签收清单里（原来会永远挂着）
@@ -63,7 +80,7 @@ test('拒收样品：终态rejected、不再挂待签收、也不再卡整期报
     const qs = getSample(db, sid)!
     for (const a of qs.items) approveRecord(db, qs.id, 'HJ-TC-9' + Math.abs(a.length) + sid.slice(-1), a)
   }
-  const rep = generateRoundReport(db, r.id)
+  const rep = generateTestRoundReport(db, r.id)
   assert.ok(rep.id, '报告应能生成')
   assert.ok(!(rep.data.results as any[]).some(x => x.sampleId === rejectId), '拒收样不进报告')
 })
@@ -71,7 +88,7 @@ test('拒收样品：终态rejected、不再挂待签收、也不再卡整期报
 test('任务取消：无记录可取消并留痕，有记录拦；取消后报告不再被幽灵任务卡死', () => {
   const db = openDb(':memory:')
   const { r, sh } = setup(db, { items: [['COD', '氨氮']] })   // 一只样两个项目
-  confirmHandoverSheet(db, sh.id, qc)
+  receive(db, sh.id)
   const n = createNoticeFromSheet(db, sh.id, qc)
   issueTestNotice(db, n.id, qc)
   const sid = sh.sample_ids[0]
@@ -90,7 +107,7 @@ test('任务取消：无记录可取消并留痕，有记录拦；取消后报�
     const qs = getSample(db, s2)!
     for (const a of qs.items) approveRecord(db, qs.id, 'HJ-TC-91' + s2.slice(-1) + a.length, a)
   }
-  const rep = generateRoundReport(db, r.id)
+  const rep = generateTestRoundReport(db, r.id)
   assert.ok(rep.id)
 })
 
@@ -98,7 +115,7 @@ test('补采：拒收样一键重建同期新样+新交接单，链路能走到�
   const db = openDb(':memory:')
   const { r, sh } = setup(db)
   const rejectId = sh.sample_ids[0]
-  confirmHandoverSheet(db, sh.id, qc, { rejects: [{ sampleId: rejectId, reason: '运输洒漏' }] })
+  receive(db, sh.id, { rejects: [{ sampleId: rejectId, reason: '运输洒漏' }] })
   const { sample: ns, sheet: nsh } = resampleSample(db, rejectId, sampler)
   const orig = getSample(db, rejectId)!
   assert.equal((orig as any).replaced_by, ns.id, '旧样记住替代关系')
@@ -110,7 +127,7 @@ test('补采：拒收样一键重建同期新样+新交接单，链路能走到�
   assert.throws(() => resampleSample(db, rejectId, sampler), /已补采/)
   // 新交接单能走完整链：发出→签收→出通知单（每单一张的约束不冲突）
   sendHandoverSheet(db, nsh.id, sampler)
-  confirmHandoverSheet(db, nsh.id, qc)
+  receive(db, nsh.id)
   const n2 = createNoticeFromSheet(db, nsh.id, qc)
   assert.ok(n2.groups.some(g => g.sampleId === ns.id), '新样进新通知单')
 })
@@ -132,7 +149,7 @@ test('周期合同（status一直是draft）也能终止；终止时批量了结
   assert.ok(!listDueRounds(db).some((x: any) => x.contract_id === c.id), '终止合同不再进逾期提醒')
   assert.ok(!contractAlerts(db, '2099-06-01').some((x: any) => x.id === c.id), '终止合同不再进到期提醒')
   // 终止后冻结检测线：已交接样品也不能再录数据
-  confirmHandoverSheet(db, sh.id, qc)
+  receive(db, sh.id)
   assert.throws(() => saveRecord2(db, { sampleId: sh.sample_ids[0], code: 'HJ-TC-777', analyte: 'COD', data: { rows: [], meta: {}, reg: {}, resultSummary: { analyte: 'COD', value: 1, unit: 'mg/L' } }, submit: true }), /终止/)
 })
 
@@ -185,8 +202,8 @@ test('人员授权效期：过期的授权签字人不能签发报告；未设�
   acceptContract(db, c.id, '周登记')
   const made = generateSamples(db, c.id, 2026)
   approveRecord(db, made[0].id, 'HJ-TC-103', 'COD')
-  const rep = generateReport(db, made[0].id, 2026, '编制人')
-  checkReport(db, rep.id, '审核丙')
+  const rep = generateTestSampleReport(db, made[0].id, 2026)
+  approveTestReport(db, rep.id)
   assert.throws(() => issueReport(db, rep.id, '签字甲', 'qs1'), /授权.*过期|过期.*授权/)
   const ok = issueReport(db, rep.id, '签字乙', 'qs2')
   assert.equal(ok.status, 'issued')
@@ -197,7 +214,7 @@ test('人员授权效期：过期的授权签字人不能签发报告；未设�
 test('日期交叉校验：检测日期早于采样/交接日期 → 保存成功但带警告并留痕', () => {
   const db = freshDb2()
   const { sh } = setup(db)
-  confirmHandoverSheet(db, sh.id, qc)
+  receive(db, sh.id)
   const sid = sh.sample_ids[0]
   const r = saveRecord(db, {
     sampleId: sid, code: 'HJ-TC-931', analyte: 'COD',
@@ -225,7 +242,7 @@ import {
 test('通知单撤回：未认领可撤回（任务删除、回草稿）；有人认领后不能撤', () => {
   const db = freshDb2()
   const { sh } = setup(db, { items: [['COD', '氨氮']] })
-  confirmHandoverSheet(db, sh.id, qc)
+  receive(db, sh.id)
   const n = createNoticeFromSheet(db, sh.id, qc)
   issueTestNotice(db, n.id, qc)
   const sid = sh.sample_ids[0]
@@ -253,22 +270,25 @@ test('复检标记拦定稿：recheck=1 的记录不能 approve，先取消复�
   const c = createContract(db, { client: '复检厂', plan: [{ matrix: '废水', items: ['COD'], qty: 1 }] }, 2026)
   acceptContract(db, c.id, '周登记')
   const made = generateSamples(db, c.id, 2026)
-  let rec = saveRecord(db, { sampleId: made[0].id, code: 'HJ-TC-103', analyte: 'COD', data: { rows: [], meta: {}, reg: {}, resultSummary: { analyte: 'COD', value: 99, unit: 'mg/L' } }, submit: true })
-  rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-  flagRecheck(db, rec.id, 'COD超标需复检', true, '孙审核', undefined, false)
-  assert.throws(() => reviewRecord(db, rec.id, 'approve', '孙审核'), /复检/)
+  let rec = submitLaboratoryRecord(db, {
+    sampleId: made[0].id, code: 'HJ-TC-103', analyte: 'COD',
+    data: { rows: [], meta: {}, reg: {}, resultSummary: { analyte: 'COD', value: 99, unit: 'mg/L' } },
+  })
+  db.prepare(`UPDATE records SET recheck=1,recheck_reason='COD超标需复检' WHERE id=?`).run(rec.id)
+  rec = reviewRecord(db, rec.id, 'review_pass', laboratoryTestActors.reviewer.name, '', laboratoryTestActors.reviewer.username)
+  assert.throws(() => reviewRecord(db, rec.id, 'approve', laboratoryTestActors.approver.name, '', laboratoryTestActors.approver.username), /复检/)
 })
 
 test('质控不合格联动：报告数据带 qcWarning 提示', () => {
   const db = freshDb2()
   const { r, sh } = setup(db, { items: [['COD']] })
-  confirmHandoverSheet(db, sh.id, qc)
+  receive(db, sh.id)
+  addQc(db, { qcType: '平行样', roundId: r.id, analyte: 'COD', v1: 10, v2: 20 } as any, qc)   // 相对偏差33% → 判不合格
   for (const sid of sh.sample_ids) {
     const qs = getSample(db, sid)!
     for (const a of qs.items) approveRecord(db, qs.id, 'HJ-TC-95' + sid.slice(-2), a)
   }
-  addQc(db, { qcType: '平行样', roundId: r.id, analyte: 'COD', v1: 10, v2: 20 } as any, qc)   // 相对偏差33% → 判不合格
-  const rep = genRR(db, r.id)
+  const rep = generateTestRoundReport(db, r.id)
   assert.ok((rep.data as any).qcWarning && /不合格/.test((rep.data as any).qcWarning), '报告带质控警示')
 })
 
@@ -282,7 +302,7 @@ test('加急标记：合同可标加急，到期提醒带 urgent 字段', () => 
 test('任务带完成时限：通知单 due_at 下达时落到任务上', () => {
   const db = freshDb2()
   const { sh } = setup(db, { items: [['COD']] })
-  confirmHandoverSheet(db, sh.id, qc)
+  receive(db, sh.id)
   const n = createNoticeFromSheet(db, sh.id, qc)
   updateTestNotice(db, n.id, { dueAt: '2026-08-15' }, qc)
   issueTestNotice(db, n.id, qc)
@@ -311,8 +331,8 @@ test('作废报告可做收回登记；归档索引带合同/质控/发放环', 
   acceptContract(db, c.id, '周登记')
   const made = generateSamples(db, c.id, 2026)
   approveRecord(db, made[0].id, 'HJ-TC-103', 'COD')
-  const rep = generateReport(db, made[0].id, 2026, '编制人')
-  checkReport(db, rep.id, '审核丙')
+  const rep = generateTestSampleReport(db, made[0].id, 2026)
+  approveTestReport(db, rep.id)
   issueReport(db, rep.id, '签字丙', 'qs9')
   addReportDelivery(db, rep.id, { copies: 2, method: '自取', receiver: '老王' }, qc)
   voidReport(db, rep.id, '单位名错误', { name: '签字丙', username: 'qs9' })
@@ -354,16 +374,19 @@ test('提交后本人可撤回：submitted→draft 留痕；他人不能撤', ()
   const c = createContract(db, { client: '撤回厂', plan: [{ matrix: '废水', items: ['COD'], qty: 1 }] }, 2026)
   acceptContract(db, c.id, '周登记')
   const made = generateSamples(db, c.id, 2026)
-  const rec = saveRecord(db, { sampleId: made[0].id, code: 'HJ-TC-103', analyte: 'COD', who: '张检测', whoUsername: 'zjc', data: { rows: [], meta: {}, reg: {}, resultSummary: { analyte: 'COD', value: 1, unit: 'mg/L' } }, submit: true })
-  assert.throws(() => withdrawRecord(db, rec.id, { name: '别人', username: 'br' }), /本人/)
-  const back = withdrawRecord(db, rec.id, { name: '张检测', username: 'zjc' })
+  const rec = submitLaboratoryRecord(db, {
+    sampleId: made[0].id, code: 'HJ-TC-103', analyte: 'COD',
+    data: { rows: [], meta: {}, reg: {}, resultSummary: { analyte: 'COD', value: 1, unit: 'mg/L' } },
+  })
+  assert.throws(() => withdrawRecord(db, rec.id, laboratoryTestActors.reviewer), /编制人|本人/)
+  const back = withdrawRecord(db, rec.id, laboratoryTestActors.author)
   assert.equal(back.status, 'draft')
 })
 
 test('认领错了本人可退回认领池；有记录/非本人不能退', () => {
   const db = freshDb2()
   const { sh } = setup(db, { items: [['COD']] })
-  confirmHandoverSheet(db, sh.id, qc)
+  receive(db, sh.id)
   const n = createNoticeFromSheet(db, sh.id, qc)
   issueTestNotice(db, n.id, qc)
   const t = listTestTasks(db, { sampleId: sh.sample_ids[0] })[0]
@@ -380,10 +403,10 @@ test('散样报告作废重出记 reissue_of 链', () => {
   acceptContract(db, c.id, '周登记')
   const made = generateSamples(db, c.id, 2026)
   approveRecord(db, made[0].id, 'HJ-TC-103', 'COD')
-  const r1 = generateReport(db, made[0].id, 2026, '编制人')
-  checkReport(db, r1.id, '审核丙'); issueReport(db, r1.id, '签字丁', 'qs8')
+  const r1 = generateTestSampleReport(db, made[0].id, 2026)
+  approveTestReport(db, r1.id); issueReport(db, r1.id, '签字丁', 'qs8')
   voidReport(db, r1.id, '错版', { name: '签字丁', username: 'qs8' })
-  const r2 = generateReport(db, made[0].id, 2026, '编制人')
+  const r2 = generateTestSampleReport(db, made[0].id, 2026)
   assert.equal((r2 as any).reissue_of, r1.id, '散样重出也记链')
 })
 
@@ -419,8 +442,8 @@ test('发放回执照片：挂在发放记录上，报告签发后也能传', ()
   acceptContract(db, c.id, '周登记')
   const made = generateSamples(db, c.id, 2026)
   approveRecord(db, made[0].id, 'HJ-TC-103', 'COD')
-  const rep = generateReport(db, made[0].id, 2026, '编制人')
-  checkReport(db, rep.id, '审核丙'); issueReport(db, rep.id, '签字戊', 'qs7')
+  const rep = generateTestSampleReport(db, made[0].id, 2026)
+  approveTestReport(db, rep.id); issueReport(db, rep.id, '签字戊', 'qs7')
   const d = addReportDelivery(db, rep.id, { copies: 1, method: '自取', receiver: '老王' }, qc)
   // 报告本体附件签发后冻结，但发放记录的回执必须能传
   const att = addAttachment(db, { entityType: 'delivery' as any, entityId: String(d.id), origName: '签收单.jpg', storedName: 'x.jpg' }, qc)
@@ -430,14 +453,16 @@ test('发放回执照片：挂在发放记录上，报告签发后也能传', ()
 test('报告生成时日期穿帮并入警示：记录检测日期早于采样日 → data.qcWarning 提到日期', () => {
   const db = freshDb2()
   const { r, sh } = setup(db, { items: [['COD']] })
-  confirmHandoverSheet(db, sh.id, qc)
+  receive(db, sh.id)
   for (const sid of sh.sample_ids) {
     const qs = getSample(db, sid)!
     for (const a of qs.items) {
-      let rec = saveRecord(db, { sampleId: qs.id, code: 'HJ-TC-96' + sid.slice(-2), analyte: a, data: { rows: [], meta: { 检测日期: '2000-01-01' }, reg: {}, resultSummary: { analyte: a, value: 1, unit: 'mg/L' } }, submit: true })
-      rec = reviewRecord(db, rec.id, 'review_pass', '郑复核'); reviewRecord(db, rec.id, 'approve', '孙审核')
+      approveLaboratoryRecord(db, {
+        sampleId: qs.id, code: 'HJ-TC-96' + sid.slice(-2), analyte: a,
+        data: { rows: [], meta: { 检测日期: '2000-01-01' }, reg: {}, resultSummary: { analyte: a, value: 1, unit: 'mg/L' } },
+      })
     }
   }
-  const rep = genRR(db, r.id)
+  const rep = generateTestRoundReport(db, r.id)
   assert.ok(/日期/.test((rep.data as any).qcWarning || ''), '警示应含日期穿帮')
 })

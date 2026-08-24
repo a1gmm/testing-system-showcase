@@ -6,6 +6,8 @@ import {
   generateReport, checkReport, issueReport, saveRecord, reviewRecord,
   projectStats,
 } from '../src/handlers.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
+import { approveTestReport, generateTestSampleReport, issueTestReport } from './support/approved-report.ts'
 
 function freshDb() { return openDb(':memory:') }
 
@@ -18,15 +20,16 @@ test('projectStats.reportStatus：无报告→none，编制中→draft，审核�
   assert.equal(projectStats(db, c.id).reportStatus, 'none')
 
   // 录入→提交→复核→审核，让样品可出报告
-  let rec = saveRecord(db, { sampleId: s.id, code: 'HJ-TC-003', analyte: '锌', method: '原子吸收', data: { rows: [{ id: 'F-1', a: 0.06 }], resultSummary: { analyte: '锌', value: 1.2, unit: 'mg/L' } }, submit: true })
-  rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-  rec = reviewRecord(db, rec.id, 'approve', '孙审核')
+  approveLaboratoryRecord(db, {
+    sampleId: s.id, code: 'HJ-TC-003', analyte: '锌', method: '原子吸收',
+    data: { rows: [{ id: 'F-1', a: 0.06 }], resultSummary: { analyte: '锌', value: 1.2, unit: 'mg/L' } },
+  })
 
-  const rep = generateReport(db, s.id)
+  const rep = generateTestSampleReport(db, s.id)
   assert.equal(projectStats(db, c.id).reportStatus, 'draft')   // 已生成，编制中
-  checkReport(db, rep.id, '孙审核')
+  approveTestReport(db, rep.id)
   assert.equal(projectStats(db, c.id).reportStatus, 'checked')  // 待签发
-  issueReport(db, rep.id, '林工程师')
+  issueTestReport(db, rep.id)
   assert.equal(projectStats(db, c.id).reportStatus, 'issued')   // 已签发
 })
 

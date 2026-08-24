@@ -7,6 +7,7 @@ import {
   qcRequirements, solidWasteMinPortions, roundQcRequirements,
   saveRoundField, listHandovers, createUser, createSample,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
 
 function freshDb() {
   const db = openDb(':memory:')
@@ -53,6 +54,9 @@ test('状态机：未派工点「采不成」报错；派工后可以', () => {
 test('状态机：未派工不能收样入库；派工后可以', () => {
   const db = freshDb()
   const r = makeRound(db, [{ matrix: '废水', items: ['锌'], qty: 1 }])
+  assignRound(db, r.id, ['赵采样'])
+  approveRoundSampling(db, r.id, { username: 'demo_sampler', name: '赵采样' })
+  db.prepare(`UPDATE rounds SET sampler=NULL,sampler_ids='[]',assignment_status='unassigned' WHERE id=?`).run(r.id)
   assert.throws(() => sampleRound(db, r.id), /派工/)
   assignRound(db, r.id, ['赵采样', '王采样'])
   const made = sampleRound(db, r.id)
@@ -115,6 +119,7 @@ test('有组织与无组织废气真实收样均生成 Q 编号质控样和采�
     const r = makeRound(db, [{ matrix, items: ['颗粒物'], qty: 1 }])
     assignRound(db, r.id, ['赵采样'])
     confirmRoundField(db, r.id, { name: '赵采样', username: 'demo_sampler' })
+    approveRoundSampling(db, r.id, { username: 'demo_sampler', name: '赵采样' })
     const made = sampleRound(db, r.id, { name: '赵采样', username: 'demo_sampler' })
     assert.ok(made.some(s => !s.qc_type && s.matrix === matrix))
     assert.ok(made.some(s => s.qc_type === '全程序空白' && s.matrix === matrix))
@@ -165,14 +170,24 @@ test('期次详情保留计划点位，供采样表初始行预填', () => {
 // ============ S4-4 入库自动建质控样 + S4-3 自动交接记录 ============
 
 test('收样入库：自动建质控样（带qc_type挂同期次）+ 每个样品自动生成采样交接', () => {
-  const db = freshDb()
-  const r = makeRound(db, [{ matrix: '废水', items: ['锌', 'COD'], qty: 3 }])
-  assignRound(db, r.id, ['赵采样', '王采样'])
+  const prepare = () => {
+    const db = freshDb()
+    const r = makeRound(db, [{ matrix: '废水', items: ['锌', 'COD'], qty: 3 }])
+    assignRound(db, r.id, ['赵采样', '王采样'])
+    return { db, r }
+  }
   // §8.3 两人采样：两名采样员都确认采样表后才能入库
-  assert.throws(() => sampleRound(db, r.id, { name: '赵采样' }), /确认/)
+  const none = prepare()
+  approveRoundSampling(none.db, none.r.id, { name: '赵采样' })
+  assert.throws(() => sampleRound(none.db, none.r.id, { name: '赵采样' }), /确认/)
+  const one = prepare()
+  confirmRoundField(one.db, one.r.id, { name: '赵采样' })
+  approveRoundSampling(one.db, one.r.id, { name: '赵采样' })
+  assert.throws(() => sampleRound(one.db, one.r.id, { name: '赵采样' }), /王采样.*确认/)
+  const { db, r } = prepare()
   confirmRoundField(db, r.id, { name: '赵采样' })
-  assert.throws(() => sampleRound(db, r.id, { name: '赵采样' }), /王采样.*确认/)
   confirmRoundField(db, r.id, { name: '王采样' })
+  approveRoundSampling(db, r.id, { name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样' })
   const normal = made.filter((s: any) => !s.qc_type)
   const qcs = made.filter((s: any) => s.qc_type)
@@ -192,22 +207,24 @@ test('收样入库：自动建质控样（带qc_type挂同期次）+ 每个样�
 // ============ S4-5 噪声专项 ============
 
 test('噪声：不录校准值不能入库；偏差>0.5dB拦截；风速≥5m/s拦截；合规则放行', () => {
-  const db = freshDb()
-  const mk = () => {
+  const mk = (field?: any) => {
+    const db = freshDb()
     const r = makeRound(db, [{ matrix: '噪声', items: ['厂界噪声'], qty: 2 }])
     assignRound(db, r.id, ['赵采样', '王采样'])
-    return r
+    if (field) saveRoundField(db, r.id, field)
+    approveRoundSampling(db, r.id, { name: '赵采样' })
+    return { db, r }
   }
-  const r1 = mk()
-  assert.throws(() => sampleRound(db, r1.id), /校准/)
-  saveRoundField(db, r1.id, { calBefore: 93.8, calAfter: 94.5, weather: '晴', wind: 2 })
-  assert.throws(() => sampleRound(db, r1.id), /0\.5/)
-  saveRoundField(db, r1.id, { calBefore: 93.8, calAfter: 94.0, weather: '', wind: 2 })
-  assert.throws(() => sampleRound(db, r1.id), /气象|天气/)
-  saveRoundField(db, r1.id, { calBefore: 93.8, calAfter: 94.0, weather: '晴', wind: 6 })
-  assert.throws(() => sampleRound(db, r1.id), /风速/)
-  saveRoundField(db, r1.id, { calBefore: 93.8, calAfter: 94.0, weather: '晴', wind: 2 })
-  const made = sampleRound(db, r1.id)
+  const missing = mk()
+  assert.throws(() => sampleRound(missing.db, missing.r.id), /校准/)
+  const deviation = mk({ calBefore: 93.8, calAfter: 94.5, weather: '晴', wind: 2 })
+  assert.throws(() => sampleRound(deviation.db, deviation.r.id), /0\.5/)
+  const weather = mk({ calBefore: 93.8, calAfter: 94.0, weather: '', wind: 2 })
+  assert.throws(() => sampleRound(weather.db, weather.r.id), /气象|天气/)
+  const wind = mk({ calBefore: 93.8, calAfter: 94.0, weather: '晴', wind: 6 })
+  assert.throws(() => sampleRound(wind.db, wind.r.id), /风速/)
+  const valid = mk({ calBefore: 93.8, calAfter: 94.0, weather: '晴', wind: 2 })
+  const made = sampleRound(valid.db, valid.r.id)
   assert.equal(made.length, 2)                       // 噪声不建质控样
   assert.ok(!made.some((s: any) => s.qc_type))
 })

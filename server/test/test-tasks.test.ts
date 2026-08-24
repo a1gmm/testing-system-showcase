@@ -3,15 +3,20 @@ import { test } from 'node:test'
 import assert from 'node:assert'
 import { openDb } from '../src/db.ts'
 import {
-  createSample, addHandover, confirmHandover,
+  createSample, createContract, createUser, addHandover, confirmHandover,
   assignTestTasks, listTestTasks, saveRecord,
 } from '../src/handlers.ts'
+import { approveRoundQuality } from './support/approved-quality.ts'
 
 const licy = { name: '赵采样', username: 'demo_sampler' }
 const qc = { name: '吴质控', username: 'demo_qc' }
 
 function fieldSample(db: any) {
   // 模拟期次采回的样品（round_id 非空 → 走主流程强校验）
+  createUser(db, { username: 'demo_qc', name: '吴质控', roles: ['qc'], password: 'secret1' })
+  const contract = createContract(db, { client: '闸门厂', plan: [{ matrix: '废水', items: ['COD', '氨氮'], qty: 1 }] }, 2026)
+  db.prepare(`INSERT INTO rounds (id,contract_id,round_no,due_date,items,status,created_at) VALUES ('R-TEST',?,1,'2026-08-17',?,'done','2026-08-17')`)
+    .run(contract.id, JSON.stringify([{ matrix: '废水', items: ['COD', '氨氮'], qty: 1 }]))
   const s = createSample(db, { client: '闸门厂', matrix: '废水', items: ['COD', '氨氮'] })
   db.prepare(`UPDATE samples SET round_id='R-TEST', source='field' WHERE id=?`).run(s.id)
   return { ...s, round_id: 'R-TEST', source: 'field' }
@@ -32,6 +37,7 @@ test('派任务：未确认签收不能派；签收后可派；项目必须在�
   const h = addHandover(db, s.id, { action: '采样交接' }, licy)
   assert.throws(() => assignTestTasks(db, s.id, [{ analyte: 'COD', assignee: '陈检测' }], qc), /签收/)
   confirmHandover(db, h.id, qc)
+  approveRoundQuality(db, 'R-TEST', qc)
   assert.throws(() => assignTestTasks(db, s.id, [{ analyte: '总磷', assignee: '陈检测' }], qc), /不在该样品/)
   const tasks = assignTestTasks(db, s.id, [{ analyte: 'COD', assignee: '陈检测' }, { analyte: '氨氮', assignee: '王检测' }], qc)
   assert.equal(tasks.length, 2)
@@ -41,7 +47,7 @@ test('派任务：未确认签收不能派；签收后可派；项目必须在�
   assert.equal(re.length, 2)
 })
 
-test('录入闸：未签收不能录；没派任务的期次样品不能录；派了任务只有本人能录（tech 兜底）', () => {
+test('录入闸：未签收不能录；没派任务的期次样品不能录；派了任务只有本人能录（tech 无旁路）', () => {
   const db = openDb(':memory:')
   const s = fieldSample(db)
   const h = addHandover(db, s.id, { action: '采样交接' }, licy)
@@ -49,6 +55,7 @@ test('录入闸：未签收不能录；没派任务的期次样品不能录；�
   // 未签收
   assert.throws(() => saveRecord(db, { sampleId: s.id, code: 'HJ-TC-001', data: {}, who: '陈检测' }, guard), /签收/)
   confirmHandover(db, h.id, qc)
+  approveRoundQuality(db, 'R-TEST', qc)
   // 签收了但没派任务（期次样品强制派活）
   assert.throws(() => saveRecord(db, { sampleId: s.id, code: 'HJ-TC-001', data: {}, who: '陈检测' }, guard), /派检测任务/)
   assignTestTasks(db, s.id, [{ analyte: 'COD', assignee: '陈检测' }], qc)
@@ -57,9 +64,8 @@ test('录入闸：未签收不能录；没派任务的期次样品不能录；�
   // 本人能录
   const rec = saveRecord(db, { sampleId: s.id, code: 'HJ-TC-001', analyte: 'COD', data: { rows: [] }, who: '陈检测' }, guard)
   assert.equal(rec.author, '陈检测')
-  // tech 兜底能录
-  const rec2 = saveRecord(db, { sampleId: s.id, code: 'HJ-TC-003', analyte: '氨氮', data: {}, who: '许技术' }, { supervisor: true })
-  assert.ok(rec2.id)
+  // tech 也必须是任务受派的分析员，不能靠 supervisor 绕过
+  assert.throws(() => saveRecord(db, { sampleId: s.id, code: 'HJ-TC-003', analyte: '氨氮', data: {}, who: '许技术' }, { supervisor: true }), /没有派给你/)
 })
 
 test('自送样：无交接线，不强制派任务（散样通道不被卡死）', () => {
@@ -75,9 +81,36 @@ test('任务列表带出记录进度', () => {
   const s = fieldSample(db)
   const h = addHandover(db, s.id, { action: '采样交接' }, licy)
   confirmHandover(db, h.id, qc)
+  approveRoundQuality(db, 'R-TEST', qc)
   assignTestTasks(db, s.id, [{ analyte: 'COD', assignee: '陈检测' }], qc)
   saveRecord(db, { sampleId: s.id, code: 'HJ-TC-001', analyte: 'COD', data: {}, who: '陈检测' }, { supervisor: false })
   const mine = listTestTasks(db, { assignee: '陈检测' })
   assert.equal(mine.length, 1)
   assert.equal(mine[0].record_status, 'draft')
+})
+
+test('项目存量任务进度显示待迁移，真正无范围的存量任务保留旧状态', () => {
+  const db = openDb(':memory:')
+  const contract = createContract(db, { client: '任务迁移厂' }, 2026)
+  const projectSample = createSample(db, {
+    client: contract.client, matrix: '废水', items: ['COD'], contractId: contract.id,
+  })
+  db.prepare(`UPDATE samples SET source='self' WHERE id=?`).run(projectSample.id)
+  const projectRecord = saveRecord(db, {
+    sampleId: projectSample.id, code: 'HJ-TC-903', analyte: 'COD', data: {}, submit: true,
+  })
+  db.prepare(`UPDATE records SET status='approved' WHERE id=?`).run(projectRecord.id)
+  db.prepare(`INSERT INTO test_tasks(sample_id,analyte,assignee,assigned_by,assigned_at) VALUES(?,?,?,?,?)`)
+    .run(projectSample.id, 'COD', '项目分析员', '质控员', '2026-08-22T00:00:00.000Z')
+
+  const unscopedSample = createSample(db, { client: '散样客户', matrix: '废水', items: ['COD'] })
+  const unscopedRecord = saveRecord(db, {
+    sampleId: unscopedSample.id, code: 'HJ-TC-904', analyte: 'COD', data: {}, submit: true,
+  })
+  db.prepare(`UPDATE records SET status='approved' WHERE id=?`).run(unscopedRecord.id)
+  db.prepare(`INSERT INTO test_tasks(sample_id,analyte,assignee,assigned_by,assigned_at) VALUES(?,?,?,?,?)`)
+    .run(unscopedSample.id, 'COD', '散样分析员', '质控员', '2026-08-22T00:00:00.000Z')
+
+  assert.equal(listTestTasks(db, { sampleId: projectSample.id })[0].record_status, 'migration_required')
+  assert.equal(listTestTasks(db, { sampleId: unscopedSample.id })[0].record_status, 'approved')
 })

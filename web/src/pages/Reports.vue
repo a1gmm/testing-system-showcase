@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import RecordAttachments from '../components/RecordAttachments.vue'
-import { api, currentUser, type Report, type RecordRow } from '../api'
+import { api, currentUser, type Report, type RecordRow, type ArchivePackage, type ReportBatch, type WorkflowAssignment, type WorkflowView, type WorkflowDecisionLevel } from '../api'
 import { can } from '../permissions'
 import { settleAll } from '../utils/settle'
+import StageQueueNav from '../components/StageQueueNav.vue'
+import WorkflowReviewPanel from '../components/WorkflowReviewPanel.vue'
+import ProjectStageProgress from '../components/ProjectStageProgress.vue'
+import type { StageQueueKey } from '../workflow/businessStages'
+import { confirmedArchiveScopesForRound, selectConfirmedArchive } from '../workflow/archiveSelection'
+import { matchesActorWorkflowQueue } from '../workflow/actorQueueMatching'
+
+const route = useRoute()
+const activeQueue = computed<StageQueueKey>(() => ['write', 'review', 'approve', 'rejected', 'final'].includes(String(route.query.queue)) ? route.query.queue as StageQueueKey : 'write')
 
 const reports = ref<Report[]>([])
 const approved = ref<RecordRow[]>([])
@@ -13,6 +23,15 @@ const samplesAll = ref<import('../api').Sample[]>([])
 const selected = ref<Report | null>(null)
 const loading = ref(false)
 const keyword = ref('')
+const archivePackages = ref<ArchivePackage[]>([])
+const reportBatches = ref<ReportBatch[]>([])
+const workflowByReport = ref<Record<string, WorkflowView | null>>({})
+const assignmentsByContract = ref<Record<string, WorkflowAssignment[]>>({})
+const reportBusy = ref(false)
+const reportError = ref<{ code: string; message: string }>({ code: '', message: '' })
+const archiveScopesForRound = (round: import('../api').DueRound) => confirmedArchiveScopesForRound(
+  archivePackages.value, reportBatches.value, rounds.value, round,
+)
 // 报告按合同分组（无合同的散样归"散样/自送样"一组），组内保持原倒序
 const reportGroups = computed(() => {
   const m = new Map<string, { key: string; client: string; items: Report[] }>()
@@ -24,6 +43,12 @@ const reportGroups = computed(() => {
   return [...m.values()]
 })
 const shownReports = computed(() => reports.value.filter(r => {
+  const workflow = workflowByReport.value[r.id]
+  const assignment = r.contract_id ? assignmentsByContract.value[r.contract_id]?.find(item => item.scope === 'report') : null
+  const me = currentUser.value?.username
+  const queueMatch = matchesActorWorkflowQueue(activeQueue.value, workflow, assignment, me || '', [r.author_username || ''])
+    || (activeQueue.value === 'final' && r.status === 'issued')
+  if (!queueMatch) return false
   if (!keyword.value) return true
   const k = keyword.value.toLowerCase()
   // 样号反查（批次二修补）：期次报告 sample_id 为空，关键词也要能命中报告内每行结果的样品编号
@@ -34,28 +59,46 @@ const shownReports = computed(() => reports.value.filter(r => {
 // 一期一报告：该期全部样品都审完、且这期还没出过（未作废的）报告
 const eligibleRounds = computed(() => {
   const has = new Set(reports.value.filter(r => !r.voided).map(r => r.round_id).filter(Boolean))
-  return rounds.value.filter(r => r.status === 'done' && (r.sample_count || 0) > 0 && r.rollup === 'approved' && !has.has(r.id))
+  return rounds.value
+    .filter(r => r.status === 'done' && (r.sample_count || 0) > 0 && r.rollup === 'approved' && !has.has(r.id))
+    .flatMap(round => archiveScopesForRound(round).map(scope => ({ ...scope, round })))
+})
+const roundsAwaitingArchive = computed(() => {
+  const has = new Set(reports.value.filter(r => !r.voided).map(r => r.round_id).filter(Boolean))
+  return rounds.value.filter(r => r.status === 'done' && (r.sample_count || 0) > 0 && r.rollup === 'approved' && !has.has(r.id) && !archiveScopesForRound(r).length)
 })
 // 合同总报告：该合同所有期都完成且都出过期报告、还没出过总报告
 const eligibleTotals = computed(() => {
-  const byContract = new Map<string, { total: number; done: number; reported: number; client: string }>()
-  for (const r of rounds.value) {
-    if (!r.contract_id) continue
-    const e = byContract.get(r.contract_id) || { total: 0, done: 0, reported: 0, client: r.client || '' }
-    e.total++; if (r.status === 'done') e.done++
-    if (reports.value.some(rp => rp.round_id === r.id && !rp.voided)) e.reported++
-    byContract.set(r.contract_id, e)
+  const candidates: { contractId: string; client: string; rounds: number; scopeLabel: string; archive: ArchivePackage }[] = []
+  const contractIds = [...new Set(rounds.value.map(round => round.contract_id).filter(Boolean))]
+  for (const contractId of contractIds) {
+    const projectRounds = rounds.value.filter(round => round.contract_id === contractId && round.status !== 'cancelled')
+    const scopes = [
+      { reportBatchId: null as string | null, roundIds: projectRounds.map(round => round.id), scopeLabel: '整项目归档' },
+      ...reportBatches.value.filter(batch => batch.contract_id === contractId).map(batch => ({
+        reportBatchId: batch.id, roundIds: batch.round_ids, scopeLabel: `报告批次：${batch.name}`,
+      })),
+    ]
+    for (const scope of scopes) {
+      const scopeRounds = scope.roundIds.map(id => rounds.value.find(round => round.id === id))
+        .filter((round): round is import('../api').DueRound => !!round && round.status !== 'cancelled')
+      const archive = selectConfirmedArchive(archivePackages.value, { contractId, reportBatchId: scope.reportBatchId, roundIds: scope.roundIds })
+      if (!archive || !scopeRounds.length || scopeRounds.some(round => round.status !== 'done')) continue
+      const childReports = scopeRounds.map(round => reports.value.find(report => report.round_id === round.id && !report.voided))
+      if (childReports.some(report => !report || report.archive_package_id !== archive.id)) continue
+      const alreadyGenerated = reports.value.some(report => !report.round_id && !report.sample_id && !report.voided
+        && report.contract_id === contractId && (report.data?.reportBatchId ?? null) === scope.reportBatchId)
+      if (alreadyGenerated) continue
+      candidates.push({ contractId, client: scopeRounds[0]?.client || '', rounds: scopeRounds.length, scopeLabel: scope.scopeLabel, archive })
+    }
   }
-  const hasTotal = new Set(reports.value.filter(r => !r.round_id && !r.sample_id && !r.voided).map(r => r.contract_id))
-  return [...byContract.entries()]
-    .filter(([cid, e]) => e.total > 1 && e.done === e.total && e.reported === e.total && !hasTotal.has(cid))
-    .map(([cid, e]) => ({ contractId: cid, client: e.client, rounds: e.total }))
+  return candidates
 })
-async function genTotal(contractId: string) {
+async function genTotal(candidate: (typeof eligibleTotals.value)[number]) {
   if (genBusy.value) return
   genBusy.value = true
   try {
-    const rep = await api.generateContractReport(contractId)
+    const rep = await api.generateContractReport(candidate.contractId, candidate.archive.id)
     ElMessage.success('已生成合同总报告 ' + rep.id)
     await refresh(); selected.value = rep
   } catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
@@ -111,7 +154,12 @@ const eligible = computed(() => {
     e.n++; m.set(r.sample_id, e)
   }
   const done = new Set(reports.value.map(r => r.sample_id))
-  return [...m.values()].filter(e => !done.has(e.sampleId))
+  return [...m.values()].filter(e => {
+    if (done.has(e.sampleId)) return false
+    const sample = samplesAll.value.find(item => item.id === e.sampleId)
+    const round = sample?.round_id ? rounds.value.find(item => item.id === sample.round_id) : null
+    return !!round && archiveScopesForRound(round).length > 0
+  })
 })
 
 async function refresh() {
@@ -122,18 +170,32 @@ async function refresh() {
     { p: api.listRecordsByStatus('approved'), fallback: [] as RecordRow[] },
     { p: api.listAllRounds(), fallback: [] as import('../api').DueRound[] },
     { p: api.listSamples(), fallback: [] as import('../api').Sample[] },
+    { p: can('report_generate') ? api.listArchivePackages() : Promise.resolve([] as ArchivePackage[]), fallback: [] as ArchivePackage[] },
+    { p: can('report_generate') ? api.listReportBatches() : Promise.resolve([] as ReportBatch[]), fallback: [] as ReportBatch[] },
   ] as const)
-  ;[reports.value, approved.value, rounds.value, samplesAll.value] = r.values
+  ;[reports.value, approved.value, rounds.value, samplesAll.value, archivePackages.value, reportBatches.value] = r.values
+  await loadReportContext()
   if (selected.value) selected.value = reports.value.find(r2 => r2.id === selected.value!.id) || selected.value
   if (!r.ok) ElMessage.warning(`有 ${r.failed} 项数据没加载出来，「可出报告」清单可能不全`)
   loading.value = false
 }
+async function loadReportContext() {
+  workflowByReport.value = Object.fromEntries(await Promise.all(reports.value.map(async report => {
+    try { return [report.id, await api.getWorkflow('report', report.id)] as const }
+    catch { return [report.id, null] as const }
+  })))
+  const contractIds = [...new Set(reports.value.map(report => report.contract_id).filter((id): id is string => !!id))]
+  assignmentsByContract.value = Object.fromEntries(await Promise.all(contractIds.map(async contractId => {
+    try { return [contractId, await api.listWorkflowAssignments(contractId)] as const }
+    catch { return [contractId, []] as const }
+  })))
+}
 const genBusy = ref(false)   // 防双击：后端也有查重，双保险
-async function genRound(roundId: string) {
+async function genRound(roundId: string, archivePackageId: string) {
   if (genBusy.value) return
   genBusy.value = true
   try {
-    const rep = await api.generateRoundReport(roundId)
+    const rep = await api.generateRoundReport(roundId, archivePackageId)
     ElMessage.success('已生成本期报告 ' + rep.id)
     await refresh(); selected.value = rep
   } catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
@@ -143,7 +205,11 @@ async function gen(sampleId: string) {
   if (genBusy.value) return
   genBusy.value = true
   try {
-    const rep = await api.generateReport(sampleId)
+    const sample = samplesAll.value.find(item => item.id === sampleId)
+    const round = sample?.round_id ? rounds.value.find(item => item.id === sample.round_id) : null
+    const archivePackageId = round ? archiveScopesForRound(round)[0]?.archive.id : undefined
+    if (!archivePackageId) throw new Error('请先确认当前项目的 1–8 档案归档版本')
+    const rep = await api.generateReport(sampleId, archivePackageId)
     ElMessage.success('已生成报告 ' + rep.id)
     await refresh(); selected.value = rep
   } catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
@@ -158,12 +224,22 @@ const canGen = () => can('report_generate')
 const canEdit = () => can('report_update')
 const canCheck = () => can('report_check')
 const canSign = () => can('report_issue')
-async function doCheck() {
-  if (!selected.value) return
-  const ok = await ElMessageBox.confirm(`确认审核通过报告 ${selected.value.id}？审核后交授权签字人签发，签发前不再可改。`, '报告审核', { confirmButtonText: '审核通过', cancelButtonText: '取消', type: 'warning' }).catch(() => null)
-  if (!ok) return
-  try { selected.value = await api.checkReport(selected.value.id); ElMessage.success('报告已审核'); await refresh() }
-  catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
+const selectedReportWorkflow = computed(() => selected.value ? workflowByReport.value[selected.value.id] || null : null)
+const selectedReportAssignment = computed(() => selected.value?.contract_id ? assignmentsByContract.value[selected.value.contract_id]?.find(item => item.scope === 'report') || null : null)
+async function refreshSelectedReport() { await refresh() }
+async function submitReportReview() {
+  if (!selected.value || reportBusy.value) return
+  reportBusy.value = true
+  try { await api.submitWorkflow('report', selected.value.id); await refresh() }
+  catch (error: any) { reportError.value = { code: error?.response?.data?.error_code || '', message: error?.response?.data?.error || error?.message || '提交失败' } }
+  finally { reportBusy.value = false }
+}
+async function decideReportReview(input: { revision: number; level: WorkflowDecisionLevel; decision: 'approve' | 'reject'; comment: string }) {
+  if (!selectedReportWorkflow.value || reportBusy.value) return
+  reportBusy.value = true
+  try { await api.decideWorkflow(selectedReportWorkflow.value.id, input); await refresh() }
+  catch (error: any) { reportError.value = { code: error?.response?.data?.error_code || '', message: error?.response?.data?.error || error?.message || '审批失败' } }
+  finally { reportBusy.value = false }
 }
 // §8.1：已审核的报告不能直接改内容——发现问题退回编制（带原因留痕）
 async function doReject() {
@@ -226,39 +302,45 @@ onMounted(refresh)
   <div class="pagewrap wide rpage">
     <div class="phead">
       <div>
-        <h1 class="page">报告签发</h1>
-        <p class="sub">一期一报告 · 编制 → 审核 → 授权签字人签发盖章</p>
+        <h1 class="page">⑩ 出具报告</h1>
+        <p class="sub">引用当前已确认归档版本 · 编制 → 复核 → 审核 → 授权签字人签发</p>
       </div>
       <span class="hcount num">共 {{ reports.length }} 份</span>
     </div>
+    <StageQueueNav :active="activeQueue" />
 
     <div class="split">
       <div class="left">
-        <section class="sec-elig">
+        <section v-if="activeQueue === 'write'" class="sec-elig">
           <div class="sechead">
             <h2>可出报告</h2>
             <span v-if="eligibleRounds.length + eligible.length" class="seccount num">{{ eligibleRounds.length + eligible.length }} 项</span>
           </div>
           <div class="card elig">
             <!-- 一期一报告（主路） -->
-            <div v-for="r in eligibleRounds" :key="r.id" class="erow">
-              <span class="ername">{{ r.client }} <b>第{{ r.round_no }}期</b></span>
-              <span class="en"><span class="num">{{ r.sample_count }}</span> 样品已全审核</span>
-              <el-button size="small" type="primary" :disabled="!canGen()" :title="canGen() ? '' : '报告编制需要登记员/技术负责人权限'" @click="genRound(r.id)">出本期报告</el-button>
+            <div v-for="candidate in eligibleRounds" :key="`${candidate.round.id}:${candidate.archive.id}`" class="erow">
+              <span class="ername">{{ candidate.round.client }} <b>第{{ candidate.round.round_no }}期</b></span>
+              <span class="en"><span class="num">{{ candidate.round.sample_count }}</span> 样品已全审核 · {{ candidate.scopeLabel }}</span>
+              <el-button size="small" type="primary" :disabled="!canGen()" :title="canGen() ? '' : '报告编制需要报告编制人员/技术负责人权限'" @click="genRound(candidate.round.id, candidate.archive.id)">出本期报告</el-button>
             </div>
             <!-- 合同总报告（项目结束按合同汇总一份，决策17） -->
-            <div v-for="t in eligibleTotals" :key="t.contractId" class="erow">
+            <div v-for="t in eligibleTotals" :key="`${t.contractId}:${t.archive.id}`" class="erow">
               <span class="ername">{{ t.client }} <b>总报告</b></span>
-              <span class="en"><span class="num">{{ t.rounds }}</span> 期已全部出报告</span>
-              <el-button size="small" type="primary" plain :disabled="!canGen()" @click="genTotal(t.contractId)">出总报告</el-button>
+              <span class="en"><span class="num">{{ t.rounds }}</span> 期已全部出报告 · {{ t.scopeLabel }}</span>
+              <el-button size="small" type="primary" plain :disabled="!canGen()" @click="genTotal(t)">出总报告</el-button>
             </div>
             <!-- 散样单报告 -->
             <div v-for="e in eligible" :key="e.sampleId" class="erow">
               <span class="mono ername">{{ e.sampleId }}</span>
               <span class="en"><span class="num">{{ e.n }}</span> 项已审核</span>
-              <el-button size="small" :disabled="!canGen()" :title="canGen() ? '' : '报告编制需要登记员/技术负责人权限'" @click="gen(e.sampleId)">出单样报告</el-button>
+              <el-button size="small" :disabled="!canGen()" :title="canGen() ? '' : '报告编制需要报告编制人员/技术负责人权限'" @click="gen(e.sampleId)">出单样报告</el-button>
             </div>
-            <div v-if="!eligibleRounds.length && !eligible.length" class="ehint">暂无。某一期的<b>全部样品</b>走完三级审核后，这里会出现「出本期报告」。</div>
+            <div v-for="r in roundsAwaitingArchive" :key="`blocked-${r.id}`" class="erow blocked">
+              <span class="ername">{{ r.client }} <b>第{{ r.round_no }}期</b></span>
+              <span class="en">第 1–8 步尚未确认归档，暂不能编制报告</span>
+              <router-link class="archive-link" to="/archive-packages">去归档队列</router-link>
+            </div>
+            <div v-if="!eligibleRounds.length && !eligible.length" class="ehint">暂无。某一期的<b>全部样品</b>完成实验室专业批准并确认精确归档范围后，这里会出现「出本期报告」。</div>
           </div>
         </section>
 
@@ -300,7 +382,6 @@ onMounted(refresh)
               <el-button @click="printReport"><el-icon><Printer /></el-icon><span class="btxt">打印 / 导出 PDF</span></el-button>
               <template v-if="selected.status === 'draft'">
                 <el-button v-if="canGen()" size="small" :loading="delBusy" :disabled="delBusy" @click="doDelete">删除草稿</el-button>
-                <el-button type="primary" :disabled="!canCheck()" :title="canCheck() ? '' : '需要复核员/审核员/技术负责人权限'" @click="doCheck">{{ canCheck() ? '报告审核 →' : '待审核' }}</el-button>
               </template>
               <template v-else-if="selected.status === 'checked'">
                 <span class="pill accent"><span class="sdot accent"></span>已审核 · {{ selected.checker }}</span>
@@ -320,6 +401,12 @@ onMounted(refresh)
               <el-button size="small" text type="primary" @click="showArchive">归档清单</el-button>
             </div>
           </div>
+          <ProjectStageProgress current-stage="report" :completed-stages="['contract','contract-review','scheme','dispatch','sampling','handover','quality','laboratory','archive']" />
+          <WorkflowReviewPanel v-if="selected.status !== 'issued' && !selected.voided" :workflow="selectedReportWorkflow" :assignment="selectedReportAssignment"
+            :actor-username="currentUser?.username || ''" :author-username="selectedReportWorkflow?.created_by || selected.author_username || ''"
+            :qualification-problem="selectedReportAssignment ? '' : '本项目尚未指定报告复核人和审核人，暂不能提交复核'"
+            :busy="reportBusy" :error-code="reportError.code" :error-message="reportError.message"
+            @submit="submitReportReview" @decide="decideReportReview" @refresh="refreshSelectedReport" />
           <!-- 发放登记记录（签发后） -->
           <div v-if="deliveries.length" class="card" style="padding:10px 16px;margin-bottom:12px">
             <b style="font-size:13px">发放登记</b>

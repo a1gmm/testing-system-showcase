@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import type { DB } from './db.ts'
 import type { User } from './handlers.ts'
 import { frozenValidationScope, validateFrozenSubmission } from './offlineRules.ts'
+import { assertWorkflowEditable } from './workflow.ts'
 
 export type SubmissionStatus = 'pending' | 'finalizing' | 'complete' | 'failed'
 export type SubmissionInput = {
@@ -103,6 +104,7 @@ function validateInput(db: DB, input: SubmissionInput, actor: User, policy: Crea
 }
 
 export function createSubmission(db: DB, input: SubmissionInput, actor: User, policy: CreateSubmissionPolicy): SubmissionRecord {
+  assertWorkflowEditable(db, 'round_sampling', input.roundId)
   const existing = find(db, input.clientSubmissionId)
   if (existing) {
     assertActor(existing, actor)
@@ -142,6 +144,7 @@ export function publicSubmissionReceipt(record:SubmissionRecord){return{clientSu
 
 export function finalizeSubmission(db: DB, clientSubmissionId: string, actor: User, policy: FinalizePolicy): SubmissionRecord {
   const record = getSubmissionReceipt(db, clientSubmissionId, actor)
+  assertWorkflowEditable(db, 'round_sampling', record.roundId)
   if (record.status === 'complete') return record
   if (record.status === 'failed') throw new SubmissionError(record.errorCode || 'SUBMISSION_FAILED', 409, '提交已进入不可重试失败状态')
   const at = (policy.now ?? (() => new Date()))().toISOString()

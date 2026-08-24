@@ -6,18 +6,28 @@ import {
   createScheme, getScheme, reviewScheme,
   createSample, saveRecord, reviewRecord, nextRecordSerial,
   planFromContract, assignPlan, sampleIn,
-  generateReport, checkReport, issueReport,
+  generateReport,
   getProjectPipeline,
   listRounds, listDueRounds, sampleRound, listSamples,
   assignRound, generateRoundReport, listAllRounds, getRoundDetail, getRound,
   judgeResult, createUser,
+  techReviewContract, listHandoverSheets, sendHandoverSheet, confirmHandoverSheet,
 } from '../src/handlers.ts'
+import {
+  generateTestRoundReport,
+  generateTestSampleReport,
+  issueTestReport,
+} from './support/approved-report.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
+import { approveRoundQuality } from './support/approved-quality.ts'
 
 // 帮手：把一个样品的记录走完 录入→提交→复核→审核
 function approveSample(db: any, sampleId: string, analyte = '锌', value: number = 1.2) {
-  let rec = saveRecord(db, { sampleId, code: 'HJ-TC-' + analyte, analyte, method: '方法', data: { rows: [{ id: sampleId + '-1', a: 1 }], meta: {}, reg: {}, resultSummary: { analyte, value, unit: 'mg/L' } }, submit: true })
-  rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-  return reviewRecord(db, rec.id, 'approve', '孙审核')
+  return approveLaboratoryRecord(db, {
+    sampleId, code: 'HJ-TC-' + analyte, analyte, method: '方法',
+    data: { rows: [{ id: sampleId + '-1', a: 1 }], meta: {}, reg: {}, resultSummary: { analyte, value, unit: 'mg/L' } },
+  })
 }
 
 function freshDb() {
@@ -81,55 +91,62 @@ test('检测记录连号 JL2026-XXXX 递增', () => {
   assert.equal(nextRecordSerial(db, 2026), 'JL2026-0002')
 })
 
-test('主线状态机：随流程推进，activeIndex 逐环前移', () => {
+test('十阶段主线状态机：合同、合同评审、方案、派工逐环前移', () => {
   const db = freshDb()
   const c = createContract(db, { client: '甲厂', plan: [{ matrix: '废水', items: ['锌'], qty: 1 }] }, 2026)
 
-  // 刚建单：卡在「委托受理」(index 0)
+  // 刚建单：卡在「编制委托合同」(index 0)
   let p = getProjectPipeline(db, c.id)
   assert.equal(p.activeIndex, 0)
-  assert.equal(p.stages[0].key, 'accept')
+  assert.equal(p.stages[0].key, 'contract')
   assert.equal(p.stages[0].status, 'active')
+  assert.equal(p.stages.length, 10)
 
-  // 受理 → 卡在「监测方案」(1)
+  // 受理 → 卡在「合同评审」(1)
   acceptContract(db, c.id, '周登记')
   p = getProjectPipeline(db, c.id)
   assert.equal(p.activeIndex, 1)
   assert.equal(p.stages[0].status, 'done')
+  assert.equal(p.stages[1].key, 'contract-review')
 
-  // 方案审核通过 → 卡在「采样任务」(2)
-  createScheme(db, { contractId: c.id }, 2026)
-  reviewScheme(db, c.id, 'approve', '许技术')
+  // 合同评审通过 → 卡在「监测方案」(2)
+  techReviewContract(db, c.id, 'approve', { name: '许技术', username: 'demo_tech' })
   p = getProjectPipeline(db, c.id)
   assert.equal(p.activeIndex, 2)
 
-  // 下达采样任务+派工 → 卡在「样品建档」(3)
-  const plan = planFromContract(db, c.id, 2026)
-  assignPlan(db, plan.id, '赵采样', '2026-07-11')
+  // 方案审核通过 → 卡在「采样指派」(3)
+  createScheme(db, { contractId: c.id }, 2026)
+  reviewScheme(db, c.id, 'approve', '许技术')
   p = getProjectPipeline(db, c.id)
   assert.equal(p.activeIndex, 3)
 
-  // 收样入库 → 卡在「检测记录」(4)
-  const made = sampleIn(db, plan.id, 2026)
+  // 下达采样任务+派工 → 卡在「现场采样」(4)
+  const plan = planFromContract(db, c.id, 2026)
+  assignPlan(db, plan.id, '赵采样', '2026-07-11')
   p = getProjectPipeline(db, c.id)
   assert.equal(p.activeIndex, 4)
-  assert.ok(p.stages[3].code.includes('样品'))
+  assert.equal(p.stages[4].key, 'sampling')
+  assert.deepEqual(p.blockers, ['现场采样尚未审核定稿'])
+})
 
-  // 录入提交 + 三级审核通过 → 卡在「报告签发」(6)
-  let rec = saveRecord(db, { sampleId: made[0].id, code: 'HJ-TC-003', analyte: '锌', method: '原子吸收', data: { rows: [{ id: 'F-1', a: 0.06 }], meta: {}, reg: {}, resultSummary: { analyte: '锌', value: 1.2, unit: 'mg/L' } }, submit: true })
-  rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-  rec = reviewRecord(db, rec.id, 'approve', '孙审核')
-  p = getProjectPipeline(db, c.id)
-  assert.equal(p.activeIndex, 6)
-  assert.equal(p.stages[6].key, 'report')
+test('存量已签发报告不能把缺失的交接和质控证据投影成十阶段全部完成', () => {
+  const db = freshDb()
+  const c = createContract(db, { client: '迁移项目', plan: [{ matrix: '废水', items: ['锌'], qty: 1 }] }, 2026)
+  acceptContract(db, c.id, '周登记')
+  techReviewContract(db, c.id, 'approve', { name: '许技术', username: 'demo_tech' })
+  createScheme(db, { contractId: c.id, cycleMonths: 0, periodStart: '2026-01-10', periodEnd: '2026-01-10' }, 2026)
+  reviewScheme(db, c.id, 'approve', '许技术')
+  const round = listRounds(db, c.id)[0]
+  assignRound(db, round.id, '赵采样', '2026-01-10')
+  approveRoundSampling(db, round.id)
+  const made = sampleRound(db, round.id, 2026)
+  approveSample(db, made[0].id)
+  const report = generateTestRoundReport(db, round.id, 2026)
+  issueTestReport(db, report.id)
 
-  // 生成并签发报告 → 全部完成 activeIndex = -1
-  const rep = generateReport(db, made[0].id, 2026)
-  checkReport(db, rep.id, '孙审核')
-  issueReport(db, rep.id, '林工程师')
-  p = getProjectPipeline(db, c.id)
-  assert.equal(p.activeIndex, -1)
-  assert.ok(p.stages.every(s => s.status === 'done'))
+  const pipeline = getProjectPipeline(db, c.id)
+  assert.equal(pipeline.stages[pipeline.activeIndex].key, 'handover')
+  assert.deepEqual(pipeline.blockers, ['样品交接尚未确认'])
 })
 
 test('监测排期：季度频次一年排出4期采样日期', () => {
@@ -163,6 +180,7 @@ test('按项目分周期排期：废水每月+废气每季，合并期次每期�
   assert.equal(r2.items[0].matrix, '废水')
   // 去采样只建本期到期的样品：第2期普通样只有1个废水（S4 会另建质控样）
   assignRound(db, rounds[1].id, ['赵采样', '王采样'])
+  approveRoundSampling(db, rounds[1].id)
   const made2 = sampleRound(db, rounds[1].id, 2026)
   const normal2 = made2.filter(s => !s.qc_type)
   assert.equal(normal2.length, 1)
@@ -187,6 +205,7 @@ test('某期去采样：为这一期建一批样品(挂round_id)，期次转已�
   assert.equal(r1.sample_count, 0)
   // 第1期去采样 → 普通样2个（废水+废气），挂 round_id + contract_id；S4 另建质控样
   assignRound(db, r1.id, ['赵采样', '王采样'])
+  approveRoundSampling(db, r1.id)
   const made = sampleRound(db, r1.id, 2026)
   const normal = made.filter(s => !s.qc_type)
   assert.equal(normal.length, 2)
@@ -208,6 +227,7 @@ test('周期项目主线按期推进：第1期报告签发后主线回到第2期
   const db = freshDb()
   const c = createContract(db, { client: '甲厂', plan: [{ matrix: '废水', items: ['锌'], qty: 1 }] }, 2026)
   acceptContract(db, c.id, '周登记')
+  techReviewContract(db, c.id, 'approve', { name: '许技术', username: 'demo_tech' })
   createScheme(db, { contractId: c.id, cycleMonths: 6, periodStart: '2026-01-10', periodEnd: '2026-12-31' }, 2026)
   reviewScheme(db, c.id, 'approve', '许技术')   // 排出 2 期
 
@@ -221,14 +241,22 @@ test('周期项目主线按期推进：第1期报告签发后主线回到第2期
   const r1 = listRounds(db, c.id)[0]
   assignRound(db, r1.id, '赵采样', '2026-01-10')
   p = getProjectPipeline(db, c.id)
-  assert.equal(p.stages[p.activeIndex].key, 'sampleIn')
+  assert.equal(p.stages[p.activeIndex].key, 'sampling')
+  approveRoundSampling(db, r1.id)
   const made = sampleRound(db, r1.id, 2026)
+  const receiver = createUser(db, { username: 'sample-manager', name: '样品管理员', roles: ['sample_manager'], password: 'x12345' })
+  const qualityOfficer = createUser(db, { username: 'quality-officer', name: '质控员', roles: ['qc'], password: 'x12345' })
+  const sheet1 = listHandoverSheets(db, { roundId: r1.id })[0]
+  sendHandoverSheet(db, sheet1.id, { name: '赵采样', username: 'demo_sampler' })
+  confirmHandoverSheet(db, sheet1.id, receiver)
+  approveRoundQuality(db, r1.id, qualityOfficer)
   approveSample(db, made[0].id)
   p = getProjectPipeline(db, c.id)
+  assert.equal(p.stages[p.activeIndex].key, 'archive')
+  const rep = generateTestRoundReport(db, r1.id, 2026)
+  p = getProjectPipeline(db, c.id)
   assert.equal(p.stages[p.activeIndex].key, 'report')
-  const rep = generateRoundReport(db, r1.id, 2026)
-  checkReport(db, rep.id, '孙审核')
-  issueReport(db, rep.id, '林工程师')
+  issueTestReport(db, rep.id)
 
   // 关键断言：第 1 期完了，主线不是「已完成」，而是回到第 2 期的派工
   p = getProjectPipeline(db, c.id)
@@ -239,11 +267,15 @@ test('周期项目主线按期推进：第1期报告签发后主线回到第2期
   // 第 2 期也走完 → 这才是真·已完成
   const r2 = listRounds(db, c.id)[1]
   assignRound(db, r2.id, '赵采样')
+  approveRoundSampling(db, r2.id)
   const made2 = sampleRound(db, r2.id, 2026)
+  const sheet2 = listHandoverSheets(db, { roundId: r2.id })[0]
+  sendHandoverSheet(db, sheet2.id, { name: '赵采样', username: 'demo_sampler' })
+  confirmHandoverSheet(db, sheet2.id, receiver)
+  approveRoundQuality(db, r2.id, qualityOfficer)
   approveSample(db, made2[0].id, '氨氮')
-  const rep2 = generateRoundReport(db, r2.id, 2026)
-  checkReport(db, rep2.id, '孙审核')
-  issueReport(db, rep2.id, '林工程师')
+  const rep2 = generateTestRoundReport(db, r2.id, 2026)
+  issueTestReport(db, rep2.id)
   p = getProjectPipeline(db, c.id)
   assert.equal(p.activeIndex, -1)
   assert.equal(p.round?.no, null)
@@ -256,6 +288,7 @@ test('一期一报告：汇总该期全部样品；有样品没审完就报人�
   reviewScheme(db, c.id, 'approve', '许技术')
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样', '王采样'])
+  approveRoundSampling(db, r.id)
   const made = sampleRound(db, r.id, 2026).filter(s => !s.qc_type)
   assert.equal(made.length, 2)
   // 只审完 1 个样品 → 出报告要报错并点名是谁没审完
@@ -263,7 +296,7 @@ test('一期一报告：汇总该期全部样品；有样品没审完就报人�
   assert.throws(() => generateRoundReport(db, r.id, 2026), new RegExp(made[1].id))
   // 全审完 → 一份报告汇总 2 个普通样（质控样不进报告）
   approveSample(db, made[1].id, '氨氮')
-  const rep = generateRoundReport(db, r.id, 2026)
+  const rep = generateTestRoundReport(db, r.id, 2026)
   assert.equal(rep.round_id, r.id)
   assert.equal(rep.data.results.length, 2)
   assert.ok(rep.title.includes('第1期'))
@@ -296,11 +329,12 @@ test('一期一报告防重复：同一期不能生成两份报告', () => {
   reviewScheme(db, c.id, 'approve', '许技术')
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样', '王采样'])
+  approveRoundSampling(db, r.id)
   const made = sampleRound(db, r.id, 2026).filter(s => !s.qc_type)
   approveSample(db, made[0].id)
-  generateRoundReport(db, r.id, 2026)
+  generateTestRoundReport(db, r.id, 2026)
   // 第二次生成 → 拒绝，点名已有报告
-  assert.throws(() => generateRoundReport(db, r.id, 2026), /已生成报告|重复/)
+  assert.throws(() => generateTestRoundReport(db, r.id, 2026), /已生成报告|重复/)
 })
 
 test('防跳步：合同未受理不能一键生成样品', () => {
@@ -332,10 +366,11 @@ test('报告自动判定草稿（拍板3翻案决策15）：verdict 自动、结
   reviewScheme(db, c.id, 'approve', '许技术')
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样', '王采样'])
+  approveRoundSampling(db, r.id)
   const made = sampleRound(db, r.id, 2026).filter(s => !s.qc_type)
   approveSample(db, made[0].id, '锌', 1.3)   // 达标
   approveSample(db, made[1].id, '铜', 0.9)   // 超标
-  const rep = generateRoundReport(db, r.id, 2026)
+  const rep = generateTestRoundReport(db, r.id, 2026)
   const zinc = rep.data.results.find((x: any) => x.analyte === '锌')
   const copper = rep.data.results.find((x: any) => x.analyte === '铜')
   // 拍板3：自动判定草稿（编制人仍可改结论——人工确认在 updateReport）

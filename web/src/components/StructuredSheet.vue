@@ -26,7 +26,7 @@ function secComp(t: string) { return SEC[t] }
 const props = defineProps<{
   analyte: string; method: string; matrix: string; code: string; sheetType: string
   sampleId?: string; templateName?: string
-  roundId?: string                // 期次模式：采样员现场填，存 round_sheets（无三级审核链）
+  roundId?: string                // 期次模式：采样员现场填，存 round_sheets；专业审核由阶段工作流承载
   tplMeta?: Record<string, any>   // 每张表从原件抽出的页脚元数据(方法依据/仪器编号/波长/狭缝/检出限等)
   initialData?: { rows?: Record<string, any>[]; meta?: Record<string, any>; cells?: Record<string, any> } // 新期次表从计划预填；已保存数据优先覆盖
   readonly?: boolean              // 无该表填写权限的岗位（如质控员看采样表）：能看不能改
@@ -152,7 +152,7 @@ async function loadRefOpts() {
   } catch { refOpts.value = [] }
 }
 const instrumentId = ref<string>('')
-// 决策10：检定过期只警告不拦——但要让检测员看得见
+// 决策10：检定过期只警告不拦——但要让实验室分析人员看得见
 const instWarn = computed(() => {
   const i = instruments.value.find(x => x.id === instrumentId.value)
   if (!i?.cert_until) return ''

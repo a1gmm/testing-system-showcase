@@ -33,12 +33,16 @@ import {
   logAction, listAudit,
   addAttachment, listAttachments, getAttachment, deleteAttachment, ATTACH_ENTITY_TYPES, type AttachEntityType,
   contractForUser, canSeeRecordAudit, urlTokenAllowed, maskUserList, canManageAttachment, attachRoleErrorText,
-  assertRoundAccess, assertReportReadAccess,
+  assertRoundAccess, assertQualityRoundAccess, assertReportReadAccess,
   issueOfflineTaskPackage,
   currentOfflineTaskScope,
   stageAttachment, getStagedAttachmentStatus, cancelStagedAttachment,
   gcStagedAttachments, startStagingGcTimer,
-  type User,
+  submitSamplingWorkflow,
+  decideProfessionalWorkflow, getProfessionalWorkflow, submitProfessionalWorkflow, withdrawProfessionalWorkflow,
+  saveQualityPlan, getQualityPlan, submitQualityPlan,
+  archiveReadiness, buildArchivePackage, confirmArchivePackage, createReportBatch, getArchivePackage, listArchivePackages, listReportBatches,
+  httpError, type User,
 } from './handlers.ts'
 import { randomUUID, createHash, createPublicKey, verify as verifySignature } from 'node:crypto'
 import { PERM, REPORT_READ_ROLES, type PermAction } from './permissions.ts'
@@ -47,6 +51,17 @@ import { createSubmission, getSubmissionReceipt, publicSubmissionReceipt, recove
 import { confirmMobileSubmission, pendingConfirmationSnapshot, publishConfirmedSubmission } from './mobileConfirmations.ts'
 import { claimConfirmationInvite, confirmClaimedInvite, getConfirmationClaim, issueConfirmationInvite } from './mobileConfirmationInvites.ts'
 import { mobileOperationsHealth } from './mobileOperations.ts'
+import { getWorkflowView, listActorWorkflowTasks } from './workflow.ts'
+import {
+  PROFESSIONAL_SCOPES,
+  assignProjectReviewers,
+  getProjectAssignment,
+  getUserQualifications,
+  listWorkflowCandidates,
+  setUserQualifications,
+} from './qualifications.ts'
+import { updateUserPersonnel } from './personnel.ts'
+import { hasBaseBusinessRole, qualificationOnlyRouteAllowed } from './qualificationOnlyRoutePolicy.ts'
 
 const PORT = Number(process.env.PORT) || 3001
 const UPLOAD_DIR = process.env.UPLOAD_DIR || 'uploads'
@@ -121,6 +136,50 @@ function needLogin(c: Ctx): User {
 // 按权限矩阵卡角色：所有业务路由统一走这里，角色清单只在 permissions.ts 一处维护
 function needP(c: Ctx, action: PermAction): User { return need(c, ...PERM[action]) }
 
+function withStableWorkflowError<T>(operation: () => T): T {
+  try {
+    return operation()
+  } catch (error: any) {
+    if (error?.errorCode) throw error
+    const message = String(error?.message || '工作流操作失败')
+    if (/版本冲突|已有新版本/.test(message)) throw httpError(409, '内容已有新版本，请刷新', 'WORKFLOW_STALE_REVISION')
+    if (/指定的复核人|指定的审核人|不是项目指定|只有.*编制人/.test(message)) throw httpError(403, message, 'WORKFLOW_WRONG_ASSIGNEE')
+    if (/没有有效的.*资格|资格.*失效|账号无效/.test(message)) throw httpError(403, message, 'WORKFLOW_QUALIFICATION_REQUIRED')
+    if (/必须不同|不能是同一|不能同时是/.test(message)) throw httpError(409, message, 'WORKFLOW_PERSON_NOT_DISTINCT')
+    if (/归档/.test(message)) throw httpError(409, message, 'ARCHIVE_REQUIRED')
+    throw error
+  }
+}
+
+function withStableQualificationError<T>(operation: () => T): T {
+  try {
+    return operation()
+  } catch (error: any) {
+    if (error?.errorCode) throw error
+    const message = String(error?.message || '专业审核资格保存失败')
+    if (/不支持的专业审核资格/.test(message)) throw httpError(400, message, 'QUALIFICATION_CODE_INVALID')
+    if (/日期格式|失效日期不能早于生效日期/.test(message)) throw httpError(400, message, 'QUALIFICATION_DATE_INVALID')
+    if (/专业审核资格不能重复/.test(message)) throw httpError(400, message, 'QUALIFICATION_DUPLICATE')
+    if (/用户不存在/.test(message)) throw httpError(404, message, 'USER_NOT_FOUND')
+    throw error
+  }
+}
+
+function professionalWorkflowForActor(subjectType: string, subjectId: string, actor: User) {
+  const workflow = getProfessionalWorkflow(db, subjectType, subjectId, actor)
+  if (!hasBaseBusinessRole(actor.roles)) {
+    if (!workflow) {
+      throw httpError(403, '当前工作流不属于本人当前专业待办', 'WORKFLOW_FORBIDDEN')
+    }
+    const isCurrentExactTask = listActorWorkflowTasks(db, workflow.scope, actor)
+      .some(task => task.workflow_instance_id === workflow.id)
+    if (!isCurrentExactTask) {
+      throw httpError(403, '当前工作流不属于本人当前专业待办', 'WORKFLOW_FORBIDDEN')
+    }
+  }
+  return workflow
+}
+
 // 极简路由表：[方法, 路径模板, 处理函数]，:x 为占位
 const routes: [string, string, Handler][] = [
   // 登录 / 人员
@@ -128,6 +187,25 @@ const routes: [string, string, Handler][] = [
   ['POST', '/api/logout', c => { logout(db, c.token); return { ok: true } }],
   ['GET', '/api/me', c => c.user],
   ['GET', '/api/users', c => { need(c, 'admin'); return listUsers(db) }],
+  ['GET', '/api/users/:name/qualifications', c => {
+    need(c, 'admin')
+    return withStableQualificationError(() => getUserQualifications(db, decodeURIComponent(c.parts[3])))
+  }],
+  ['POST', '/api/users/:name/qualifications', c => {
+    const u = need(c, 'admin')
+    if (!Array.isArray(c.body?.qualifications)) {
+      throw httpError(400, '专业审核资格必须是列表', 'QUALIFICATION_LIST_INVALID')
+    }
+    return withStableQualificationError(() => setUserQualifications(
+      db, decodeURIComponent(c.parts[3]), c.body.qualifications, u,
+    ))
+  }],
+  ['POST', '/api/users/:name/personnel', c => {
+    const u = need(c, 'admin')
+    return withStableQualificationError(() => updateUserPersonnel(
+      db, decodeURIComponent(c.parts[3]), c.body, u,
+    ))
+  }],
   // 选人下拉只需要姓名；username（登录名=撞库素材）只发给真正拿它派工的人（体检40）
   ['GET', '/api/users/samplers', c => { const u = needLogin(c); return maskUserList(listSamplers(db), hasRole(u, ...PERM.round_assign)) }],
   // 移动提交：创建只产生持久 pending 回执；正式发布仍由冻结/双签后的协调器显式触发。
@@ -195,7 +273,7 @@ const routes: [string, string, Handler][] = [
   ['GET', '/api/samples/:id/handovers', c => { needLogin(c); return listHandovers(db, decodeURIComponent(c.parts[3])) }],
   ['POST', '/api/samples/:id/handover', c => { const u = needP(c, 'handover_send'); return addHandover(db, decodeURIComponent(c.parts[3]), c.body, u) }],
   ['GET', '/api/handovers/pending', c => { needLogin(c); return listPendingHandovers(db) }],
-  // 交接单（批次一）：收样自动草稿→采样员改/发出→质控员整单签收（可拒收个别样品）
+  // 交接单（批次一）：收样自动草稿→采样员改/发出→样品管理员整单签收（可拒收个别样品）
   ['GET', '/api/handover-sheets', c => { const u = needLogin(c); return listHandoverSheets(db, { roundId: c.query.get('roundId') || undefined, status: c.query.get('status') || undefined }).map(s => maskSheetForUser(u, s)) }],
   ['GET', '/api/handover-sheets/:id', c => { const u = needLogin(c); return maskSheetForUser(u, getHandoverSheet(db, decodeURIComponent(c.parts[3])) as any) }],
   ['POST', '/api/handover-sheets/:id/update', c => { const u = needP(c, 'handover_send'); return updateHandoverSheet(db, decodeURIComponent(c.parts[3]), c.body, u) }],
@@ -217,6 +295,76 @@ const routes: [string, string, Handler][] = [
   ['POST', '/api/reports/:id/deliver', c => { const u = needP(c, 'report_update'); return addReportDelivery(db, c.parts[3], c.body || {}, u) }],
   ['GET', '/api/reports/:id/deliveries', c => { needLogin(c); return listReportDeliveries(db, c.parts[3]) }],
   ['GET', '/api/reports/:id/archive-index', c => { const u = needLogin(c); return archiveIndex(db, c.parts[3], u) }],
+  ['POST', '/api/report-batches', c => {
+    const u = need(c, 'planner')
+    return createReportBatch(db, { contractId: c.body?.contractId, name: c.body?.name, roundIds: c.body?.roundIds }, u)
+  }],
+  ['GET', '/api/report-batches', c => {
+    need(c, 'planner', 'report_editor', 'archivist', 'tech')
+    return listReportBatches(db, c.query.get('contractId') || undefined)
+  }],
+  ['GET', '/api/archive-readiness', c => {
+    needLogin(c)
+    return archiveReadiness(db, {
+      contractId: c.query.get('contractId') || undefined,
+      reportBatchId: c.query.get('reportBatchId') || undefined,
+    })
+  }],
+  ['POST', '/api/archive-packages/build', c => {
+    const u = need(c, 'archivist')
+    return buildArchivePackage(db, { contractId: c.body?.contractId, reportBatchId: c.body?.reportBatchId }, u)
+  }],
+  ['GET', '/api/archive-packages', c => {
+    need(c, 'report_editor', 'archivist', 'tech')
+    const status = c.query.get('status') || undefined
+    if (status && !['draft', 'ready', 'confirmed', 'invalidated'].includes(status)) throw new HttpErr(400, '不支持的归档状态')
+    return listArchivePackages(db, { contractId: c.query.get('contractId') || undefined, status: status as any })
+  }],
+  ['POST', '/api/archive-packages/:id/confirm', c => {
+    const u = need(c, 'archivist')
+    return confirmArchivePackage(db, decodeURIComponent(c.parts[3]), u)
+  }],
+  ['GET', '/api/archive-packages/:id', c => {
+    need(c, 'report_editor', 'archivist', 'signer', 'tech')
+    return req(getArchivePackage(db, decodeURIComponent(c.parts[3])), '归档版本不存在')
+  }],
+  ['GET', '/api/contracts/:id/archive-readiness', c => {
+    needLogin(c)
+    return archiveReadiness(db, { contractId: decodeURIComponent(c.parts[3]), reportBatchId: c.query.get('reportBatchId') || undefined })
+  }],
+  ['POST', '/api/contracts/:id/archive-packages', c => {
+    const u = need(c, 'archivist')
+    return buildArchivePackage(db, { contractId: decodeURIComponent(c.parts[3]), reportBatchId: c.body?.reportBatchId }, u)
+  }],
+  ['GET', '/api/contracts/:id/workflow-assignments', c => {
+    needLogin(c)
+    const contractId = decodeURIComponent(c.parts[3])
+    return PROFESSIONAL_SCOPES.map(scope => getProjectAssignment(db, contractId, scope)).filter(Boolean)
+  }],
+  ['GET', '/api/contracts/:id/workflow-candidates', c => {
+    need(c, 'planner')
+    return withStableQualificationError(() => listWorkflowCandidates(
+      db,
+      decodeURIComponent(c.parts[3]),
+      String(c.query.get('scope') || ''),
+      String(c.query.get('level') || ''),
+      String(c.query.get('at') || ''),
+    ))
+  }],
+  ['POST', '/api/contracts/:id/workflow-assignments/:scope', c => {
+    const u = need(c, 'planner')
+    const scope = decodeURIComponent(c.parts[5])
+    if (!PROFESSIONAL_SCOPES.includes(scope as any)) throw new HttpErr(400, '不支持的专业环节')
+    return withStableWorkflowError(() => assignProjectReviewers(
+      db,
+      decodeURIComponent(c.parts[3]),
+      scope as any,
+      String(c.body?.reviewerUsername || ''),
+      String(c.body?.approverUsername || ''),
+      u,
+      c.body?.reason,
+    ))
+  }],
   ['POST', '/api/samples/:id/retention', c => { const u = needP(c, 'handover_confirm'); return setRetention(db, decodeURIComponent(c.parts[3]), c.body || {}, u) }],
   ['POST', '/api/samples/:id/retention/dispose', c => { const u = needP(c, 'handover_confirm'); return disposeRetention(db, decodeURIComponent(c.parts[3]), c.body || {}, u) }],
   ['GET', '/api/samples/:id/retention', c => { needLogin(c); return getRetention(db, decodeURIComponent(c.parts[3])) }],
@@ -238,10 +386,10 @@ const routes: [string, string, Handler][] = [
     if (!sampleId || !code) throw new HttpErr(400, '缺少 sampleId 或 code')
     return getRecord(db, sampleId, code)   // 可能为 null（还没录过）→ 200 null
   }],
-  ['POST', '/api/records/:id/withdraw', c => { const u = needP(c, 'record_save'); return withdrawRecord(db, decodeURIComponent(c.parts[3]), u) }],
-  ['POST', '/api/records', c => { const u = needP(c, 'record_save'); return saveRecord(db, { ...c.body, who: u.name, whoUsername: u.username }, { supervisor: hasRole(u, 'tech') }) }],
+  ['POST', '/api/records/:id/withdraw', c => { const u = needP(c, 'record_save'); return withdrawRecord(db, decodeURIComponent(c.parts[3]), u, String(c.body?.reason || '')) }],
+  ['POST', '/api/records', c => { const u = needP(c, 'record_save'); return saveRecord(db, { ...c.body, who: u.name, whoUsername: u.username }, { actor: u }) }],
   // 跨合同同表批量录入（PRD 步骤6）：一张表多样品，按编号自动归各自合同
-  ['POST', '/api/records/batch', c => { const u = needP(c, 'record_save'); return saveRecordsBatch(db, { ...c.body, who: u.name, whoUsername: u.username }, { supervisor: hasRole(u, 'tech') }) }],
+  ['POST', '/api/records/batch', c => { const u = needP(c, 'record_save'); return saveRecordsBatch(db, { ...c.body, who: u.name, whoUsername: u.username }, { actor: u }) }],
   ['GET', '/api/records/:id', c => req(getRecordById(db, c.parts[3]), '记录不存在')],
   // 记录留痕：编制人本人（录入页看自己的记录）或有 audit_view 权限才放行（体检9）
   ['GET', '/api/records/:id/audit', c => {
@@ -254,17 +402,17 @@ const routes: [string, string, Handler][] = [
   ['POST', '/api/contracts', c => { const u = needP(c, 'contract_edit'); const r = createContract(db, c.body); logAction(db, r.id, u, 'contract_create', { client: r.client, project: r.project }); return r }],
   // 合同读接口不整门拦（采样/检测登记自送样要选合同），但报价/评审等商务字段按角色脱敏（体检8a）
   ['GET', '/api/contracts', c => { const u = needLogin(c); return listContracts(db).map(x => contractForUser(u, x)) }],
-  // 客户档案（联系方式/地址/历史合同=客户资源）：限 登记员/技术负责人/签字人（体检8c）
-  ['GET', '/api/customers', c => { need(c, 'registrar', 'tech', 'signer'); return listCustomers(db) }],
+  // 客户档案（联系方式/地址/历史合同=客户资源）：限 业务员/技术负责人/签字人（体检8c）
+  ['GET', '/api/customers', c => { need(c, 'sales', 'tech', 'signer'); return listCustomers(db) }],
   ['POST', '/api/customers', c => { const u = needP(c, 'customer_edit'); const r = upsertCustomer(db, c.body); logAction(db, 'customer:' + r.name, u, 'customer_upsert', { contact: r.contact, phone: r.phone, address: r.address }); return r }],
-  ['GET', '/api/customers/:name/contracts', c => { need(c, 'registrar', 'tech', 'signer'); return getCustomerContracts(db, decodeURIComponent(c.parts[3])) }],
+  ['GET', '/api/customers/:name/contracts', c => { need(c, 'sales', 'tech', 'signer'); return getCustomerContracts(db, decodeURIComponent(c.parts[3])) }],
   ['GET', '/api/contracts/:id', c => contractForUser(c.user, req(getContract(db, c.parts[3]), '合同不存在'))],
   // 一键生成的样品会被「交接未签收」闸拦住（体检10）：响应带 hint 告诉下一步怎么走
   ['POST', '/api/contracts/:id/generate', c => {
     const u = needP(c, 'contract_edit')
     const r = generateSamples(db, c.parts[3])
     logAction(db, c.parts[3], u, 'samples_generate', { n: r.length })
-    return { samples: r, hint: '生成的样品需要先在样品页登记交接、由质控员签收后，才能派检测任务和录数据' }
+    return { samples: r, hint: '生成的样品需要先在样品页登记交接、由样品管理员签收后，才能派检测任务和录数据' }
   }],
   // 合同终止（体检15）：客户跑路/项目黄了走这里，新动作全拦、已有数据只读
   ['POST', '/api/contracts/:id/terminate', c => { const u = needP(c, 'contract_edit'); return terminateContract(db, c.parts[3], c.body.reason, u) }],
@@ -276,9 +424,15 @@ const routes: [string, string, Handler][] = [
   ['GET', '/api/contracts/:id/points', c => { needLogin(c); return listPoints(db, c.parts[3]) }],
   ['POST', '/api/contracts/:id/points', c => { const u = needP(c, 'round_field'); return upsertPoint(db, c.parts[3], { ...c.body, source: 'field' }, u) }],
   ['POST', '/api/points/:pid/actual', c => { const u = needP(c, 'round_field'); return setPointActual(db, Number(c.parts[3]), c.body.actualDesc, u) }],
-  // 项目视图全角色可看（工作台/⌘K 搜索），但里面摊开的合同字段同样按角色脱敏（体检8a）
-  ['GET', '/api/projects', c => { const u = needLogin(c); return listProjects(db).map(x => contractForUser(u, x)) }],
-  ['GET', '/api/projects/:id', c => { const u = needLogin(c); const p = getProject(db, c.parts[3]); return { ...p, contract: contractForUser(u, p.contract) } }],
+  ['GET', '/api/projects', c => {
+    const u = needLogin(c)
+    return listProjects(db).map(x => contractForUser(u, x))
+  }],
+  ['GET', '/api/projects/:id', c => {
+    const u = needLogin(c)
+    const p = getProject(db, c.parts[3])
+    return { ...p, contract: contractForUser(u, p.contract) }
+  }],
 
   // 监测方案 FA（受理后编制→审核）
   ['GET', '/api/contracts/:id/scheme', c => getScheme(db, c.parts[3])],
@@ -304,10 +458,13 @@ const routes: [string, string, Handler][] = [
       verifyManagedDevice: (actor, roundId) => { const record=managedStagingDevice(actor,roundId);return record?{deviceId:record.deviceId,trustedUntil:record.expiresAt,attestationId:`registry:${record.fingerprint}`,bindingPublicKeySpki:record.publicKeySpki,bindingFingerprint:record.fingerprint}:null },
     })
   }],
-  ['GET', '/api/rounds/:id/qc', c => { const u = needLogin(c); assertRoundAccess(db, decodeURIComponent(c.parts[3]), u); return listQc(db, { roundId: decodeURIComponent(c.parts[3]) }) }],
-  ['POST', '/api/rounds/:id/qc', c => { const u = needP(c, 'qc_add'); const id = decodeURIComponent(c.parts[3]); assertRoundAccess(db, id, u); return addQc(db, { ...c.body, roundId: id }, u) }],
+  ['GET', '/api/rounds/:id/qc', c => { const u = needLogin(c); assertQualityRoundAccess(db, decodeURIComponent(c.parts[3]), u); return listQc(db, { roundId: decodeURIComponent(c.parts[3]) }) }],
+  ['POST', '/api/rounds/:id/qc', c => { const u = needP(c, 'qc_add'); const id = decodeURIComponent(c.parts[3]); assertQualityRoundAccess(db, id, u); return addQc(db, { ...c.body, roundId: id }, u) }],
   ['POST', '/api/rounds/:id/assign', c => { const u = needP(c, 'round_assign'); const r = assignRound(db, c.parts[3], c.body.samplerIds ?? c.body.samplers ?? c.body.sampler, c.body.planDate || ''); logAction(db, c.parts[3], u, 'round_assign', { sampler_ids: r.sampler_ids, sampler_display: r.sampler, planDate: c.body.planDate }); return r }],
-  ['GET', '/api/rounds/:id/qc-requirements', c => { const u = needLogin(c); assertRoundAccess(db, c.parts[3], u); return roundQcRequirements(db, c.parts[3]) }],
+  ['GET', '/api/rounds/:id/qc-requirements', c => { const u = needLogin(c); assertQualityRoundAccess(db, c.parts[3], u); return roundQcRequirements(db, c.parts[3]) }],
+  ['GET', '/api/rounds/:id/quality-plan', c => { const u = needLogin(c); const id = decodeURIComponent(c.parts[3]); assertQualityRoundAccess(db, id, u); return getQualityPlan(db, id) }],
+  ['POST', '/api/rounds/:id/quality-plan', c => { const u = need(c, 'qc'); const id = decodeURIComponent(c.parts[3]); assertQualityRoundAccess(db, id, u); return saveQualityPlan(db, id, c.body || {}, u) }],
+  ['POST', '/api/workflows/quality_plan/:id/submit', c => { const u = need(c, 'qc'); const id = decodeURIComponent(c.parts[4]); assertQualityRoundAccess(db, id, u); return submitQualityPlan(db, id, u) }],
   // 现场记录：冻结/归属校验 + 字段级 diff 留痕都在 saveRoundField 里做（不再整包 body 入留痕）
   ['POST', '/api/rounds/:id/field', c => { const u = needP(c, 'round_field'); return saveRoundField(db, c.parts[3], c.body, u, { supervisor: hasRole(u, 'tech') }) }],
   ['GET', '/api/rounds/:id/sheets', c => { const u = needLogin(c); return listRoundSheets(db, decodeURIComponent(c.parts[3]), u) }],
@@ -327,23 +484,67 @@ const routes: [string, string, Handler][] = [
   // 采样日期人工微调（不用谎报采不成）：登记员/质控/tech
   ['POST', '/api/rounds/:id/adjust-due', c => { const u = needP(c, 'round_assign'); return adjustRoundDue(db, c.parts[3], c.body.dueDate, u) }],
   ['POST', '/api/rounds/:id/confirm-field', c => { const u = needP(c, 'round_field'); return confirmRoundField(db, c.parts[3], u) }],
+  ['POST', '/api/workflows/round_sampling/:id/submit', c => {
+    const u = needLogin(c)
+    return submitSamplingWorkflow(db, decodeURIComponent(c.parts[4]), u)
+  }],
+  ['GET', '/api/workflow-tasks/:scope', c => {
+    const u = needLogin(c)
+    const scope = decodeURIComponent(c.parts[3])
+    if (!PROFESSIONAL_SCOPES.includes(scope as any)) throw new HttpErr(400, '不支持的专业环节')
+    return listActorWorkflowTasks(db, scope, u)
+  }],
+  ['GET', '/api/workflows/:subjectType/:subjectId', c => {
+    const u = needLogin(c)
+    return withStableWorkflowError(() => professionalWorkflowForActor(
+      decodeURIComponent(c.parts[3]), decodeURIComponent(c.parts[4]), u,
+    ))
+  }],
+  ['POST', '/api/workflows/:subjectType/:subjectId/submit', c => {
+    const u = needLogin(c)
+    return withStableWorkflowError(() => submitProfessionalWorkflow(
+      db, decodeURIComponent(c.parts[3]), decodeURIComponent(c.parts[4]), u,
+    ))
+  }],
+  ['POST', '/api/workflows/:instanceId/decide', c => {
+    const u = needLogin(c)
+    return withStableWorkflowError(() => decideProfessionalWorkflow(
+      db,
+      decodeURIComponent(c.parts[3]),
+      Number(c.body?.revision),
+      String(c.body?.level || ''),
+      String(c.body?.decision || ''),
+      String(c.body?.comment || ''),
+      u,
+    ))
+  }],
+  ['POST', '/api/workflows/:instanceId/withdraw', c => {
+    const u = needLogin(c)
+    return withStableWorkflowError(() => withdrawProfessionalWorkflow(
+      db, decodeURIComponent(c.parts[3]), String(c.body?.reason || ''), u,
+    ))
+  }],
   ['POST', '/api/rounds/:id/sample', c => { const u = needP(c, 'round_field'); const r = sampleRound(db, c.parts[3], u, undefined, { supervisor: hasRole(u, 'tech') }); logAction(db, c.parts[3], u, 'round_sample', { n: r.length }); return r }],
-  ['POST', '/api/reports/generate-round', c => { const u = needP(c, 'report_generate'); const r = generateRoundReport(db, c.body.roundId, undefined, u.name, u.username); logAction(db, r.id, u, 'report_generate', { round: c.body.roundId }); return r }],
+  ['POST', '/api/reports/generate-round', c => { const u = needP(c, 'report_generate'); const r = generateRoundReport(db, c.body.roundId, undefined, u.name, u.username, c.body.archivePackageId || ''); logAction(db, r.id, u, 'report_generate', { round: c.body.roundId, archivePackageId: c.body.archivePackageId || null }); return r }],
 
   // 记录列表 + 三级审核
   ['GET', '/api/records-list', c => { const u = needLogin(c); return listRecords(db, { status: c.query.get('status') || undefined, sampleId: c.query.get('sampleId') || undefined, instrumentId: c.query.get('instrumentId') || undefined }).map(r => maskSheetForUser(u, r)) }],
   ['POST', '/api/records/:id/review', c => {
     const op = c.body.op
-    // 复核环节要复核员，终审环节要审核员——三级审核的「级」由角色保证（tech 兜底见矩阵）
-    const who = (op === 'review_pass' || op === 'review_reject') ? needP(c, 'record_review') : needP(c, 'record_approve')
-    return reviewRecord(db, c.parts[3], op, who.name, c.body.comment || '', who.username)
+    const recordId = c.parts[3]
+    // 项目工作流依精确资格/指派放行，不要再叠加粗角色；
+    // 真正无范围的存量记录则保留原有分操作权限。
+    const who = getWorkflowView(db, 'lab_record', recordId)
+      ? needLogin(c)
+      : (op === 'review_pass' || op === 'review_reject' ? needP(c, 'record_review') : needP(c, 'record_approve'))
+    return reviewRecord(db, recordId, op, who.name, c.body.comment || '', who.username)
   }],
   // 标复检：检测员只能动自己名下的记录（编制人/任务受派人）；复核/审核/tech 不限（体检19）
   ['POST', '/api/records/:id/recheck', c => {
     const u = needP(c, 'record_recheck')
     const flag = c.body.flag !== false
     const r = flagRecheck(db, c.parts[3], c.body.reason || '', flag, u.name,
-      { username: u.username, restrictToOwn: !hasRole(u, 'reviewer', 'approver', 'tech') })
+      { username: u.username, restrictToOwn: !hasRole(u, 'analyst', 'report_editor', 'tech') })
     logAction(db, c.parts[3], u, flag ? 'recheck_flag' : 'recheck_clear', { reason: c.body.reason })
     return r
   }],
@@ -369,24 +570,24 @@ const routes: [string, string, Handler][] = [
 
   // 检测报告：读也限报告链上的人（与前端 PAGE_ROLES.reports 同口径，体检8d）
   ['GET', '/api/reports', c => { need(c, ...REPORT_READ_ROLES); return listReports(db) }],
-  ['POST', '/api/reports/generate', c => { const u = needP(c, 'report_generate'); const r = generateReport(db, c.body.sampleId, undefined, u.name, u.username); logAction(db, r.id, u, 'report_generate', { sample: c.body.sampleId }); return r }],
+  ['POST', '/api/reports/generate', c => { const u = needP(c, 'report_generate'); const r = generateReport(db, c.body.sampleId, undefined, u.name, u.username, c.body.archivePackageId || ''); logAction(db, r.id, u, 'report_generate', { sample: c.body.sampleId, archivePackageId: c.body.archivePackageId || null }); return r }],
   ['GET', '/api/reports/:id', c => { const u = needLogin(c); return assertReportReadAccess(db, c.parts[3], u) }],
-  ['POST', '/api/reports/:id/check', c => { const u = needP(c, 'report_check'); const r = checkReport(db, c.parts[3], u.name, u.username); logAction(db, c.parts[3], u, 'report_check', {}); return r }],
+  ['POST', '/api/reports/:id/check', c => { const u = needLogin(c); const r = withStableWorkflowError(() => checkReport(db, c.parts[3], u.name, u.username, c.body?.revision)); logAction(db, c.parts[3], u, 'report_check', { revision: c.body?.revision }); return r }],
   ['POST', '/api/reports/:id/issue', c => { const u = needP(c, 'report_issue'); const r = issueReport(db, c.parts[3], u.name, u.username); logAction(db, c.parts[3], u, 'report_issue', {}); return r }],
-  ['POST', '/api/reports/:id/update', c => { const u = needP(c, 'report_update'); const r = updateReport(db, c.parts[3], c.body); logAction(db, c.parts[3], u, 'report_update', c.body); return r }],
+  ['POST', '/api/reports/:id/update', c => { const u = needP(c, 'report_update'); const r = updateReport(db, c.parts[3], c.body, u); logAction(db, c.parts[3], u, 'report_update', c.body); return r }],
   // 决策17：签发后要改走作废重出（作废限签发本人，tech/admin 兜底放行——handlers 里比对）；合同总报告
   ['POST', '/api/reports/:id/void', c => { const u = needP(c, 'report_issue'); return voidReport(db, c.parts[3], c.body.reason, u, hasRole(u, 'tech')) }],
-  ['POST', '/api/reports/:id/reject', c => { const u = needP(c, 'report_check'); return rejectReport(db, c.parts[3], c.body.reason, u) }],
+  ['POST', '/api/reports/:id/reject', c => { const u = needLogin(c); return withStableWorkflowError(() => rejectReport(db, c.parts[3], c.body.reason, u, c.body?.revision)) }],
   // 报告草稿可删（draft/checked；issued/voided 不许）：物理删 + 留痕，删后可重新生成
   ['POST', '/api/reports/:id/delete', c => { const u = needP(c, 'report_generate'); return deleteReport(db, c.parts[3], u) }],
-  ['POST', '/api/reports/generate-contract', c => { const u = needP(c, 'report_generate'); const r = generateContractReport(db, c.body.contractId, u.name, undefined, u.username); logAction(db, r.id, u, 'report_generate', { contract: c.body.contractId, kind: 'total' }); return r }],
+  ['POST', '/api/reports/generate-contract', c => { const u = needP(c, 'report_generate'); const r = generateContractReport(db, c.body.contractId, u.name, undefined, u.username, c.body.archivePackageId); logAction(db, r.id, u, 'report_generate', { contract: c.body.contractId, kind: 'total', archivePackageId: c.body.archivePackageId }); return r }],
 
   // 管理统计看板：全所家底聚合
   ['GET', '/api/stats/yearly', c => { needLogin(c); return statsYearly(db, Number(c.query.get('year')) || new Date().getFullYear()) }],
   ['GET', '/api/stats/overview', c => { needLogin(c); return statsOverview(db) }],
 
-  // 分包管理：分包方资质 + 委托方同意 + 结果核验（读也限 登记员/技术负责人，体检8f）
-  ['GET', '/api/subcontracts', c => { need(c, 'registrar', 'tech'); return listSubcontracts(db, { contractId: c.query.get('contractId') || undefined }) }],
+  // 分包管理：分包方资质 + 委托方同意 + 结果核验（读也限 业务员/技术负责人，体检8f）
+  ['GET', '/api/subcontracts', c => { need(c, 'sales', 'tech'); return listSubcontracts(db, { contractId: c.query.get('contractId') || undefined }) }],
   ['POST', '/api/subcontracts', c => { const u = needP(c, 'subcontract'); const r = addSubcontract(db, c.body, u); logAction(db, String(r.id), u, 'subcontract_create', { subcontractor: r.subcontractor, contract: r.contract_id }); return r }],
   // 更新留痕在 handlers 里做（体检45）：记变更字段的 from→to diff
   ['POST', '/api/subcontracts/:id/update', c => { const u = needP(c, 'subcontract'); return updateSubcontract(db, Number(c.parts[3]), c.body, u) }],
@@ -452,6 +653,15 @@ const server = createServer(async (rreq, res) => {
     res.writeHead(403); return res.end(JSON.stringify({ error: '请先修改初始密码后再使用系统', must_change_pw: true }))
   }
 
+  // 只有专业资格、没有系统基础岗位的账号必须从本人精确待办进入。
+  // 此门禁位于二进制和 JSON 路由之前，白名单外一律拒绝；未来新增路由也不会意外开放全局数据。
+  if (user && !hasBaseBusinessRole(user.roles) && !qualificationOnlyRouteAllowed(rreq.method || 'GET', path)) {
+    res.writeHead(403); return res.end(JSON.stringify({
+      error: '资格专属账号只能访问本人专业待办与当前受派工作流',
+      error_code: 'QUALIFICATION_ONLY_ROUTE_FORBIDDEN',
+    }))
+  }
+
   // —— 合同原件：二进制上传/下载，绕开 JSON 解析 ——
   const docM = path.match(/^\/api\/contracts\/([^/]+)\/doc$/)
   if (docM) {
@@ -485,9 +695,9 @@ const server = createServer(async (rreq, res) => {
       }
     }
     if (rreq.method === 'GET') {
-      // 合同原件（含金额条款的扫描件）下载限：合同管理角色 + 报告链上的签字/复核/审核（体检8b）
-      if (!hasRole(user, ...PERM.contract_edit, 'signer', 'reviewer', 'approver')) {
-        res.writeHead(403); return res.end(JSON.stringify({ error: '查看合同原件需要 登记员/技术负责人/授权签字人/复核员/审核员 权限' }))
+      // 合同原件（含金额条款的扫描件）下载限：合同管理角色 + 报告编制/签字岗位（体检8b）
+      if (!hasRole(user, ...PERM.contract_edit, 'signer', 'report_editor')) {
+        res.writeHead(403); return res.end(JSON.stringify({ error: '查看合同原件需要 业务员/技术负责人/报告编制人员/授权签字人 权限' }))
       }
       const row = getContractRow(db, cid)
       if (!row?.doc_path || !existsSync(join(UPLOAD_DIR, row.doc_path))) { res.writeHead(404); return res.end(JSON.stringify({ error: '暂无合同原件' })) }
@@ -571,7 +781,7 @@ const server = createServer(async (rreq, res) => {
       // 落盘后入库，若入库失败（记录不存在/已定稿冻结）删掉孤儿文件，别让证据盘堆垃圾
       let a
       try {
-        a = addAttachment(db, { entityType: type, entityId, origName, storedName, mime: MIME[ext], size: buf.length }, user!)
+        a = addAttachment(db, { entityType: type, entityId, origName, storedName, mime: MIME[ext], size: buf.length, contentHash: createHash('sha256').update(buf).digest('hex') }, user!)
       } catch (e) {
         try { unlinkSync(join(UPLOAD_DIR, storedName)) } catch { /* 已不在就算了 */ }
         throw e

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// PRD 步骤6 跨合同同表：检测员挑一张表，把名下所有该测这个项目的样品（可跨合同）放进同一张表逐行录，
+// 阶段 8 跨合同同表：实验室分析人员挑一张表，把名下所有该测这个项目的样品（可跨合同）放进同一张表逐行录，
 // 保存时系统按样品编号逐个落成各自的记录、自动归到所属合同。
 import { ref, computed, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -14,7 +14,7 @@ type Tpl = { code: string; name: string; analyte: string; matrix: string; method
 const LAB_TPLS = (templatesJson as Tpl[]).filter(t => (t.sheetType === '原始记录') && templatePhase(t) === '实验室')
 
 // 真盲视角同 Samples.vue 口径：盲用户拿到的 contract_id 已被后端脱敏，别把有委托的样标成"散样"
-const isBlindView = computed(() => hasRole('tester') && !hasRole('admin', 'tech', 'qc', 'registrar', 'sampler', 'signer'))
+const isBlindView = computed(() => hasRole('analyst') && !hasRole('admin', 'tech', 'qc', 'sales', 'sampler', 'signer'))
 const emit = defineEmits<{ saved: [] }>()
 const props = defineProps<{ samples: Sample[]; myTasks: TestTask[] }>()
 
@@ -29,7 +29,7 @@ const schema = computed(() => (tpl.value ? resolveSchema(tpl.value.sheetType, tp
 // 输入列（id/input），auto 列现算
 const cols = computed(() => schema.value?.columns ?? [])
 
-// 候选样品：tech 看全部待检样品；检测员只看质控派给自己的项目匹配这张表的
+// 候选样品：tech 看全部待检样品；实验室分析人员只看质控派给自己的项目匹配这张表的
 function analyteHits(items: string[], analyte: string) {
   const a = analyte.toLowerCase()
   return items.some(it => { const s = it.toLowerCase(); return a && (a.includes(s) || s.includes(a)) })

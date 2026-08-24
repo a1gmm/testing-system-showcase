@@ -5,7 +5,10 @@ import {
   createSample, addHandover, saveRecord, reviewRecord, createContract, createScheme, reviewScheme, listRounds,
   addAttachment, listAttachments, getAttachment, deleteAttachment,
   listAudit, canManageAttachment,
+  assignRound, createUser, saveRoundField, saveRoundSheet, submitSamplingWorkflow,
 } from '../src/handlers.ts'
+import { assignProjectReviewers, setUserQualifications } from '../src/qualifications.ts'
+import { decideWorkflow } from '../src/workflow.ts'
 
 function freshDb() { return openDb(':memory:') }
 const actor = { name: '赵采样', username: 'demo_sampler' }
@@ -20,7 +23,7 @@ function makeRecord(db: any) {
 test('附件：上传后按时间列出，记文件名+上传人', () => {
   const db = freshDb()
   const { record } = makeRecord(db)
-  addAttachment(db, { entityType: 'record', entityId: record.id, origName: '小票.jpg', storedName: 'a1.jpg', mime: 'image/jpeg', size: 1234 }, actor)
+  addAttachment(db, { entityType: 'record', entityId: record.id, origName: '小票.jpg', storedName: 'a1.jpg', mime: 'image/jpeg', size: 1234, contentHash: 'c'.repeat(64) }, actor)
   addAttachment(db, { entityType: 'record', entityId: record.id, origName: '现场.png', storedName: 'a2.png', mime: 'image/png', size: 999 }, actor)
   const list = listAttachments(db, 'record', record.id)
   assert.equal(list.length, 2)
@@ -28,6 +31,7 @@ test('附件：上传后按时间列出，记文件名+上传人', () => {
   assert.equal(list[0].stored_name, 'a1.jpg')
   assert.equal(list[0].who, '赵采样')
   assert.equal(list[0].username, 'demo_sampler')
+  assert.equal(list[0].content_hash, 'c'.repeat(64))
 })
 
 test('附件：不支持的记录类型 / 文件名必填 / 目标记录不存在 都报错', () => {
@@ -117,4 +121,34 @@ test('现场采样单附件在报告签发后冻结新增和删除', () => {
     VALUES ('BG2026-9999', ?, ?, '甲厂', '报告', '', '{}', 'issued', '2026-08-02T00:00:00Z')`).run(round.id, c.id)
   assert.throws(() => addAttachment(db, { entityType: 'round_sheet', entityId: target, origName: '补传.jpg', storedName: 'late.jpg' }, actor), /冻结/)
   assert.throws(() => deleteAttachment(db, attachment.id, actor), /冻结/)
+})
+
+test('sampling approval freezes existing round-sheet attachments before any later report is issued', () => {
+  const db = freshDb()
+  const c = createContract(db, { client: '甲厂', plan: [{ matrix: '废水', items: ['COD'], qty: 1 }] }, 2026)
+  createScheme(db, { contractId: c.id, cycleMonths: 0, periodStart: '2026-08-01', periodEnd: '2026-08-01' }, 2026)
+  reviewScheme(db, c.id, 'approve', '许技术')
+  const author = { username: 'sampling-author', name: '采样编制', roles: ['sampler'], status: 'active' } as any
+  const reviewer = { username: 'sampling-reviewer', name: '采样复核', roles: [], status: 'active' } as any
+  const approver = { username: 'sampling-approver', name: '采样审核', roles: [], status: 'active' } as any
+  for (const user of [author, reviewer, approver]) createUser(db, { username: user.username, name: user.name, roles: user.roles, password: 'secret1' })
+  const round = listRounds(db, c.id)[0]
+  assignRound(db, round.id, [author.username])
+  saveRoundField(db, round.id, { weather: '晴' }, author, { supervisor: false })
+  saveRoundSheet(db, round.id, 'HJ-TC-136', { rows: [] }, author, undefined, { supervisor: false })
+  const attachment = addAttachment(db, { entityType: 'round_sheet', entityId: `${round.id}::HJ-TC-136`, origName: '现场.jpg', storedName: 'field.jpg', contentHash: 'b'.repeat(64) }, author)
+  const admin = { username: 'admin', name: 'admin', roles: ['admin'], status: 'active' } as any
+  const planner = { username: 'planner', name: 'planner', roles: ['planner'], status: 'active' } as any
+  setUserQualifications(db, reviewer.username, ['sampling_review'], admin)
+  setUserQualifications(db, approver.username, ['sampling_approve'], admin)
+  assignProjectReviewers(db, c.id, 'sampling', reviewer.username, approver.username, planner)
+  const workflow = submitSamplingWorkflow(db, round.id, author)
+  assert.throws(() => addAttachment(db, { entityType: 'round_sheet', entityId: `${round.id}::HJ-TC-136`, origName: '待复核补传.jpg', storedName: 'review.jpg' }, author), /已提交审核并冻结/)
+  assert.throws(() => deleteAttachment(db, attachment.id, { ...author, roles: ['sampler'] }), /已提交审核并冻结/)
+  decideWorkflow(db, workflow.id, 1, 'review', 'approve', '', reviewer)
+  assert.throws(() => addAttachment(db, { entityType: 'round_sheet', entityId: `${round.id}::HJ-TC-136`, origName: '待审核补传.jpg', storedName: 'approve.jpg' }, author), /已提交审核并冻结/)
+  assert.throws(() => deleteAttachment(db, attachment.id, { ...author, roles: ['sampler'] }), /已提交审核并冻结/)
+  decideWorkflow(db, workflow.id, 1, 'approve', 'approve', '', approver)
+  assert.throws(() => addAttachment(db, { entityType: 'round_sheet', entityId: `${round.id}::HJ-TC-136`, origName: '定稿补传.jpg', storedName: 'approved.jpg' }, author), /已批准内容已冻结/)
+  assert.throws(() => deleteAttachment(db, attachment.id, { ...author, roles: ['sampler'] }), /已批准内容已冻结/)
 })

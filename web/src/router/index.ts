@@ -26,13 +26,14 @@ const routes: RouteRecordRaw[] = [
       { path: 'mobile-confirmation', name: 'mobile-confirmation', meta: { title: '第二设备确认', roles: ['sampler'] }, component: () => import('../pages/MobileConfirmation.vue') },
       { path: 'qc', name: 'qc', meta: { title: '质控交接', roles: PAGE_ROLES.qc }, component: () => import('../pages/Qc.vue') },
       { path: 'samples', name: 'samples', meta: { title: '检测录入', roles: PAGE_ROLES.samples }, component: () => import('../pages/Samples.vue') },
-      { path: 'review', name: 'review', meta: { title: '三级审核', roles: PAGE_ROLES.review }, component: () => import('../pages/Review.vue') },
+      { path: 'review', redirect: { path: '/samples', query: { stage: 'laboratory', queue: 'review' } } },
+      { path: 'archive-packages', name: 'archive-packages', meta: { title: '1–8 档案归档', roles: PAGE_ROLES['archive-packages'] }, component: () => import('../pages/ArchivePackages.vue') },
       { path: 'reports', name: 'reports', meta: { title: '报告签发', roles: PAGE_ROLES.reports }, component: () => import('../pages/Reports.vue') },
       { path: 'instruments', name: 'instruments', meta: { title: '资源台账', roles: PAGE_ROLES.instruments }, component: () => import('../pages/Resources.vue') },
       { path: 'users', name: 'users', meta: { title: '人员与权限', roles: PAGE_ROLES.users }, component: () => import('../pages/Users.vue') },
-      { path: 'archive', name: 'archive', meta: { title: '数据留痕归档', roles: PAGE_ROLES.archive }, component: () => import('../pages/Archive.vue') },
+      { path: 'archive', name: 'archive', meta: { title: '数据留痕查询', roles: PAGE_ROLES.archive }, component: () => import('../pages/Archive.vue') },
       // 模板库是纯只读的记录表原样预览，有意全员开放（显式列全所有角色，避免被当成漏配）
-      { path: 'templates', name: 'templates', meta: { title: '记录表模板库', roles: ['admin', 'registrar', 'sampler', 'tester', 'reviewer', 'approver', 'signer', 'tech', 'qc'] }, component: () => import('../pages/TemplateLibrary.vue') },
+      { path: 'templates', name: 'templates', meta: { title: '记录表模板库', roles: ['admin', 'sales', 'tech', 'planner', 'sampler', 'sample_manager', 'qc', 'analyst', 'report_editor', 'archivist', 'signer'] }, component: () => import('../pages/TemplateLibrary.vue') },
       { path: 'system-records', name: 'system-records', meta: { title: '体系运行记录', roles: PAGE_ROLES['system-records'] }, component: () => import('../pages/SystemRecords.vue') },
       { path: 'subcontracts', name: 'subcontracts', meta: { title: '分包管理', roles: PAGE_ROLES.subcontracts }, component: () => import('../pages/SubContracts.vue') },
     ],
@@ -44,6 +45,22 @@ const router = createRouter({
   routes,
 })
 
+const PROFESSIONAL_PAGE_CAPABILITY: Record<string, { stage: string; scope: 'sampling' | 'quality' }> = {
+  plans: { stage: 'sampling', scope: 'sampling' },
+  qc: { stage: 'quality', scope: 'quality' },
+}
+
+async function hasFocusedProfessionalCapability(to: Parameters<Parameters<typeof router.beforeEach>[0]>[0]) {
+  const routeName = typeof to.name === 'string' ? to.name : ''
+  const capability = PROFESSIONAL_PAGE_CAPABILITY[routeName]
+  const queue = String(to.query.queue || '')
+  if (!capability || to.query.stage !== capability.stage || (queue !== 'review' && queue !== 'approve')) return false
+  try {
+    const tasks = await api.listWorkflowTasks(capability.scope)
+    return tasks.some(task => task.decision_level === queue)
+  } catch { return false }
+}
+
 // 登录守卫：没 token 去登录页；按岗位拦页面（直接输网址也进不去别人的岗位页）
 router.beforeEach(async (to) => {
   if (to.meta.public) return true
@@ -53,7 +70,7 @@ router.beforeEach(async (to) => {
   if (!getToken()) return '/login'
   if (!currentUser.value) { try { await api.me() } catch { /* 拦截器会踢回登录 */ } }
   const roles = to.meta.roles as string[] | undefined
-  if (roles && !hasRole(...roles)) return '/dashboard'
+  if (roles && !hasRole(...roles) && !(await hasFocusedProfessionalCapability(to))) return '/dashboard'
   return true
 })
 

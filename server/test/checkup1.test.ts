@@ -11,11 +11,17 @@ import {
   generateReport, generateRoundReport, getReport, checkReport, issueReport, voidReport, deleteReport,
   createUser, login,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveRoundQuality } from './support/approved-quality.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
+import { generateTestRoundReport, issueTestReport } from './support/approved-report.ts'
 
 function freshDb() { return openDb(':memory:') }
 
 // 帮手：建合同+方案+审批 → 排出一期，并派工两名采样员（含双确认可选）
 function makeRound(db: any, opts: { confirm?: boolean } = {}) {
+  createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
+  createUser(db, { username: 'demo_tech', name: '许技术', roles: ['tech'], password: 'x12345' })
   const c = createContract(db, { client: '现场厂', project: 'x', periodStart: '2026-07-01', periodEnd: '2026-07-01', plan: [{ matrix: '废水', items: ['COD'], qty: 1, cycleMonths: 0 }] })
   acceptContract(db, c.id, '周登记')
   createScheme(db, { contractId: c.id, cycleMonths: 0, periodStart: '2026-07-01', periodEnd: '2026-07-01', points: [{ element: '废水', point: '1#口', items: ['COD'], freq: '每天1次 · 单次', standard: '' }], limits: [] })
@@ -44,6 +50,7 @@ test('修1a 冻结：期次已收样入库后，采样单和现场记录都不�
   const db = freshDb()
   const { roundId } = makeRound(db)
   saveRoundSheet(db, roundId, 'HJ-TC-136', { rows: [{ v: '入库前能填' }] }, { name: '赵采样', username: 'demo_sampler' })
+  approveRoundSampling(db, roundId, { username: 'demo_sampler', name: '赵采样' })
   sampleRound(db, roundId, { name: '赵采样', username: 'demo_sampler' })
   assert.equal(getRound(db, roundId)!.status, 'done')
   assert.throws(() => saveRoundSheet(db, roundId, 'HJ-TC-136', { rows: [{ v: '想偷改' }] }, { name: '赵采样', username: 'demo_sampler' }), /冻结/)
@@ -55,21 +62,27 @@ test('修1a 冻结：期次已收样入库后，采样单和现场记录都不�
 test('修1a 冻结：该期报告已签发（未作废）也拦——即便期次状态被拨回', () => {
   const db = freshDb()
   const { roundId } = makeRound(db)
+  approveRoundSampling(db, roundId, { username: 'demo_sampler', name: '赵采样' })
   const made = sampleRound(db, roundId, { name: '赵采样', username: 'demo_sampler' })
   // 把普通样的记录走完三级审核，出期次报告并签发
   const normal = made.filter(s => !s.qc_type)
   for (const s of normal) {
-    let rec = saveRecord(db, { sampleId: s.id, code: 'HJ-TC-001', analyte: 'COD', data: { rows: [], resultSummary: { analyte: 'COD', value: 1, unit: 'mg/L' } }, who: '陈检测', submit: true })
-    rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-    reviewRecord(db, rec.id, 'approve', '孙审核')
+    approveLaboratoryRecord(db, {
+      sampleId: s.id, code: 'HJ-TC-001', analyte: 'COD',
+      data: { rows: [], resultSummary: { analyte: 'COD', value: 1, unit: 'mg/L' } },
+    })
   }
-  const rep = generateRoundReport(db, roundId, 2026)
-  checkReport(db, rep.id, '孙审核')
-  issueReport(db, rep.id, '林工程师')
-  // 模拟脏数据：期次被拨回 pending，也不能借机改现场记录——报告签发即冻结
-  db.prepare(`UPDATE rounds SET status='pending' WHERE id=?`).run(roundId)
-  assert.throws(() => saveRoundSheet(db, roundId, 'HJ-TC-136', { rows: [] }, { name: '赵采样' }), /报告已签发.*冻结/)
-  assert.throws(() => saveRoundField(db, roundId, { weather: '改' }), /报告已签发.*冻结/)
+  const rep = generateTestRoundReport(db, roundId, 2026)
+  issueTestReport(db, rep.id)
+  // 用无专业工作流的历史期次钉住旧报告闸；新期次会先命中更强的采样定稿冻结。
+  const legacyDb = freshDb()
+  const { c: legacyContract, roundId: legacyRoundId } = makeRound(legacyDb)
+  legacyDb.prepare(`INSERT INTO reports (id,round_id,contract_id,client,title,conclusion,data,status,created_at)
+    VALUES ('BG-LEGACY-ISSUED',?,?,?,'历史报告','','{}','issued','2026-07-02')`)
+    .run(legacyRoundId, legacyContract.id, legacyContract.client)
+  legacyDb.prepare(`UPDATE rounds SET status='pending' WHERE id=?`).run(legacyRoundId)
+  assert.throws(() => saveRoundSheet(legacyDb, legacyRoundId, 'HJ-TC-136', { rows: [] }, { name: '赵采样' }), /报告已签发.*冻结/)
+  assert.throws(() => saveRoundField(legacyDb, legacyRoundId, { weather: '改' }), /报告已签发.*冻结/)
 })
 
 test('修1b 归属：非本期派工采样员不能填（tech/admin 放行）', () => {
@@ -216,7 +229,7 @@ test('修4 排期：5次/年 跨两年合同 → 正好 10 期', () => {
 
 test('修5 防爆破：连续错5次锁15分钟（429+剩余分钟），到期解锁，成功清零', () => {
   const db = freshDb()
-  createUser(db, { username: 'bf1', name: '爆破一', roles: ['tester'], password: 'right123' })
+  createUser(db, { username: 'bf1', name: '爆破一', roles: ['analyst'], password: 'right123' })
   const t0 = Date.now()
   for (let i = 0; i < 4; i++) assert.throws(() => login(db, 'bf1', 'wrong', t0), /用户名或密码不正确/)
   // 第 5 次失败：上锁，429 + 中文提示
@@ -231,7 +244,7 @@ test('修5 防爆破：连续错5次锁15分钟（429+剩余分钟），到期�
 
 test('修5 防爆破：成功登录清零计数，不会 4+1 凑成锁', () => {
   const db = freshDb()
-  createUser(db, { username: 'bf2', name: '爆破二', roles: ['tester'], password: 'right123' })
+  createUser(db, { username: 'bf2', name: '爆破二', roles: ['analyst'], password: 'right123' })
   const t0 = Date.now()
   for (let i = 0; i < 4; i++) assert.throws(() => login(db, 'bf2', 'wrong', t0), /用户名或密码不正确/)
   assert.ok(login(db, 'bf2', 'right123', t0).token)   // 成功 → 清零
@@ -261,10 +274,15 @@ test('修7 三级审核：同名不同账号不再误拦；同账号改名字绕
 
 test('修7 任务归属：重名冒充录不了；本人改过显示名照样能录', () => {
   const db = freshDb()
-  const c = createContract(db, { client: '归属厂' }, 2026)
+  createUser(db, { username: 'demo_qc', name: '吴质控', roles: ['qc'], password: 'secret1' })
+  const c = createContract(db, { client: '归属厂', plan: [{ matrix: '废水', items: ['COD'], qty: 1 }] }, 2026)
+  db.prepare(`INSERT INTO rounds (id,contract_id,round_no,due_date,items,status,created_at) VALUES ('R-OWNER',?,1,'2026-08-17',?,'done','2026-08-17')`)
+    .run(c.id, JSON.stringify([{ matrix: '废水', items: ['COD'], qty: 1 }]))
   const s = createSample(db, { client: '归属厂', matrix: '废水', items: ['COD'], contractId: c.id }, 2026)
+  db.prepare(`UPDATE samples SET round_id='R-OWNER', source='field' WHERE id=?`).run(s.id)
   const h = addHandover(db, s.id, { action: '采样交接' }, { name: '赵采样', username: 'demo_sampler' })
   confirmHandover(db, h.id, { name: '吴质控', username: 'demo_qc' })
+  approveRoundQuality(db, 'R-OWNER', { name: '吴质控', username: 'demo_qc' })
   assignTestTasks(db, s.id, [{ analyte: 'COD', assignee: '陈检测', assigneeUsername: 'demo_tester' }], { name: '吴质控', username: 'demo_qc' })
   // 名字对但登录名不对（重名冒充）→ 拦
   assert.throws(() => saveRecord(db, { sampleId: s.id, code: 'HJ-TC-001', analyte: 'COD', data: {}, who: '陈检测', whoUsername: 'imposter' }, { supervisor: false }), /没有派给你/)

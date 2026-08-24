@@ -6,13 +6,16 @@ import {
   createContract, acceptContract, createScheme, reviewScheme, composeFreq, createUser,
   listRounds, assignRound, confirmRoundField, sampleRound,
   listHandoverSheets, sendHandoverSheet, confirmHandoverSheet,
-  saveRecord, reviewRecord, generateRoundReport, addSubcontract, getSample,
+  saveRecord, reviewRecord, addSubcontract, getSample,
 } from '../src/handlers.ts'
+import { generateTestRoundReport } from './support/approved-report.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
 
 test('分包项目：结果行 sub=true，data.subNote 带分包方与证书号', () => {
   const db = openDb(':memory:')
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
-  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc'], password: 'x12345' })
+  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
   const c = createContract(db, { client: '分包厂', project: '例行', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
@@ -24,6 +27,7 @@ test('分包项目：结果行 sub=true，data.subNote 带分包方与证书号'
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, { username: 'demo_sampler', name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样', username: 'demo_sampler' })
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, { name: '赵采样', username: 'demo_sampler' })
@@ -31,15 +35,13 @@ test('分包项目：结果行 sub=true，data.subNote 带分包方与证书号'
   for (const s0 of made) {
     const s = getSample(db, s0.id)!
     for (const analyte of s.items) {
-      let rec = saveRecord(db, {
+      approveLaboratoryRecord(db, {
         sampleId: s.id, code: analyte === 'COD' ? 'HJ-TC-103' : 'HJ-TC-901', analyte, method: 'x',
-        data: { rows: [], meta: {}, resultSummary: { analyte, value: 1, unit: 'mg/L' } }, submit: true,
+        data: { rows: [], meta: {}, resultSummary: { analyte, value: 1, unit: 'mg/L' } },
       })
-      rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-      reviewRecord(db, rec.id, 'approve', '孙审核')
     }
   }
-  const rp = generateRoundReport(db, r.id, 2026, '周登记')
+  const rp = generateTestRoundReport(db, r.id, 2026)
   const hg = rp.data.results.find((x: any) => x.analyte === '烷基汞' && !x.qcType)
   const cod = rp.data.results.find((x: any) => x.analyte === 'COD' && !x.qcType)
   assert.equal(hg.sub, true, '分包项目打标')

@@ -9,13 +9,16 @@ import {
   saveRecord, reviewRecord, generateRoundReport,
   findReportsBySample, techReviewContract, getContract,
 } from '../src/handlers.ts'
+import { approveRoundSampling } from './support/approved-sampling.ts'
+import { approveLaboratoryRecord } from './support/approved-laboratory-record.ts'
+import { generateTestRoundReport } from './support/approved-report.ts'
 
 const qc = { name: '吴质控', username: 'qianqc' }
 
 test('样号反查：期次报告 sample_id 为空也能按样品编号查到报告', () => {
   const db = openDb(':memory:')
   createUser(db, { username: 'demo_sampler', name: '赵采样', roles: ['sampler'], password: 'x12345' })
-  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc'], password: 'x12345' })
+  createUser(db, { username: 'qianqc', name: '吴质控', roles: ['qc', 'sample_manager'], password: 'x12345' })
   const c = createContract(db, { client: '反查厂', project: '例行', periodStart: '2026-07-01', periodEnd: '2026-07-01' })
   acceptContract(db, c.id, '周登记')
   createScheme(db, {
@@ -26,19 +29,18 @@ test('样号反查：期次报告 sample_id 为空也能按样品编号查到报
   const r = listRounds(db, c.id)[0]
   assignRound(db, r.id, ['赵采样'])
   confirmRoundField(db, r.id, { name: '赵采样' })
+  approveRoundSampling(db, r.id, { username: 'demo_sampler', name: '赵采样' })
   const made = sampleRound(db, r.id, { name: '赵采样', username: 'demo_sampler' })
   const sh = listHandoverSheets(db, { roundId: r.id })[0]
   sendHandoverSheet(db, sh.id, { name: '赵采样', username: 'demo_sampler' })
   confirmHandoverSheet(db, sh.id, qc)
   for (const s of made) {
-    let rec = saveRecord(db, {
+    approveLaboratoryRecord(db, {
       sampleId: s.id, code: 'HJ-TC-103', analyte: 'COD',
-      data: { rows: [], meta: {}, resultSummary: { analyte: 'COD', value: 10, unit: 'mg/L' } }, submit: true,
+      data: { rows: [], meta: {}, resultSummary: { analyte: 'COD', value: 10, unit: 'mg/L' } },
     })
-    rec = reviewRecord(db, rec.id, 'review_pass', '郑复核')
-    reviewRecord(db, rec.id, 'approve', '孙审核')
   }
-  const rp = generateRoundReport(db, r.id, 2026, '周登记')
+  const rp = generateTestRoundReport(db, r.id, 2026)
   assert.equal(rp.sample_id, null, '期次报告本身不挂单个样品')
   const normal = made.find(s => !s.qc_type)!
   const found = findReportsBySample(db, normal.id)

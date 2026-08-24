@@ -5,10 +5,10 @@ import { ElMessage } from 'element-plus'
 import { api, type RecordRow, type Audit } from '../api'
 import { auditText, actionLabel } from '../utils/auditText'
 
-const STATUS = [['', '全部'], ['draft', '草稿'], ['submitted', '待复核'], ['reviewed', '待审核'], ['approved', '已定稿'], ['rejected', '已打回']] as [string, string][]
-const statusLabel: Record<string, string> = { draft: '草稿', submitted: '待复核', reviewed: '待审核', approved: '已定稿', rejected: '已打回' }
-// 记录状态 → 圆点语义：已定稿 good / 已打回 crit / 流转中 accent / 草稿 灰
-const statusDot: Record<string, string> = { draft: '', submitted: 'accent', reviewed: 'accent', approved: 'good', rejected: 'crit' }
+const STATUS = [['', '全部'], ['draft', '草稿'], ['submitted', '待复核'], ['reviewed', '待审核'], ['migration_required', '待迁移'], ['approved', '已定稿'], ['rejected', '已打回']] as [string, string][]
+const statusLabel: Record<string, string> = { draft: '草稿', submitted: '待复核', reviewed: '待审核', migration_required: '待迁移', approved: '已定稿', rejected: '已打回' }
+// 记录状态 → 圆点语义：已定稿 good / 待迁移 warn / 已打回 crit / 流转中 accent / 草稿 灰
+const statusDot: Record<string, string> = { draft: '', submitted: 'accent', reviewed: 'accent', migration_required: 'warn', approved: 'good', rejected: 'crit' }
 
 const all = ref<RecordRow[]>([])
 const keyword = ref('')
@@ -69,9 +69,10 @@ onMounted(refresh)
   <div class="pagewrap wide">
     <div class="phead">
       <div>
-        <h1 class="page">数据留痕归档</h1>
+        <h1 class="page">数据留痕查询</h1>
         <p class="sub">全部检测记录与其全程操作留痕（防篡改 · 只增不改）</p>
       </div>
+      <router-link class="formal-archive" to="/archive-packages">进入 ⑨ 1–8 档案归档 →</router-link>
       <span class="hcount num">共 {{ filtered.length }} 条</span>
     </div>
 
@@ -161,6 +162,7 @@ onMounted(refresh)
 .page{font-size:22px;font-weight:650;margin:0 0 4px;letter-spacing:-.01em}
 .sub{color:var(--muted);margin:0;font-size:13px}
 .hcount{color:var(--faint);font-size:12.5px;padding-top:9px}
+.formal-archive{margin-left:auto;min-height:44px;display:flex;align-items:center;color:var(--accent);font-size:13px;text-decoration:none}
 .seccount{font-size:12px;color:var(--faint)}
 
 .archive{display:grid;grid-template-columns:340px 1fr;gap:16px;flex:1;min-height:0}

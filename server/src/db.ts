@@ -131,13 +131,36 @@ CREATE TABLE IF NOT EXISTS records (
 CREATE TABLE IF NOT EXISTS users (
   username   TEXT PRIMARY KEY,           -- 登录名
   name       TEXT NOT NULL,              -- 姓名（留痕显示用）
-  roles      TEXT NOT NULL DEFAULT '[]', -- 角色 JSON：admin/registrar/sampler/tester/qc/reviewer/approver/signer/tech
+  roles      TEXT NOT NULL DEFAULT '[]', -- 岗位 JSON：admin/sales/tech/planner/sampler/sample_manager/qc/analyst/report_editor/archivist/signer
   pass_salt  TEXT NOT NULL,
   pass_hash  TEXT NOT NULL,              -- scrypt(password, salt)
   status     TEXT NOT NULL DEFAULT 'active',
   must_change_pw INTEGER NOT NULL DEFAULT 0, -- 1=初始/被重置密码，登录后必须先改密才能用系统
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS user_qualifications (
+  username TEXT NOT NULL,
+  code TEXT NOT NULL,
+  valid_from TEXT,
+  valid_until TEXT,
+  status TEXT NOT NULL DEFAULT 'active',
+  granted_by TEXT NOT NULL,
+  granted_at TEXT NOT NULL,
+  PRIMARY KEY(username, code)
+);
+CREATE TABLE IF NOT EXISTS project_stage_assignments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  contract_id TEXT NOT NULL,
+  scope TEXT NOT NULL,
+  reviewer_username TEXT NOT NULL,
+  approver_username TEXT NOT NULL,
+  active INTEGER NOT NULL DEFAULT 1,
+  reason TEXT,
+  assigned_by TEXT NOT NULL,
+  assigned_at TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_project_stage_assignment_active
+ON project_stage_assignments(contract_id, scope) WHERE active=1;
 CREATE TABLE IF NOT EXISTS sessions (
   token      TEXT PRIMARY KEY,
   username   TEXT NOT NULL,
@@ -196,7 +219,7 @@ CREATE TABLE IF NOT EXISTS sample_handovers (
 );
 
 -- 交接单（2026-07-31 批次一）：把一期样品的逐条交接聚成"一张单"——收样自动生成草稿、
--- 可人工改、发质控员整单签收；拒收落在明细行（rejected+原因），被拒样品的逐条交接不确认
+-- 可人工改、发样品管理员整单签收；拒收落在明细行（rejected+原因），被拒样品的逐条交接不确认
 CREATE TABLE IF NOT EXISTS handover_sheets (
   id          TEXT PRIMARY KEY,              -- JJ2026-0001
   round_id    TEXT NOT NULL,
@@ -205,8 +228,9 @@ CREATE TABLE IF NOT EXISTS handover_sheets (
   sample_ids  TEXT NOT NULL,                 -- JSON [样品编号]
   detail      TEXT NOT NULL DEFAULT '[]',    -- JSON 明细行 [{sampleId,items,condition,container,rejected,rejectReason}]
   from_person TEXT,                          -- 采/送样人
+  from_username TEXT,                        -- 实际发单账号（发送时写入；不可用显示名代替身份）
   from_at     TEXT,
-  to_person   TEXT,                          -- 收样人（质控员，签收时落）
+  to_person   TEXT,                          -- 收样人（样品管理员，签收时落）
   to_at       TEXT,
   storage     TEXT,                          -- 保存条件说明
   status      TEXT NOT NULL DEFAULT 'draft', -- draft → sent → confirmed
@@ -230,7 +254,7 @@ CREATE TABLE IF NOT EXISTS monitoring_points (
   UNIQUE(contract_id, name)
 );
 
--- 检测任务派工：质控员收样签收后，把每个样品的检测项目派给指定检测员（PRD 步骤5）
+-- 检测任务派工：样品管理员签收后，由质控员把每个样品的检测项目派给指定检测员
 CREATE TABLE IF NOT EXISTS test_tasks (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
   sample_id         TEXT NOT NULL,
@@ -319,6 +343,20 @@ CREATE TABLE IF NOT EXISTS qc_records (
   note         TEXT,
   who          TEXT NOT NULL, username TEXT,
   at           TEXT NOT NULL
+);
+
+-- 质控安排（步骤7）：质控员基于期次规则编制当前版本，提交统一工作流复核/审核。
+-- 实验室后续产生的 qc_records 数值不进入本表，也不进入安排快照。
+CREATE TABLE IF NOT EXISTS quality_plans (
+  subject_id        TEXT PRIMARY KEY,       -- roundId；后续报告批次使用 batchId
+  round_id          TEXT UNIQUE,
+  batch_id          TEXT UNIQUE,
+  contract_id       TEXT NOT NULL,
+  requirements_json TEXT NOT NULL DEFAULT '[]',
+  adjustments_json  TEXT NOT NULL DEFAULT '[]',
+  author_username   TEXT NOT NULL,
+  updated_at        TEXT NOT NULL,
+  CHECK ((round_id IS NOT NULL) <> (batch_id IS NOT NULL))
 );
 
 -- 质量体系运行记录（6.2/管理体系）：内审 / 管评 / 培训 / 文件受控…统一台账，可更新状态
@@ -431,7 +469,8 @@ CREATE TABLE IF NOT EXISTS attachments (
   username    TEXT,                      -- 上传人登录名
   at          TEXT NOT NULL,             -- 上传时间
   deleted_at  TEXT,                      -- 软删标记（NULL=有效）
-  deleted_by  TEXT                       -- 删除人登录名
+  deleted_by  TEXT,                      -- 删除人登录名
+  content_hash TEXT                      -- 上传正文 SHA-256
 );
 CREATE INDEX IF NOT EXISTS idx_attachments_entity ON attachments(entity_type, entity_id);
 
@@ -556,6 +595,102 @@ CREATE TABLE IF NOT EXISTS round_sheets (
   UNIQUE(round_id, template_code)
 );
 
+-- 报告批次只定义本次报告明确覆盖的期次；项目默认归档不需要批次，等待全部未取消期次。
+CREATE TABLE IF NOT EXISTS report_batches (
+  id          TEXT PRIMARY KEY,
+  contract_id TEXT NOT NULL,
+  name        TEXT NOT NULL,
+  created_by  TEXT NOT NULL,
+  created_at  TEXT NOT NULL,
+  FOREIGN KEY(contract_id) REFERENCES contracts(id)
+);
+CREATE TABLE IF NOT EXISTS report_batch_rounds (
+  batch_id    TEXT NOT NULL,
+  round_id    TEXT NOT NULL,
+  attached_by TEXT NOT NULL,
+  attached_at TEXT NOT NULL,
+  PRIMARY KEY(batch_id, round_id),
+  FOREIGN KEY(batch_id) REFERENCES report_batches(id),
+  FOREIGN KEY(round_id) REFERENCES rounds(id)
+);
+
+-- 每次构建都产生新版本；归档项只增不改，工作流证据绑定批准时的实例、版本和原始 SHA-256。
+CREATE TABLE IF NOT EXISTS archive_packages (
+  id                    TEXT PRIMARY KEY,
+  contract_id           TEXT NOT NULL,
+  report_batch_id       TEXT,
+  version               INTEGER NOT NULL CHECK(version >= 1),
+  status                TEXT NOT NULL CHECK(status IN ('draft','ready','confirmed','invalidated')),
+  manifest_sha256       TEXT NOT NULL,
+  readiness_json        TEXT NOT NULL DEFAULT '{}',
+  created_by            TEXT NOT NULL,
+  created_at            TEXT NOT NULL,
+  confirmed_by          TEXT,
+  confirmed_at          TEXT,
+  invalidated_by        TEXT,
+  invalidated_at        TEXT,
+  invalidation_reason   TEXT,
+  FOREIGN KEY(contract_id) REFERENCES contracts(id),
+  FOREIGN KEY(report_batch_id) REFERENCES report_batches(id)
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_archive_project_version
+  ON archive_packages(contract_id, version) WHERE report_batch_id IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_archive_batch_version
+  ON archive_packages(report_batch_id, version) WHERE report_batch_id IS NOT NULL;
+CREATE TABLE IF NOT EXISTS archive_items (
+  id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+  archive_package_id    TEXT NOT NULL,
+  item_order            INTEGER NOT NULL,
+  entity_type           TEXT NOT NULL,
+  entity_id             TEXT NOT NULL,
+  workflow_instance_id  TEXT,
+  revision              INTEGER,
+  content_hash          TEXT NOT NULL,
+  label                 TEXT NOT NULL,
+  metadata_json         TEXT NOT NULL DEFAULT '{}',
+  UNIQUE(archive_package_id, item_order),
+  FOREIGN KEY(archive_package_id) REFERENCES archive_packages(id)
+);
+CREATE INDEX IF NOT EXISTS idx_archive_items_workflow_revision
+  ON archive_items(workflow_instance_id, revision, archive_package_id);
+CREATE TRIGGER IF NOT EXISTS archive_items_immutable_insert
+BEFORE INSERT ON archive_items
+WHEN EXISTS (
+  SELECT 1 FROM archive_packages p
+  WHERE p.id=NEW.archive_package_id AND p.status IN ('confirmed','invalidated')
+) BEGIN
+  SELECT RAISE(ABORT, 'archive item immutable: 已确认或失效归档不可追加');
+END;
+CREATE TRIGGER IF NOT EXISTS archive_items_immutable_update
+BEFORE UPDATE ON archive_items BEGIN
+  SELECT RAISE(ABORT, 'archive item immutable: 归档项不可修改');
+END;
+CREATE TRIGGER IF NOT EXISTS archive_items_immutable_delete
+BEFORE DELETE ON archive_items BEGIN
+  SELECT RAISE(ABORT, 'archive item immutable: 归档项不可删除');
+END;
+CREATE TRIGGER IF NOT EXISTS archive_packages_no_delete
+BEFORE DELETE ON archive_packages BEGIN
+  SELECT RAISE(ABORT, 'archive version immutable: 归档版本不可删除');
+END;
+CREATE TRIGGER IF NOT EXISTS archive_confirmed_identity_immutable
+BEFORE UPDATE ON archive_packages
+WHEN OLD.status IN ('confirmed','invalidated') AND (
+  NEW.id IS NOT OLD.id OR NEW.contract_id IS NOT OLD.contract_id OR
+  NEW.report_batch_id IS NOT OLD.report_batch_id OR NEW.version IS NOT OLD.version OR
+  NEW.manifest_sha256 IS NOT OLD.manifest_sha256 OR NEW.readiness_json IS NOT OLD.readiness_json OR
+  NEW.created_by IS NOT OLD.created_by OR NEW.created_at IS NOT OLD.created_at OR
+  NEW.confirmed_by IS NOT OLD.confirmed_by OR NEW.confirmed_at IS NOT OLD.confirmed_at OR
+  ((OLD.status='invalidated' OR NEW.status<>'invalidated') AND (
+    NEW.invalidated_by IS NOT OLD.invalidated_by OR NEW.invalidated_at IS NOT OLD.invalidated_at OR
+    NEW.invalidation_reason IS NOT OLD.invalidation_reason
+  )) OR
+  (OLD.status='invalidated' AND NEW.status IS NOT OLD.status) OR
+  (OLD.status='confirmed' AND NEW.status NOT IN ('confirmed','invalidated'))
+) BEGIN
+  SELECT RAISE(ABORT, 'archive version immutable: 已确认归档不可修改');
+END;
+
 -- 检测报告：汇总某样品/合同已定稿的记录
 CREATE TABLE IF NOT EXISTS reports (
   id          TEXT PRIMARY KEY,          -- 报告号 BG2026-0001
@@ -567,10 +702,56 @@ CREATE TABLE IF NOT EXISTS reports (
   conclusion  TEXT,                      -- 结论
   data        TEXT NOT NULL,             -- JSON：结果明细 [{analyte,result,unit,limit,method}]
   status      TEXT NOT NULL,             -- 报告三级：draft 编制(待审核) | checked 已审核(待签发) | issued 已签发
+  archive_package_id TEXT,                -- 报告只能绑定一个已确认的不可变归档版本
+  archive_blocked_at TEXT,                -- 上游精确版本撤回后，草稿/已审核报告阻断后续动作
+  archive_block_reason TEXT,
+  archive_requires_reissue INTEGER NOT NULL DEFAULT 0, -- 已签发报告仍可读，但必须作废重出
   checker     TEXT, checked_at TEXT,     -- 报告审核人/时间
   issuer      TEXT, issued_at TEXT,      -- 签发人/时间(盖章)
   created_at  TEXT NOT NULL
 );
+
+-- 统一专业复核引擎：业务实体的提交快照和签批记录均只增不改。
+CREATE TABLE IF NOT EXISTS workflow_instances (
+  id               TEXT PRIMARY KEY,
+  contract_id      TEXT NOT NULL,
+  round_id         TEXT,
+  scope            TEXT NOT NULL,
+  subject_type     TEXT NOT NULL,
+  subject_id       TEXT NOT NULL,
+  status           TEXT NOT NULL,
+  current_revision INTEGER NOT NULL,
+  created_by       TEXT NOT NULL,
+  created_at       TEXT NOT NULL,
+  withdrawn_reason TEXT,
+  withdrawn_by     TEXT,
+  withdrawn_at     TEXT,
+  UNIQUE(subject_type, subject_id)
+);
+CREATE TABLE IF NOT EXISTS workflow_revisions (
+  instance_id     TEXT NOT NULL,
+  revision        INTEGER NOT NULL,
+  snapshot_json   TEXT NOT NULL,
+  snapshot_sha256 TEXT NOT NULL,
+  submitted_by    TEXT NOT NULL,
+  submitted_at    TEXT NOT NULL,
+  PRIMARY KEY(instance_id, revision),
+  FOREIGN KEY(instance_id) REFERENCES workflow_instances(id)
+);
+CREATE TABLE IF NOT EXISTS workflow_decisions (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  instance_id      TEXT NOT NULL,
+  revision         INTEGER NOT NULL,
+  level            TEXT NOT NULL,
+  decision         TEXT NOT NULL,
+  comment          TEXT NOT NULL DEFAULT '',
+  decided_by       TEXT NOT NULL,
+  decided_at       TEXT NOT NULL,
+  UNIQUE(instance_id, revision, level),
+  FOREIGN KEY(instance_id, revision) REFERENCES workflow_revisions(instance_id, revision)
+);
+CREATE INDEX IF NOT EXISTS idx_workflow_instances_subject ON workflow_instances(subject_type, subject_id);
+CREATE INDEX IF NOT EXISTS idx_workflow_decisions_instance ON workflow_decisions(instance_id, revision, id);
 `
 
 // 迁移不能带着半套 schema 继续服务：只有「列已存在」是幂等重试，
@@ -663,6 +844,29 @@ export function migrateRoundAssignments(db: DB) {
 
 export type OpenDbOptions={legacyStagingDir?:string;unlinkFile?:(path:string)=>void;skipLegacyCleanup?:boolean;beforeCleanupMarker?:()=>void}
 export function resolveLegacyStagingDir(uploadDir:string,override?:string){return override||resolve(uploadDir,'.staging')}
+const NEW_ROLE_CODES = new Set(['admin', 'sales', 'tech', 'planner', 'sampler', 'sample_manager', 'qc', 'analyst', 'report_editor', 'archivist', 'signer'])
+function migrateLegacyUserRoles(db: DB) {
+  const users = db.prepare(`SELECT username, name, roles FROM users`).all() as { username: string; name: string; roles: string }[]
+  for (const user of users) {
+    let oldRoles: string[] = []
+    try {
+      const parsed = JSON.parse(user.roles)
+      if (Array.isArray(parsed)) oldRoles = parsed.filter((role): role is string => typeof role === 'string')
+    } catch { /* malformed legacy roles fail closed to an empty set */ }
+    const migrated = new Set<string>()
+    for (const role of oldRoles) {
+      if (NEW_ROLE_CODES.has(role)) migrated.add(role)
+      if (role === 'registrar') ['sales', 'planner', 'report_editor'].forEach(next => migrated.add(next))
+      if (role === 'tester') migrated.add('analyst')
+    }
+    const roles = [...migrated]
+    if (JSON.stringify(oldRoles) === JSON.stringify(roles)) continue
+    const at = new Date().toISOString()
+    db.prepare(`UPDATE users SET roles=? WHERE username=?`).run(JSON.stringify(roles), user.username)
+    db.prepare(`INSERT INTO audit_log (record_id, who, username, action, detail, at) VALUES (?,?,?,?,?,?)`)
+      .run(user.username, '系统', null, 'user_role_migrated', JSON.stringify({ from: oldRoles, to: roles, requires_explicit_qualification: true }), at)
+  }
+}
 export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
   const db = new DatabaseSync(path)
   db.exec('PRAGMA journal_mode = WAL;')
@@ -688,6 +892,7 @@ export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
   // 老库平滑升级：给已存在的表补新列（新库 SCHEMA 里已含，加列时「已存在」静默、其他错误留日志）
   addColumn(db, 'ALTER TABLE audit_log ADD COLUMN username TEXT')
   addColumn(db, 'ALTER TABLE sessions ADD COLUMN last_seen TEXT')
+  addColumn(db, 'ALTER TABLE attachments ADD COLUMN content_hash TEXT')
   // 加列故意不带 NOT NULL DEFAULT：老行先落成 NULL，让下面的幂等回填认得出「还没回填过」
   addColumn(db, 'ALTER TABLE users ADD COLUMN must_change_pw INTEGER')
   addColumn(db, 'ALTER TABLE reports ADD COLUMN checker TEXT')
@@ -702,6 +907,7 @@ export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
   addColumn(db, 'ALTER TABLE records ADD COLUMN recheck_reason TEXT')
   addColumn(db, 'ALTER TABLE sample_handovers ADD COLUMN confirmed_by TEXT')
   addColumn(db, 'ALTER TABLE sample_handovers ADD COLUMN confirmed_at TEXT')
+  addColumn(db, 'ALTER TABLE handover_sheets ADD COLUMN from_username TEXT')
   addColumn(db, 'ALTER TABLE contracts ADD COLUMN quote_json TEXT')
   addColumn(db, 'ALTER TABLE contracts ADD COLUMN phone TEXT')               // 业务联系人电话（与姓名分列，打印合同分栏带出）
   addColumn(db, 'ALTER TABLE samples ADD COLUMN qc_type TEXT')               // S4 质控样标记，普通样为 NULL
@@ -727,6 +933,10 @@ export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
   addColumn(db, 'ALTER TABLE reports ADD COLUMN author_username TEXT')
   addColumn(db, 'ALTER TABLE reports ADD COLUMN checker_username TEXT')
   addColumn(db, 'ALTER TABLE reports ADD COLUMN issuer_username TEXT')
+  addColumn(db, 'ALTER TABLE reports ADD COLUMN archive_package_id TEXT')
+  addColumn(db, 'ALTER TABLE reports ADD COLUMN archive_blocked_at TEXT')
+  addColumn(db, 'ALTER TABLE reports ADD COLUMN archive_block_reason TEXT')
+  addColumn(db, 'ALTER TABLE reports ADD COLUMN archive_requires_reissue INTEGER NOT NULL DEFAULT 0')
   // 报价「每年N次」精确排期：计划行记住 per_year，铺期次时一年正好排 N 期
   addColumn(db, 'ALTER TABLE contract_samples ADD COLUMN per_year INTEGER')
   // 客户电话分列（体检26）：contact 只放联系人，电话单独一列
@@ -743,6 +953,8 @@ export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
   // —— 幂等回填：条件只认 NULL（=还没回填过的老行），每次启动都跑，失败过也能自动补 ——
   // 存量账号（含默认口令的老账号）一律要求下次登录改密；新库/新账号由代码显式写 0/1，不受影响
   backfill(db, 'UPDATE users SET must_change_pw=1 WHERE must_change_pw IS NULL', 'users.must_change_pw 老账号强制改密')
+  // 已确认岗位替换：不能由旧“复核/审核”粗角色推测专业范围，资格必须由管理员另行明确授予。
+  migrateLegacyUserRoles(db)
   // 老样品补来源：既无委托又无期次的是自送样，其余是受托采样
   backfill(db, "UPDATE samples SET source='self' WHERE source IS NULL AND contract_id IS NULL AND round_id IS NULL", 'samples.source 自送样回填')
   backfill(db, "UPDATE samples SET source='field' WHERE source IS NULL", 'samples.source 受托采样回填')

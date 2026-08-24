@@ -7,8 +7,14 @@ import { can, type PermAction } from '../permissions'
 import { daysTo, todayLocal } from '../utils/date'
 import { rmbUpper } from '../../../server/src/rmb'
 import templatesJson from '../data/templates.json'
+import StageQueueNav from '../components/StageQueueNav.vue'
+import ProjectStageProgress from '../components/ProjectStageProgress.vue'
+import type { BusinessStageKey, StageQueueKey } from '../workflow/businessStages'
 
 const router = useRouter()
+const route = useRoute()
+const activeStage = computed<BusinessStageKey>(() => route.query.stage === 'review' ? 'contract-review' : route.query.stage === 'scheme' ? 'scheme' : 'contract')
+const activeQueue = computed<StageQueueKey>(() => ['write', 'review', 'approve', 'rejected', 'final'].includes(String(route.query.queue)) ? route.query.queue as StageQueueKey : 'write')
 const MATRICES = ['废水', '地表水', '地下水', '海水', '土壤', '固废', '环境空气', '有组织废气', '无组织废气', '废气', '生活饮用水', '大气降水', '噪声']
 const rollupLabel: Record<string, string> = { pending: '待检测', testing: '检测中', review: '待审核', approved: '已审核' }
 
@@ -19,7 +25,24 @@ const loading = ref(false)
 // 项目列表搜索 + 状态筛选：单子一多靠肉眼翻会漏
 const listKeyword = ref('')
 const listStatus = ref('')
+function queueMatchesProject(p: ProjectSummary) {
+  if (activeStage.value === 'contract') {
+    if (activeQueue.value === 'write') return !p.accepted_at && p.status !== 'terminated'
+    if (activeQueue.value === 'rejected') return p.tech_review_result === 'reject'
+    return activeQueue.value === 'final' ? !!p.accepted_at : false
+  }
+  if (activeStage.value === 'contract-review') {
+    if (activeQueue.value === 'review') return !!p.accepted_at && !p.tech_review_result && p.status !== 'terminated'
+    if (activeQueue.value === 'rejected') return p.tech_review_result === 'reject'
+    return activeQueue.value === 'final' ? p.tech_review_result === 'approve' : false
+  }
+  if (activeQueue.value === 'write') return p.tech_review_result === 'approve' && (!p.scheme || p.scheme.status === 'rejected')
+  if (activeQueue.value === 'review') return p.scheme?.status === 'draft'
+  if (activeQueue.value === 'rejected') return p.scheme?.status === 'rejected'
+  return activeQueue.value === 'final' ? p.scheme?.status === 'approved' : false
+}
 const shownProjects = computed(() => projects.value.filter(p => {
+  if (!queueMatchesProject(p)) return false
   if (listStatus.value && p.status !== listStatus.value) return false
   if (listKeyword.value) {
     const k = listKeyword.value.toLowerCase()
@@ -156,7 +179,7 @@ async function genSamples() {
   await ElMessageBox.confirm(`将按计划生成 ${total} 个样品，确认？`, '一键生成样品', { confirmButtonText: '生成', cancelButtonText: '取消', type: 'info' }).catch(() => Promise.reject())
     .then(async () => {
       const res = await api.generateSamples(c.id)
-      // 后端新版会带 hint（生成的样品要先登记交接、质控签收后才能录数据）——弹出来当下一步指引
+      // 后端新版会带 hint（生成的样品要先登记交接、样品管理员签收后才能录数据）——弹出来当下一步指引
       const hint = res && !Array.isArray(res) ? res.hint : ''
       ElMessage.success('已生成样品')
       if (hint) await ElMessageBox.alert(hint, '下一步', { confirmButtonText: '知道了' }).catch(() => {})
@@ -167,9 +190,9 @@ const genRptBusy = ref(false)
 async function genReport(sampleId: string) {
   if (genRptBusy.value) return
   genRptBusy.value = true
-  try { await api.generateReport(sampleId); ElMessage.success('已生成报告'); await refresh() }
-  catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
-  finally { genRptBusy.value = false }
+  void sampleId
+  await router.push('/reports?queue=write')
+  genRptBusy.value = false
 }
 const canReport = computed(() => current.value && current.value.stats.samples > 0 && current.value.stats.approved === current.value.stats.samples)
 
@@ -388,9 +411,12 @@ async function reviewSchemeFn(op: 'approve' | 'reject') {
 }
 
 // —— 主线「下一步」——
-const NEXT_BTN: Record<string, string> = { accept: '确认受理', scheme: '编制 / 审核方案', dispatch: '去派工', sampleIn: '去收样入库', testing: '去录入', review: '去审核', report: '生成报告', archive: '' }
+const NEXT_BTN: Record<string, string> = {
+  contract: '确认受理', 'contract-review': '完成合同评审', scheme: '编制 / 审核方案', dispatch: '去派工',
+  sampling: '去现场采样', handover: '去样品交接', quality: '去质控', laboratory: '去实验室分析', archive: '去归档', report: '生成报告',
+}
 // 每个环节的动作权限：没权限的人「下一步」按钮置灰并说明该谁干（纯跳转的环节不拦）
-const NEXT_PERM: Partial<Record<string, PermAction>> = { accept: 'contract_accept', scheme: 'scheme_edit', report: 'report_generate' }
+const NEXT_PERM: Partial<Record<string, PermAction>> = { contract: 'contract_accept', 'contract-review': 'contract_tech_review', scheme: 'scheme_edit', report: 'report_generate' }
 const nextAllowed = computed(() => {
   const st = nextStage.value; if (!st) return true
   const p = NEXT_PERM[st.key]
@@ -416,11 +442,15 @@ const nextBtnLabel = computed(() => {
 })
 async function runNext() {
   const st = nextStage.value; if (!st) return
-  if (st.key === 'accept') return doAccept()
+  if (st.key === 'contract') return doAccept()
+  if (st.key === 'contract-review') return document.getElementById('contract-review-actions')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   if (st.key === 'scheme') return openScheme()
-  if (st.key === 'dispatch' || st.key === 'sampleIn') return router.push('/plans')
-  if (st.key === 'testing') return router.push('/samples')
-  if (st.key === 'review') return router.push('/review')
+  if (st.key === 'dispatch') return router.push('/plans?stage=dispatch&queue=write')
+  if (st.key === 'sampling') return router.push('/plans?stage=sampling&queue=write')
+  if (st.key === 'handover') return router.push('/qc?stage=handover&queue=write')
+  if (st.key === 'quality') return router.push('/qc?stage=quality&queue=write')
+  if (st.key === 'laboratory') return router.push('/samples?stage=laboratory&queue=write')
+  if (st.key === 'archive') return router.push('/archive-packages')
   if (st.key === 'report') {
     // 报告已生成（编制中/待签发）：直接去报告页处理，别再重复生成
     if (current.value?.stats.reportStatus === 'draft' || current.value?.stats.reportStatus === 'checked') return router.push('/reports')
@@ -429,8 +459,7 @@ async function runNext() {
     if (rno) {
       const r = rounds.value.find(x => x.round_no === rno)
       if (r) {
-        try { const rep = await api.generateRoundReport(r.id); ElMessage.success(`已生成第 ${rno} 期报告 ${rep.id}`); await refresh() }
-        catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
+        await router.push('/reports?queue=write')
         return
       }
     }
@@ -509,9 +538,29 @@ async function onDocPicked(e: Event) {
   finally { uploading.value = false; if (docInput.value) docInput.value.value = '' }
 }
 const docIsPdf = computed(() => (current.value?.contract.doc_name || '').toLowerCase().endsWith('.pdf'))
+const projectProgressCompleted = computed<BusinessStageKey[]>(() => {
+  if (!current.value) return []
+  const result: BusinessStageKey[] = []
+  if (current.value.contract.accepted_at) result.push('contract')
+  if (current.value.contract.tech_review_result === 'approve') result.push('contract-review')
+  if (current.value.contract.scheme?.status === 'approved') result.push('scheme')
+  if (rounds.value.some(round => !!round.sampler)) result.push('dispatch')
+  if (rounds.value.length && rounds.value.every(round => round.status === 'done' || round.status === 'cancelled')) result.push('sampling', 'handover')
+  if (current.value.stats.approved === current.value.stats.samples && current.value.stats.samples > 0) result.push('quality', 'laboratory')
+  if (current.value.stats.issued) result.push('archive', 'report')
+  return result
+})
+const projectProgressBlockers = computed(() => {
+  return current.value?.pipeline.blockers || []
+})
+const selectedProgressStage = computed<BusinessStageKey | undefined>(() => {
+  const pipeline = current.value?.pipeline
+  return pipeline && pipeline.activeIndex >= 0 ? pipeline.stages[pipeline.activeIndex].key as BusinessStageKey : undefined
+})
+const selectedProgressCompleted = computed<BusinessStageKey[]>(() => (current.value?.pipeline.stages || [])
+  .filter(stage => stage.status === 'done').map(stage => stage.key as BusinessStageKey))
 
 // ⌘K 直达：/contracts?open=WT2026-XXXX 进来直接展开那一单（含已在本页时再次搜索）
-const route = useRoute()
 onMounted(async () => {
   await refresh()
   if (route.query.open) await open(String(route.query.open))
@@ -523,11 +572,12 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
   <div class="pagewrap wide">
     <div class="phead">
       <div>
-        <h1 class="page">委托项目</h1>
-        <p class="sub">从委托受理到报告签发，一单一条主线</p>
+        <h1 class="page">{{ activeStage === 'contract' ? '① 编制委托合同' : activeStage === 'contract-review' ? '② 合同评审' : '③ 编制监测方案' }}</h1>
+        <p class="sub">唯一项目编号贯穿合同、评审和监测方案</p>
       </div>
       <el-button v-if="can('contract_edit')" type="primary" @click="showCreate = !showCreate; current = null">新建委托</el-button>
     </div>
+    <StageQueueNav :active="activeQueue" />
 
     <div class="proj">
     <!-- 左：项目列表 -->
@@ -585,6 +635,7 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
           <div class="dsub">{{ createMode === 'quote' ? '照纸质合同模板填一遍：能打印盖章，检测计划自动生成' : '填委托单位与样品计划，创建后进入受理 · 合同评审' }}</div>
         </div>
         <div class="dbody">
+          <ProjectStageProgress :current-stage="activeStage" :completed-stages="projectProgressCompleted" :blockers="projectProgressBlockers" />
           <div class="modeswitch">
             <span :class="{ on: createMode === 'quote' }" @click="createMode = 'quote'">按合同模板填写（推荐）</span>
             <span :class="{ on: createMode === 'simple' }" @click="createMode = 'simple'">快速登记</span>
@@ -708,12 +759,7 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
             正在走 <em>第 {{ current.pipeline.round.no }} 期</em> / 共 <span class="num">{{ current.pipeline.round.total }}</span> 期
             <span v-if="current.pipeline.round.due" class="mono rl-due"> · 本期采样截止 {{ current.pipeline.round.due }}</span>
           </div>
-          <div class="pipe">
-            <div v-for="s in current.pipeline.stages" :key="s.key" class="pstep" :class="s.status">
-              <span class="pk">{{ s.label }}</span>
-              <span class="pcode mono">{{ s.code }}</span>
-            </div>
-          </div>
+          <ProjectStageProgress :current-stage="selectedProgressStage" :completed-stages="selectedProgressCompleted" :blockers="projectProgressBlockers" />
 
           <!-- 下一步：该谁点什么，一键推进 -->
           <div v-if="nextStage" class="nextbar">
@@ -730,7 +776,7 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
           </div>
 
           <!-- 合同评审结论（受理时留）＋ 签批（拍板7）：签批是评审的落笔，同一条横条左结论右签字。技术负责人人选未定，权限暂挂管理员 -->
-          <div v-if="current.contract.review_info || current.contract.accepted_at" class="reviewbar">
+          <div v-if="current.contract.review_info || current.contract.accepted_at" id="contract-review-actions" class="reviewbar">
             <span class="rv-tag">合同评审</span>
             <template v-if="current.contract.review_info">
               <span class="rv-i" :class="{ no: !current.contract.review_info.demand }">
@@ -925,7 +971,7 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
                 <span class="sc-go">›</span>
               </div>
             </div>
-            <div v-else class="muted">{{ canReport ? '所有样品已审核，可生成报告。' : '样品全部走完三级审核后可出报告。' }}</div>
+            <div v-else class="muted">{{ canReport ? '所有实验室记录已审核定稿，可进入归档与报告阶段。' : '实验室记录全部完成专业复核、审核后方可归档出报告。' }}</div>
           </div>
 
           <!-- 终止合同：低频危险操作，放最底下不显眼处；未终止都可用（周期线合同一直是 draft） -->
@@ -1031,19 +1077,10 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
 .dsub{font-size:12.5px;color:var(--muted);margin-top:4px}
 .dbody{padding:18px;overflow-y:auto;flex:1;min-height:0}
 
-/* ——— 流程管线：色轨表示进度，不用底色块 ——— */
+/* ——— 项目期次提示 ——— */
 .roundline{font-size:12.5px;color:var(--muted);margin-bottom:12px}
 .roundline em{font-style:normal;color:var(--accent-ink);font-weight:600}
 .roundline .rl-due{color:var(--faint)}
-.pipe{display:flex;gap:6px;margin-bottom:18px}
-.pstep{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:2px;padding:9px 2px 0;border-top:2px solid var(--line)}
-.pstep .pk{font-size:12px;font-weight:500;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pstep .pcode{font-size:10px;color:var(--faint)}
-.pstep.done{border-top-color:var(--good)}
-.pstep.done .pk{color:var(--muted)}
-.pstep.active{border-top-color:var(--accent)}
-.pstep.active .pk{color:var(--accent-ink);font-weight:650}
-.pstep.active .pcode{color:var(--accent-ink)}
 
 /* ——— 下一步 ——— */
 .nextbar{display:flex;align-items:center;gap:12px;padding:11px 15px;border-radius:var(--radius);margin-bottom:18px;
