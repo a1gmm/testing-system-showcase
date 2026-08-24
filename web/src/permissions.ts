@@ -56,7 +56,7 @@ export const PAGE_ROLES: Record<string, string[]> = {
   contracts:  ['sales', 'planner', 'tech', 'signer'],
   plans:      ['sampler', 'planner', 'qc', 'tech'],
   samples:    ['analyst', 'qc', 'tech', 'sampler', 'sales'],
-  qc:         ['sampler', 'sample_manager', 'qc', 'tech'],
+  qc:         ['sampler', 'sample_manager', 'qc', 'planner', 'tech'],
   reports:    ['report_editor', 'signer', 'tech'],
   instruments: ['sampler', 'analyst', 'tech'],
   archive:    ['archivist', 'tech'],

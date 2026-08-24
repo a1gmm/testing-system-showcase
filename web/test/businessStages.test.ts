@@ -24,7 +24,7 @@ describe('十阶段业务主线', () => {
     expect(BUSINESS_STAGES.some(stage => stage.label.includes('三级审核'))).toBe(false)
   })
 
-  it('菜单阶段角色都是对应复用页面的可访问角色，planner 只新增方案页面准入', () => {
+  it('菜单阶段角色都是对应复用页面的可访问角色，planner 可进入方案与质控人员指定页面', () => {
     const routeRoles: Record<string, string[]> = {
       '/contracts': PAGE_ROLES.contracts, '/plans': PAGE_ROLES.plans, '/qc': PAGE_ROLES.qc,
       '/samples': PAGE_ROLES.samples, '/archive-packages': PAGE_ROLES['archive-packages'], '/reports': PAGE_ROLES.reports,
@@ -33,6 +33,8 @@ describe('十阶段业务主线', () => {
       expect(stage.roles.filter(role => !routeRoles[stage.to.path].includes(role)), stage.label).toEqual([])
     }
     expect(PAGE_ROLES.contracts).toContain('planner')
+    expect(PAGE_ROLES.qc).toContain('planner')
+    expect(BUSINESS_STAGES.find(stage => stage.key === 'quality')?.roles).toContain('planner')
     expect(PERM.scheme_edit).toContain('planner')
     expect(PERM.contract_edit).not.toContain('planner')
     expect(PERM.contract_accept).not.toContain('planner')

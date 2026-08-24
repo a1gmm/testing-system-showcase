@@ -53,6 +53,19 @@ test('四个专业的选择器只使用服务端候选列表并直说无合格�
   expect(wrapper.find('option[value="quality-review"]').exists()).toBe(true)
 })
 
+test('限定质控范围时只渲染质控指定并只加载两类质控候选人', async () => {
+  const wrapper = mount(WorkflowAssignmentEditor, {
+    props: { contractId: 'WT2026-QUALITY', assignments: [], effectiveDate: '2026-08-24', scopes: ['quality'] },
+  })
+  await flushPromises()
+
+  expect(wrapper.findAll('[data-assignment-scope]')).toHaveLength(1)
+  expect(wrapper.get('[data-assignment-scope="quality"]').exists()).toBe(true)
+  expect(mocks.listWorkflowCandidates).toHaveBeenCalledTimes(2)
+  expect(mocks.listWorkflowCandidates).toHaveBeenCalledWith('WT2026-QUALITY', 'quality', 'review', '2026-08-24')
+  expect(mocks.listWorkflowCandidates).toHaveBeenCalledWith('WT2026-QUALITY', 'quality', 'approve', '2026-08-24')
+})
+
 test('管理员面对空候选列表可直接进入人员资格配置', async () => {
   currentUser.value = {
     username: 'admin', name: '管理员', roles: ['admin'], status: 'active', created_at: '', must_change_pw: false,

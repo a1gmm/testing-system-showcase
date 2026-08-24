@@ -10,7 +10,8 @@ const props = withDefaults(defineProps<{
   contractId: string
   assignments: WorkflowAssignment[]
   effectiveDate?: string
-}>(), { effectiveDate: () => todayLocal() })
+  scopes?: ProfessionalScope[]
+}>(), { effectiveDate: () => todayLocal(), scopes: () => [...PROFESSIONAL_SCOPES] })
 const emit = defineEmits<{ saved: [assignment: WorkflowAssignment] }>()
 
 type Choice = { reviewerUsername: string; approverUsername: string; reason: string }
@@ -28,7 +29,7 @@ const errors = reactive<Record<ProfessionalScope, string>>({ sampling: '', quali
 const busy = reactive<Record<ProfessionalScope, boolean>>({ sampling: false, quality: false, laboratory: false, report: false })
 
 function syncAssignments() {
-  for (const scope of PROFESSIONAL_SCOPES) {
+  for (const scope of props.scopes) {
     const assignment = props.assignments.find(item => item.scope === scope)
     if (!assignment) continue
     choices[scope].reviewerUsername = assignment.reviewer_username
@@ -81,8 +82,8 @@ async function save(scope: ProfessionalScope) {
 }
 
 watch(() => props.assignments, syncAssignments, { deep: true, immediate: true })
-watch(() => [props.contractId, props.effectiveDate], () => { for (const scope of PROFESSIONAL_SCOPES) void loadScope(scope) })
-onMounted(() => { for (const scope of PROFESSIONAL_SCOPES) void loadScope(scope) })
+watch(() => [props.contractId, props.effectiveDate, props.scopes], () => { for (const scope of props.scopes) void loadScope(scope) })
+onMounted(() => { for (const scope of props.scopes) void loadScope(scope) })
 </script>
 
 <template>
@@ -92,7 +93,7 @@ onMounted(() => { for (const scope of PROFESSIONAL_SCOPES) void loadScope(scope)
     </div>
     <p v-if="currentUser?.roles.includes('admin')" class="acceptance-note">单人验收模式开启时，可临时把当前管理员同时指定为复核人与审核人；服务端会校验验收账号和截止时间并记录豁免审计。</p>
     <div class="scope-grid">
-      <fieldset v-for="scope in PROFESSIONAL_SCOPES" :key="scope" :data-assignment-scope="scope" tabindex="-1">
+      <fieldset v-for="scope in scopes" :key="scope" :data-assignment-scope="scope" tabindex="-1">
         <legend>{{ PROFESSIONAL_SCOPE_LABEL[scope] }}</legend>
         <label>复核人
           <select v-model="choices[scope].reviewerUsername" :data-reviewer="scope" :disabled="busy[scope]">
