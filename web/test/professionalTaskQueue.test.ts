@@ -10,13 +10,15 @@ vi.mock('../src/api', () => ({
 import ProfessionalTaskQueue from '../src/components/ProfessionalTaskQueue.vue'
 import WorkflowReviewPanel from '../src/components/WorkflowReviewPanel.vue'
 
-const task = (id: string, revision: number) => ({
+const task = (id: string, revision: number, level: 'review' | 'approve' = 'review') => ({
   workflow_instance_id: `WF-${id}`, subject_type: 'round_sampling' as const, subject_id: `ROUND-${id}`, contract_id: `WT-${id}`,
-  status: 'pending_review' as const, current_revision: revision, decision_level: 'review' as const, acting_capacity: '采样复核',
+  status: level === 'review' ? 'pending_review' as const : 'pending_approval' as const, current_revision: revision,
+  decision_level: level, acting_capacity: level === 'review' ? '采样复核' : '采样审核',
 })
-const workflow = (id: string, revision: number) => ({
+const workflow = (id: string, revision: number, level: 'review' | 'approve' = 'review') => ({
   id: `WF-${id}`, contract_id: `WT-${id}`, round_id: `ROUND-${id}`, scope: 'sampling' as const, subject_type: 'round_sampling' as const,
-  subject_id: `ROUND-${id}`, status: 'pending_review' as const, current_revision: revision, created_by: 'author', created_at: '',
+  subject_id: `ROUND-${id}`, status: level === 'review' ? 'pending_review' as const : 'pending_approval' as const,
+  current_revision: revision, created_by: 'author', created_at: '',
   withdrawn_reason: null, withdrawn_by: null, withdrawn_at: null, revisions: [], decisions: [],
 })
 function deferred<T>() {
@@ -52,6 +54,52 @@ test('资格专属队列只展示 DTO 标识并以服务端核准层级处理当
   await wrapper.get('[data-primary-action]').trigger('click')
   await flushPromises()
   expect(mocks.decide).toHaveBeenCalledWith('WF-S', { revision: 3, level: 'review', decision: 'approve', comment: '' })
+})
+
+test('采样审核待办显示合同与期次并以 approve 层级提交', async () => {
+  mocks.list.mockResolvedValue([task('P', 4, 'approve')])
+  mocks.get.mockResolvedValue(workflow('P', 4, 'approve'))
+
+  const wrapper = mount(ProfessionalTaskQueue, { props: { scope: 'sampling', activeQueue: 'approve' } })
+  await flushPromises()
+
+  expect(wrapper.text()).toContain('WT-P')
+  expect(wrapper.text()).toContain('ROUND-P')
+  expect(wrapper.text()).toContain('采样审核')
+  await wrapper.get('[data-primary-action]').trigger('click')
+  await flushPromises()
+  expect(mocks.decide).toHaveBeenCalledWith('WF-P', { revision: 4, level: 'approve', decision: 'approve', comment: '' })
+})
+
+test('专业待办为空时显示明确空状态且不请求详情', async () => {
+  mocks.list.mockResolvedValue([])
+
+  const wrapper = mount(ProfessionalTaskQueue, { props: { scope: 'sampling', activeQueue: 'approve' } })
+  await flushPromises()
+
+  expect(wrapper.text()).toContain('当前身份下没有需要处理的专业任务')
+  expect(mocks.get).not.toHaveBeenCalled()
+})
+
+test('专业待办列表加载失败时显示服务端错误', async () => {
+  mocks.list.mockRejectedValue(new Error('待办服务暂时不可用'))
+
+  const wrapper = mount(ProfessionalTaskQueue, { props: { scope: 'sampling', activeQueue: 'approve' } })
+  await flushPromises()
+
+  expect(wrapper.get('[role="alert"]').text()).toContain('待办服务暂时不可用')
+})
+
+test('待办详情与当前任务不匹配时拒绝展示和提交', async () => {
+  mocks.list.mockResolvedValue([task('A', 2, 'approve')])
+  mocks.get.mockResolvedValue(workflow('B', 2, 'approve'))
+
+  const wrapper = mount(ProfessionalTaskQueue, { props: { scope: 'sampling', activeQueue: 'approve' } })
+  await flushPromises()
+
+  expect(wrapper.get('[role="alert"]').text()).toContain('任务详情与当前待办不匹配')
+  expect(wrapper.find('[data-primary-action]').exists()).toBe(false)
+  expect(mocks.decide).not.toHaveBeenCalled()
 })
 
 test('较晚返回的 A 详情不能覆盖已选择且先返回的 B，决定只提交 B 的证据版本', async () => {

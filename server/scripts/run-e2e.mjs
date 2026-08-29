@@ -10,7 +10,7 @@ rmSync(databasePath, { force: true })
 
 const server = spawn(process.execPath, ['src/server.ts'], {
   cwd: serverRoot,
-  env: { ...process.env, DB_PATH: databasePath, PORT: port },
+  env: { ...process.env, DB_PATH: databasePath, PORT: port, LIMS_BOOTSTRAP_MODE: 'demo' },
   stdio: 'inherit',
 })
 

@@ -2,7 +2,13 @@
 import { computed, ref } from 'vue'
 import templates from '../data/templates.json'
 import StructuredSheet from '../components/StructuredSheet.vue'
-import { resolveStandard, lookupStandard, type StandardStatus } from '../data/standardLink'
+import {
+  resolveTemplateStandard,
+  lookupStandard,
+  type StandardInfo,
+  type TemplateStandardStatus,
+} from '../data/standardLink'
+import { presentTemplateStandard, type StandardDot } from '../data/templateStandardPresentation'
 import optimizedList from '../data/optimizedCodes.json'
 import { templatePhase, PHASE_ORDER, type Phase } from '../data/phase'
 
@@ -22,10 +28,10 @@ const stdFilter = ref('全部')
 const selected = ref<Tpl | null>(null)
 
 // ---- 标准状态 ----
-type Dot = 'good' | 'warn' | 'crit' | 'accent' | ''
+type Dot = StandardDot
 type Badge = { kind: string; dot: Dot; label: string }
-function statusOf(t: Tpl): StandardStatus {
-  return resolveStandard((t.meta || {}).basis)
+function statusOf(t: Tpl): TemplateStandardStatus {
+  return resolveTemplateStandard(t)
 }
 // 停用的表不再参与标准状态判定：本所已不开展该项目，标准现行与否与它无关
 function kindOf(t: Tpl): string {
@@ -33,20 +39,19 @@ function kindOf(t: Tpl): string {
 }
 function badgeOf(t: Tpl): Badge {
   if (t.retired) return { kind: 'retired', dot: '', label: '已停用' }
-  const s = statusOf(t)
-  switch (s.kind) {
-    case 'ok': return { kind: 'ok', dot: 'good', label: '已入库' }
-    case 'outdated': return { kind: 'outdated', dot: 'crit', label: `旧版·应换 ${s.info.currentCode || ''}` }
-    case 'missing': return { kind: 'missing', dot: 'warn', label: '未入库' }
-    case 'gb': return { kind: 'gb', dot: 'accent', label: 'GB需人工' }
-    default: return { kind: 'none', dot: '', label: '无依据' }
-  }
+  const presentation = presentTemplateStandard(statusOf(t))
+  return { kind: presentation.bucket, dot: presentation.dot, label: presentation.label }
 }
-// 标准栏要展示的 PDF：优先用表所引标准；若引的是旧版且未下，退回现行版并提示
-function stdPane(t: Tpl): { pdf: string | null; info: any; usedOutdated: boolean } {
+function infosOf(status: TemplateStandardStatus): StandardInfo[] {
+  if (status.kind === 'pending' || status.kind === 'managed') return []
+  if ('infos' in status) return status.infos
+  return status.info ? [status.info] : []
+}
+// 依据栏要展示的 PDF：复合依据优先展示已入库全文；旧版则退回现行版并提示
+function stdPane(t: Tpl): { pdf: string | null; info: StandardInfo | null; usedOutdated: boolean } {
   const s = statusOf(t)
-  if (s.kind === 'none') return { pdf: null, info: null, usedOutdated: false }
-  if (s.info.crawled && s.info.pdf) return { pdf: s.info.pdf, info: s.info, usedOutdated: false }
+  const local = infosOf(s).find(info => info.crawled && info.pdf)
+  if (local?.pdf) return { pdf: local.pdf, info: local, usedOutdated: false }
   if (s.kind === 'outdated' && s.info.currentCode) {
     const cur = lookupStandard(s.info.currentCode)
     if (cur && cur.crawled && cur.pdf) return { pdf: cur.pdf, info: cur, usedOutdated: true }
@@ -56,6 +61,12 @@ function stdPane(t: Tpl): { pdf: string | null; info: any; usedOutdated: boolean
 const selStatus = computed(() => selected.value ? statusOf(selected.value) : null)
 const selBadge = computed(() => selected.value ? badgeOf(selected.value) : null)
 const selPane = computed(() => selected.value ? stdPane(selected.value) : null)
+const selBasis = computed(() => selStatus.value?.basis.join('、') || '无单一检测标准')
+const selEvidence = computed(() => {
+  const status = selStatus.value
+  return status && 'evidence' in status ? status.evidence : null
+})
+const selUpcoming = computed(() => selEvidence.value?.upcoming || [])
 
 function counts(field: keyof Tpl, base: Tpl[]) {
   const m: Record<string, number> = {}
@@ -81,15 +92,14 @@ const methods = computed(() => [['全部', all.length] as [string, number], ...c
 
 // ---- 标准覆盖统计 ----
 const stdBuckets: { key: string; dot: Dot; label: string }[] = [
-  { key: 'ok', dot: 'good', label: '已入库' },
+  { key: 'verified', dot: 'good', label: '已核验' },
+  { key: 'managed', dot: 'accent', label: '管理记录' },
   { key: 'outdated', dot: 'crit', label: '旧版' },
-  { key: 'missing', dot: 'warn', label: '未入库' },
-  { key: 'gb', dot: 'accent', label: 'GB需人工' },
-  { key: 'none', dot: '', label: '无依据' },
+  { key: 'pending', dot: 'warn', label: '待核验' },
   { key: 'retired', dot: '', label: '已停用' },
 ]
 const stdCounts = computed(() => {
-  const m: Record<string, number> = { ok: 0, outdated: 0, missing: 0, gb: 0, none: 0, retired: 0 }
+  const m: Record<string, number> = { verified: 0, managed: 0, outdated: 0, pending: 0, retired: 0 }
   for (const t of all) m[kindOf(t)]++
   return m
 })
@@ -116,7 +126,7 @@ function reset() { phase.value = '全部'; sheetType.value = '全部'; matrix.va
     <div class="phead">
       <div>
         <h1 class="page">模板库</h1>
-        <p class="sub">{{ all.length }} 张检测记录表 1:1 入库 · 原文件 / 系统还原 / 依据标准三向对照</p>
+        <p class="sub">{{ all.length }} 张检测记录表 1:1 入库 · 原文件 / 系统还原 / 依据资料三向对照</p>
       </div>
       <span class="hcount num">{{ filtered.length }} / {{ all.length }} 张</span>
     </div>
@@ -188,12 +198,12 @@ function reset() { phase.value = '全部'; sheetType.value = '全部'; matrix.va
                 <span class="mono">{{ selected.code }}</span> · {{ selected.sheetType }}<span v-if="selected.method"> · {{ selected.method }}</span>
                 <span v-if="selBadge" class="pill vbadge">
                   <span class="sdot" :class="selBadge.dot"></span>
-                  {{ (selected.meta || {}).basis || '无依据' }}<template v-if="selBadge.kind==='outdated'"> → {{ selStatus?.kind==='outdated' ? selStatus.info.currentCode : '' }}</template> · {{ selBadge.label }}
+                  {{ selBasis }}<template v-if="selBadge.kind==='outdated'"> → {{ selStatus?.kind==='outdated' ? selStatus.info.currentCode : '' }}</template> · {{ selBadge.label }}
                 </span>
               </div>
             </div>
             <div class="vtoggle">
-              <button :class="{ on: view === 'standard' }" @click="view = 'standard'">国家标准</button>
+              <button :class="{ on: view === 'standard' }" @click="view = 'standard'">依据资料</button>
               <button :class="{ on: view === 'original' }" @click="view = 'original'">原文件</button>
               <button :class="{ on: view === 'system' }" @click="view = 'system'">系统样子</button>
               <button v-if="optimizedCodes.has(selected.code)" :class="{ on: view === 'revised' }" @click="view = 'revised'">
@@ -206,21 +216,31 @@ function reset() { phase.value = '全部'; sheetType.value = '全部'; matrix.va
             <b>本表已停用</b>——{{ selected.retiredReason }}。保留在库内仅供历史记录追溯，请勿用于新的检测记录。
           </div>
 
-          <!-- 国家标准 -->
+          <!-- 标准与方法依据 -->
           <template v-if="view === 'standard'">
             <div v-if="selPane && selPane.usedOutdated" class="note warn">
               原表标注的是旧版；下方展示的是<b>现行版</b>标准全文，供对照。
             </div>
-            <iframe v-if="selPane && selPane.pdf" class="frame" :src="`/standards/${selPane.pdf}`" title="国家标准"></iframe>
+            <div v-if="selEvidence" class="note">
+              <b>{{ selBadge?.label }}</b>——{{ selEvidence.note }}<br>
+              核验来源：{{ selEvidence.source }} · 核验日期：{{ selEvidence.verifiedOn }}
+            </div>
+            <div v-for="future in selUpcoming" :key="future.basis" class="note warn">
+              <b>即将实施：{{ future.basis }}</b>（{{ future.effectiveOn }} 起）——{{ future.note }}
+            </div>
+            <iframe v-if="selPane && selPane.pdf" class="frame" :src="`/standards/${selPane.pdf}`" title="标准与方法依据"></iframe>
             <div v-else class="gap">
               <el-icon class="gapicon"><Document /></el-icon>
-              <div class="gaptitle">此标准尚未入库</div>
+              <div v-if="selStatus?.kind==='managed'" class="gaptitle">管理记录不对应单一检测标准</div>
+              <div v-else-if="selStatus?.kind==='verified'" class="gaptitle">依据已核验，全文尚未入库</div>
+              <div v-else-if="selStatus?.kind==='outdated'" class="gaptitle">原依据已被替代</div>
+              <div v-else class="gaptitle">依据仍待核验</div>
               <div class="gapbody">
-                <div v-if="(selected.meta || {}).basis">依据标准：<b>{{ (selected.meta || {}).basis }}</b></div>
-                <div v-else>该表暂未标注方法依据。</div>
-                <div v-if="selStatus?.kind==='gb'" class="gapline"><span class="sdot accent"></span>GB 国标官网只读不可下载，需人工获取正版。</div>
-                <div v-else-if="selStatus?.kind==='missing'" class="gapline"><span class="sdot warn"></span>HJ 标准，官网可下载，尚未爬取入库。</div>
-                <a v-if="selStatus && selStatus.kind!=='none' && selStatus.info.detail" :href="selStatus.info.detail" target="_blank" class="gaplink">查看官网 →</a>
+                <div v-if="selStatus?.basis.length">依据：<b>{{ selBasis }}</b></div>
+                <div v-else-if="selStatus?.kind==='managed'">{{ selEvidence?.note }}</div>
+                <div v-else>该表尚无足够证据确认方法依据。</div>
+                <div v-if="selStatus?.kind==='verified' && !selStatus.documentAvailable" class="gapline"><span class="sdot good"></span>核验结论已完成；这里只提示本系统没有可预览的标准全文。</div>
+                <a v-if="selPane?.info?.detail" :href="selPane.info.detail" target="_blank" class="gaplink">查看官方详情 →</a>
               </div>
             </div>
           </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Section } from '../../data/schemas'
 import katex from 'katex'
+import 'katex/dist/katex.min.css'
 const props = defineProps<{ section: Extract<Section,{type:'kv'}>; meta: Record<string,any>; locked?: boolean }>()
 function toggle(key: string, opt: string) {
   if (props.locked) return

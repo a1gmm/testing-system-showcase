@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { openDb } from '../src/db.ts'
 import {
-  createUser, login, sessionUser, seedUsers, changeOwnPassword, resetPassword,
+  bootstrapUsers, createUser, login, sessionUser, changeOwnPassword, resetPassword,
   needsPasswordChange, corsHeaderValue, SESSION_IDLE_MS,
 } from '../src/handlers.ts'
 
@@ -64,7 +64,7 @@ test('会话续期节流：60s 内不重复写 last_seen，超窗才写', () => 
 // ============ 强制改初始密码 ============
 test('管理员建的账号、种子账号：标记必须改密', () => {
   const db = freshDb()
-  seedUsers(db)
+  bootstrapUsers(db, { mode: 'demo' })
   assert.equal(login(db, 'demo_admin', '123456').user.must_change_pw, true)
   createUser(db, { username: 'z', name: '张', roles: ['analyst'], password: 'init123' })
   assert.equal(login(db, 'z', 'init123').user.must_change_pw, true)

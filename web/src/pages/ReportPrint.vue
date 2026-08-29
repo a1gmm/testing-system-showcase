@@ -6,6 +6,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { api, type Report, type OrgProfile, type Instrument, type Contract } from '../api'
 import { roundGB } from '../data/schemas'
+import { parseReportDocument, type ReportDocumentV1 } from '../reportDocument'
 
 const route = useRoute()
 const rp = ref<Report | null>(null)
@@ -13,12 +14,25 @@ const org = ref<OrgProfile | null>(null)
 const instMap = ref<Record<string, Instrument>>({})
 const contract = ref<Contract | null>(null)
 const err = ref('')
+const legacyNotice = ref('')
+const document = ref<ReportDocumentV1|null>(null)
 onMounted(async () => {
   try {
-    const [r, o] = await Promise.all([api.getReport(String(route.params.id)), api.getOrgProfile()])
-    rp.value = r; org.value = o
-    try { for (const i of await api.listInstruments()) instMap.value[i.id] = i } catch { /* */ }
-    if (r.contract_id) { try { contract.value = await api.getContract(r.contract_id) } catch { /* */ } }
+    const r=await api.getReport(String(route.params.id))
+    if(r.data?.document){
+      if(r.data.document.documentVersion!==1)throw new Error(`报告文档版本 ${String(r.data.document.documentVersion)} 暂不支持，已阻止打印`)
+      const parsed=parseReportDocument(r.data.document)
+      if(!parsed)throw new Error('报告文档 V1 结构不完整，已阻止打印')
+      document.value=parsed;rp.value={...r,client:parsed.report.client,title:parsed.report.title,conclusion:parsed.report.conclusion,created_at:parsed.report.createdAt}
+      org.value={id:1,...parsed.org,note:null}
+      contract.value={contact:parsed.customer.contact,phone:parsed.customer.phone,address:parsed.customer.address} as any
+      for(const instrument of parsed.instruments)instMap.value[instrument.id]={...instrument,status:'snapshot',note:''} as Instrument
+      return
+    }
+    legacyNotice.value='历史报告未包含版本化打印快照；本次按存量兼容模式显示，请复核主数据信息。'
+    const o=await api.getOrgProfile();rp.value=r;org.value=o
+    try{for(const i of await api.listInstruments())instMap.value[i.id]=i}catch{/* legacy only */}
+    if(r.contract_id){try{contract.value=await api.getContract(r.contract_id)}catch{/* legacy only */}}
   } catch (e: any) { err.value = e?.response?.data?.error || e?.message || String(e) }
 })
 
@@ -31,8 +45,9 @@ const headerNo = computed(() => {
   const m = (rp.value?.id || '').match(/^BG(\d{4})-(\d+)$/)
   return m ? `环字${m[1]}第${m[2]}号` : rp.value?.id || ''
 })
-const results = computed(() => (rp.value?.data?.results ?? []) as any[])
-const proc = computed(() => rp.value?.data?.process ?? null)
+const reportContent = computed(() => document.value?.content ?? rp.value?.data ?? {})
+const results = computed(() => (reportContent.value.results ?? []) as any[])
+const proc = computed(() => reportContent.value.process ?? null)
 const sampleDate = computed(() => proc.value?.sampling?.fieldDate || proc.value?.sampling?.planDate || '')
 const handoverTime = computed(() => {
   const hs = proc.value?.handovers ?? []
@@ -40,7 +55,7 @@ const handoverTime = computed(() => {
   return [...new Set(t)].join('、')
 })
 // 检测日期区间：取记录结果无日期时退回采样日；比对报告一律按现场采样（样本 5/6 如此）
-const isField = computed(() => results.value.some(r => r.pointName) || (rp.value?.data?.compareBlocks?.length > 0))
+const isField = computed(() => results.value.some(r => r.pointName) || (reportContent.value.compareBlocks?.length > 0))
 // 方法表按 类别+项目+方法 去重
 const methodRows = computed(() => {
   const seen = new Set<string>(), rows: any[] = []
@@ -58,11 +73,12 @@ const remark = computed(() => {
   const parts: string[] = []
   if (results.value.some(r => String(r.value).startsWith('L'))) parts.push('结果有"L"表示未检出，其数值为该项目检出限。')
   if (results.value.some(r => r.limit)) parts.push('限值的数值由委托单位提供。')
-  if (rp.value?.data?.subNote) parts.push(rp.value.data.subNote)
+  if (reportContent.value.subNote) parts.push(reportContent.value.subNote)
   return parts.join('')
 })
 // —— 地下水/土壤转置表插槽：项目做行、点位做列（照 0090/0091 制式）——
 const isTransposed = computed(() => {
+  if(document.value)return document.value.layout==='transposed'
   const rs = results.value.filter(r => !r.qcType)
   return rs.length > 0 && rs.every(r => ['地下水', '土壤'].includes(r.matrix))
 })
@@ -81,13 +97,14 @@ const tpRows = computed(() => {
 })
 // —— 有组织废气插槽：气类且点位不含风向字样（上/下风向属无组织，走横表）——
 const isGasOrganized = computed(() => {
+  if(document.value)return document.value.layout==='gas_organized'
   const rs = results.value.filter(r => !r.qcType)
   return rs.length > 0 && rs.every(r => r.matrix === '有组织废气' || r.matrix === '废气') && !rs.some(r => /风向/.test(r.pointName || ''))
 })
-const stacks = computed(() => (rp.value?.data?.stacks ?? []) as any[])
+const stacks = computed(() => (reportContent.value.stacks ?? []) as any[])
 // 现场参数只展示标量项（field_info 里还混着 confirms 等内部结构，不上报告）
 const fieldInfo = computed(() => {
-  const fi = (rp.value?.data?.fieldInfo ?? null) as Record<string, any> | null
+  const fi = (reportContent.value.fieldInfo ?? null) as Record<string, any> | null
   if (!fi) return null
   const out = Object.fromEntries(Object.entries(fi).filter(([, v]) => v != null && typeof v !== 'object'))
   return Object.keys(out).length ? out : null
@@ -98,6 +115,7 @@ const avgOf = (vals: any[]) => {
 }
 // 竖排块：点位 → 项目 → 平行样列（0096 制式：样号/实测×N/平均/折算×N/平均/限值/速率×N/平均）
 const gasBlocks = computed(() => {
+  if(document.value)return document.value.display.gasBlocks
   if (!isGasOrganized.value) return []
   const byPoint = new Map<string, Map<string, any[]>>()
   for (const r of results.value.filter(r => !r.qcType)) {
@@ -129,10 +147,10 @@ const STACK_LABELS: Record<string, string> = {
 }
 const hasAnnex = computed(() => isGasOrganized.value && stacks.value.some(s => s.stack_info))
 // —— 比对插槽：报告带 compareBlocks 即走比对版式（0098~0103 制式）——
-const compareBlocks = computed(() => (rp.value?.data?.compareBlocks ?? []) as any[])
-const isCompare = computed(() => compareBlocks.value.length > 0)
+const compareBlocks = computed(() => (reportContent.value.compareBlocks ?? []) as any[])
+const isCompare = computed(() => document.value?document.value.layout==='comparison':compareBlocks.value.length > 0)
 // 二、水污染在线监测仪器运行技术指标（静态转录 HJ 355/354 要点，样本报告逐字固定此表）
-const TECH_RULES: [string, string][] = [
+const LEGACY_TECH_RULES: [string, string][] = [
   ['CODcr', '≥100mg/L ±15%；60~100mg/L ±20%；30~60mg/L ±30%；<30mg/L 用20-25mg/L标样替代 ±5mg/L'],
   ['氨氮', '≥2mg/L ±15%；<2mg/L ±0.3mg/L（1.5mg/L标样替代）'],
   ['总磷', '≥0.4mg/L ±15%；<0.4mg/L ±0.04mg/L'],
@@ -142,6 +160,7 @@ const TECH_RULES: [string, string][] = [
   ['质控样（0.5倍量程标样）', '相对误差≤±10%'],
   ['比对数量规则', '比对试验总数不少于3对：3对至少2对满足、4对至少3对满足、5对以上至少4对满足'],
 ]
+const TECH_RULES=computed(()=>document.value?.technicalRules??LEGACY_TECH_RULES)
 const CMP_TYPE_LABEL: Record<string, string> = { conc: '实际水样测定', pH: '实际水样测定（pH）', qc: '质控样品测定', flow: '流量比对', level: '液位比对' }
 // 噪声等带测量时间的结果（resultSummary.time 透传），横表自动加"测量时间"列
 const hasTimeCol = computed(() => results.value.some(r => !r.qcType && r.time))
@@ -195,6 +214,7 @@ function doClose() { window.close(); setTimeout(() => { location.href = '/report
       <span v-if="rp && rp.status !== 'issued'" class="tip warn">未签发——打印带水印，仅供内部校对</span>
     </div>
     <div v-if="err" class="errbox noprint">{{ err }}</div>
+    <div v-if="legacyNotice" class="errbox noprint">{{ legacyNotice }}</div>
 
     <template v-if="rp && org">
       <!-- P1 封面 -->
@@ -233,7 +253,7 @@ function doClose() { window.close(); setTimeout(() => { location.href = '/report
           </tbody>
         </table>
         <div class="signs">
-          <span>报告编写人：{{ rp.data?.author || rp.author || '' }}</span>
+          <span>报告编写人：{{ reportContent.author || rp.author || '' }}</span>
           <span>审核人：{{ rp.checker || '' }}</span>
           <span>批准人：{{ rp.issuer || '' }}</span>
         </div>

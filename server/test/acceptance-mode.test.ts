@@ -2,7 +2,11 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { openDb } from '../src/db.ts'
 import { createUser } from '../src/handlers.ts'
-import { isSingleActorAcceptance, recordAcceptanceOverride } from '../src/acceptanceMode.ts'
+import {
+  captureSingleActorAcceptance,
+  isSingleActorAcceptance,
+  recordAcceptanceOverride,
+} from '../src/acceptanceMode.ts'
 
 test('single-actor acceptance fails closed for every invalid identity or time boundary', () => {
   const previousUsername = process.env.ACCEPTANCE_SINGLE_ACTOR_USERNAME
@@ -26,9 +30,34 @@ test('single-actor acceptance fails closed for every invalid identity or time bo
       process.env.ACCEPTANCE_SINGLE_ACTOR_USERNAME = item.configured
       process.env.ACCEPTANCE_SINGLE_ACTOR_UNTIL = item.until
       assert.equal(isSingleActorAcceptance(db, { username: item.actor }), false, JSON.stringify(item))
-      assert.equal(recordAcceptanceOverride(db, { username: item.actor }, 'test', 'record', 'normal rule'), false)
+      assert.equal(captureSingleActorAcceptance(db, { username: item.actor }), null)
     }
     assert.equal((db.prepare(`SELECT COUNT(*) AS n FROM audit_log WHERE action LIKE 'acceptance_override_%'`).get() as any).n, 0)
+  } finally {
+    if (previousUsername === undefined) delete process.env.ACCEPTANCE_SINGLE_ACTOR_USERNAME
+    else process.env.ACCEPTANCE_SINGLE_ACTOR_USERNAME = previousUsername
+    if (previousUntil === undefined) delete process.env.ACCEPTANCE_SINGLE_ACTOR_UNTIL
+    else process.env.ACCEPTANCE_SINGLE_ACTOR_UNTIL = previousUntil
+  }
+})
+
+test('captured acceptance grant is auditable after the wall-clock expiry boundary', () => {
+  const previousUsername = process.env.ACCEPTANCE_SINGLE_ACTOR_USERNAME
+  const previousUntil = process.env.ACCEPTANCE_SINGLE_ACTOR_UNTIL
+  try {
+    const db = openDb(':memory:')
+    createUser(db, { username: 'admin', name: '管理员', roles: ['admin'], password: 'secret1' })
+    process.env.ACCEPTANCE_SINGLE_ACTOR_USERNAME = 'admin'
+    process.env.ACCEPTANCE_SINGLE_ACTOR_UNTIL = '2026-08-25T12:00:00.000Z'
+
+    const grant = captureSingleActorAcceptance(db, { username: 'admin' }, Date.parse('2026-08-25T11:59:59.999Z'))
+    assert.ok(grant)
+    process.env.ACCEPTANCE_SINGLE_ACTOR_UNTIL = '2000-01-01T00:00:00.000Z'
+
+    recordAcceptanceOverride(db, grant, 'test', 'record', 'normal rule')
+    const audit = db.prepare(`SELECT username,detail FROM audit_log WHERE action='acceptance_override_test'`).get() as any
+    assert.equal(audit.username, 'admin')
+    assert.equal(JSON.parse(audit.detail).expiresAt, '2026-08-25T12:00:00.000Z')
   } finally {
     if (previousUsername === undefined) delete process.env.ACCEPTANCE_SINGLE_ACTOR_USERNAME
     else process.env.ACCEPTANCE_SINGLE_ACTOR_USERNAME = previousUsername

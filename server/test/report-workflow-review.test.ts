@@ -199,6 +199,12 @@ test('single-actor acceptance mode lets the configured admin author, review, app
 
     decideProfessionalWorkflow(fx.db, workflow.id, 1, 'review', 'approve', '', singleActor)
     decideProfessionalWorkflow(fx.db, workflow.id, 1, 'approve', 'approve', '', singleActor)
+    fx.db.exec(`CREATE TRIGGER reject_acceptance_audit BEFORE INSERT ON audit_log
+      WHEN NEW.action='acceptance_override_report_issue'
+      BEGIN SELECT RAISE(ABORT, 'audit unavailable'); END`)
+    assert.throws(() => issueReport(fx.db, report.id, singleActor.name, singleActor.username), /audit unavailable/)
+    assert.notEqual(getReport(fx.db, report.id)!.status, 'issued')
+    fx.db.exec(`DROP TRIGGER reject_acceptance_audit`)
     assert.equal(issueReport(fx.db, report.id, singleActor.name, singleActor.username).status, 'issued')
     const overrides = fx.db.prepare(`SELECT action FROM audit_log WHERE username=? AND action LIKE 'acceptance_override_%' ORDER BY id`).all(singleActor.username) as any[]
     assert.deepEqual(overrides.map(row => row.action), [
@@ -408,6 +414,16 @@ test('report rejection creates a new immutable revision and issue stores a perma
   assert.equal((issued as any).workflow_revision, 2)
   assert.equal((issued as any).archive_version, 2)
   assert.equal((issueReport(db, report.id, signer.name, signer.username) as any).receipt_id, (issued as any).receipt_id)
+})
+
+test('approved report detects client or versioned document drift before issue',()=>{
+  const{db,sampleId,author,reviewer,approver,signer}=fixture()
+  const report=generateReport(db,sampleId,2026,author.name,author.username,'ARCHIVE-CURRENT')
+  const submitted=submitReportWorkflow(db,report.id,author)
+  decideWorkflow(db,submitted.id,submitted.current_revision,'review','approve','',reviewer)
+  decideWorkflow(db,submitted.id,submitted.current_revision,'approve','approve','',approver)
+  db.prepare(`UPDATE reports SET client='被篡改客户' WHERE id=?`).run(report.id)
+  assert.throws(()=>issueReport(db,report.id,signer.name,signer.username),/批准版本不一致|内容.*不一致/)
 })
 
 test('generic withdrawal invalidates every archive containing the exact approved revision and blocks its draft report', () => {

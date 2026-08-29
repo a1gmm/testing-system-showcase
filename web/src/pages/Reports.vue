@@ -434,12 +434,14 @@ onMounted(refresh)
               <div class="rp-no mono">报告编号：{{ selected.id }}</div>
             </div>
             <table class="rp-info">
-              <tr>
-                <td class="k">委托单位</td><td>{{ selected.client || '—' }}</td>
-                <td class="k">{{ selected.round_id ? '监测期次' : '样品编号' }}</td>
-                <td class="mono">{{ selected.round_id ? `第 ${selected.data?.round?.no ?? '?'} 期 · ${fmt(selected.data?.round?.due)}` : selected.sample_id }}</td>
-              </tr>
-              <tr><td class="k">委托单号</td><td class="mono">{{ selected.contract_id || '—' }}</td><td class="k">签发日期</td><td>{{ fmt(selected.issued_at) || '（未签发）' }}</td></tr>
+              <tbody>
+                <tr>
+                  <td class="k">委托单位</td><td>{{ selected.client || '—' }}</td>
+                  <td class="k">{{ selected.round_id ? '监测期次' : '样品编号' }}</td>
+                  <td class="mono">{{ selected.round_id ? `第 ${selected.data?.round?.no ?? '?'} 期 · ${fmt(selected.data?.round?.due)}` : selected.sample_id }}</td>
+                </tr>
+                <tr><td class="k">委托单号</td><td class="mono">{{ selected.contract_id || '—' }}</td><td class="k">签发日期</td><td>{{ fmt(selected.issued_at) || '（未签发）' }}</td></tr>
+              </tbody>
             </table>
             <div v-if="selected.reissue_of" class="rp-reissue mono">本报告系作废报告 {{ selected.reissue_of }} 的重出版本</div>
             <div v-if="selected.data?.qcWarning && selected.status !== 'issued'" class="rp-qcwarn">{{ selected.data.qcWarning }}</div>
@@ -448,39 +450,43 @@ onMounted(refresh)
             <template v-if="selected.data?.process">
               <div class="rp-sec">监测过程</div>
               <table class="rp-info rp-proc">
-                <tr v-if="selected.data.process.scheme">
-                  <td class="k">监测方案</td>
-                  <td colspan="3">{{ selected.data.process.scheme.id }} · 审核 {{ selected.data.process.scheme.reviewer || '—' }}<template v-if="selected.data.process.scheme.standards?.length"> · 执行标准 {{ selected.data.process.scheme.standards.join('、') }}</template></td>
-                </tr>
-                <tr v-if="selected.data.process.sampling">
-                  <td class="k">现场采样</td>
-                  <td colspan="3">第 {{ selected.data.process.sampling.roundNo }} 期 · 采样员 {{ selected.data.process.sampling.sampler || '—' }} · 采样日期 {{ selected.data.process.sampling.fieldDate || selected.data.process.sampling.planDate || fmt(selected.data.process.sampling.sampledAt) }}<template v-if="selected.data.process.sampling.weather"> · 天气 {{ selected.data.process.sampling.weather }}</template></td>
-                </tr>
-                <tr v-if="selected.data.process.points?.length">
-                  <td class="k">采样点位</td>
-                  <td colspan="3">
-                    <span v-for="p in selected.data.process.points" :key="p.code" class="rp-pt">
-                      {{ p.code }} {{ p.name }}<template v-if="p.actual && p.actual !== p.planned">（实际：{{ p.actual }}）</template><template v-if="p.source === 'field'">（现场补）</template>
-                    </span>
-                  </td>
-                </tr>
-                <tr v-if="selected.data.process.handovers?.length">
-                  <td class="k">样品交接</td>
-                  <td colspan="3">{{ selected.data.process.handovers.length }} 个样品交接，签收 {{ [...new Set(selected.data.process.handovers.map((h: any) => h.confirmedBy).filter(Boolean))].join('、') || '—' }}</td>
-                </tr>
-                <tr v-if="selected.data.process.tasks?.length">
-                  <td class="k">分析分工</td>
-                  <td colspan="3">{{ [...new Set(selected.data.process.tasks.map((t: any) => `${t.analyte}→${t.assignee}`))].join(' · ') }}</td>
-                </tr>
+                <tbody>
+                  <tr v-if="selected.data.process.scheme">
+                    <td class="k">监测方案</td>
+                    <td colspan="3">{{ selected.data.process.scheme.id }} · 审核 {{ selected.data.process.scheme.reviewer || '—' }}<template v-if="selected.data.process.scheme.standards?.length"> · 执行标准 {{ selected.data.process.scheme.standards.join('、') }}</template></td>
+                  </tr>
+                  <tr v-if="selected.data.process.sampling">
+                    <td class="k">现场采样</td>
+                    <td colspan="3">第 {{ selected.data.process.sampling.roundNo }} 期 · 采样员 {{ selected.data.process.sampling.sampler || '—' }} · 采样日期 {{ selected.data.process.sampling.fieldDate || selected.data.process.sampling.planDate || fmt(selected.data.process.sampling.sampledAt) }}<template v-if="selected.data.process.sampling.weather"> · 天气 {{ selected.data.process.sampling.weather }}</template></td>
+                  </tr>
+                  <tr v-if="selected.data.process.points?.length">
+                    <td class="k">采样点位</td>
+                    <td colspan="3">
+                      <span v-for="p in selected.data.process.points" :key="p.code" class="rp-pt">
+                        {{ p.code }} {{ p.name }}<template v-if="p.actual && p.actual !== p.planned">（实际：{{ p.actual }}）</template><template v-if="p.source === 'field'">（现场补）</template>
+                      </span>
+                    </td>
+                  </tr>
+                  <tr v-if="selected.data.process.handovers?.length">
+                    <td class="k">样品交接</td>
+                    <td colspan="3">{{ selected.data.process.handovers.length }} 个样品交接，签收 {{ [...new Set(selected.data.process.handovers.map((h: any) => h.confirmedBy).filter(Boolean))].join('、') || '—' }}</td>
+                  </tr>
+                  <tr v-if="selected.data.process.tasks?.length">
+                    <td class="k">分析分工</td>
+                    <td colspan="3">{{ [...new Set(selected.data.process.tasks.map((t: any) => `${t.analyte}→${t.assignee}`))].join(' · ') }}</td>
+                  </tr>
+                </tbody>
               </table>
             </template>
             <template v-if="selected.data?.kind === 'total' && selected.data?.rounds?.length">
               <div class="rp-sec">各期采样一览</div>
               <table class="rp-info rp-proc">
-                <tr v-for="r in selected.data.rounds" :key="r.no">
-                  <td class="k">第 {{ r.no }} 期</td>
-                  <td colspan="3">约定 {{ r.due }} · 采样员 {{ r.sampler || '—' }} · 完成 {{ fmt(r.sampledAt) || '—' }}</td>
-                </tr>
+                <tbody>
+                  <tr v-for="r in selected.data.rounds" :key="r.no">
+                    <td class="k">第 {{ r.no }} 期</td>
+                    <td colspan="3">约定 {{ r.due }} · 采样员 {{ r.sampler || '—' }} · 完成 {{ fmt(r.sampledAt) || '—' }}</td>
+                  </tr>
+                </tbody>
               </table>
             </template>
             <div class="rp-sec">检测结果<span v-if="hasLimit" class="rp-note">（标准限值供人工比对判定）</span></div>

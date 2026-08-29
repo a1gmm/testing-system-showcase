@@ -4,6 +4,7 @@ import type { Schema } from '../schemas'
 // 顶部采样日期 → 逐行数据表(样品编号/取样量V1/定容体积V/稀释倍数k/电位值E/浓度ρ/备注) → 方法/仪器/公式/依据 kv 页脚
 export const electrodeSurfaceWaterF: Schema = {
   id: 'electrodeSurfaceWaterF',
+  result: { key: 'rho' },
   title: () => '离子选择电极法测量原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'],
   seed: () => [],
@@ -38,6 +39,7 @@ export const electrodeSurfaceWaterF: Schema = {
 // 0066.pdf HJ-TC-068：离子选择电极法测量原始记录表(地下水氟化物)。与地表水版式一致，质控编号列+不同方法依据/检出限
 export const electrodeGroundWaterF: Schema = {
   id: 'electrodeGroundWaterF',
+  result: { key: 'rho' },
   title: () => '离子选择电极法测量原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'],
   seed: () => [],
@@ -73,6 +75,7 @@ export const electrodeGroundWaterF: Schema = {
 // 无采样日期抬头行外的其他抬头；表体含标况采样体积Vn(m³)
 export const electrodeAirF: Schema = {
   id: 'electrodeAirF',
+  result: { key: 'rho' },
   title: () => '环境空气离子选择电极法测量原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'],
   seed: () => [],
@@ -106,6 +109,7 @@ export const electrodeAirF: Schema = {
 // 绝对量W1(气氟·尘氟分组)/结果/结果和/结果和平均值/折算浓度/排放速率/排放速率平均值) → 方法+双行计算公式 kv 页脚
 export const electrodeWasteGasF: Schema = {
   id: 'electrodeWasteGasF',
+  result: { key: 'resultAvg' },
   title: () => '废气离子选择电极法测量原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'],
   seed: () => [],

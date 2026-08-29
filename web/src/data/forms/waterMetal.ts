@@ -7,6 +7,7 @@ function n(v: any): number | null { const x = parseFloat(v); return isFinite(x) 
 // ── HJ1453-2026 铜/铅/镉/镍/铬 石墨炉AAS（直接进样，结果 μg/L，ρ=ρ查×D）──
 const waterMetalGFAAS: Schema = {
   id: 'waterMetalGFAAS',
+  result: { key: 'rho' },
   title: () => '水质 金属元素的测定 石墨炉原子吸收分光光度法 原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'],
   seed: () => [],
@@ -47,6 +48,7 @@ const waterMetalGFAAS: Schema = {
 function makeWaterMetalAAS(unit: string): Schema {
   return {
     id: `waterMetalAAS_${unit.replace('/', '')}`,
+    result: { key: 'rho' },
     title: () => '水质 金属元素的测定 原子吸收分光光度法 原始记录表',
     columns: [], meta: [], signRoles: ['检验', '复核', '审核'],
     seed: () => [],
@@ -94,6 +96,7 @@ const waterMetalAAS_mg = makeWaterMetalAAS('mg/L')
 // ── 冷原子吸收/原子荧光 测汞（HJ597等）：无波长/狭缝（仪器固定253.7nm，测汞仪不设狭缝）──
 const mercuryCV: Schema = {
   id: 'mercuryCV',
+  result: { key: 'rho' },
   title: () => '水质 总汞的测定 冷原子吸收(荧光)法 原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 110 },

@@ -52,3 +52,13 @@ test('reopened page finds the durable status for its exact draft revision',async
   const reopened=new SubmissionOutbox('sampler-a',factory),found=await reopened.findForDraft(draft)
   expect(found?.clientSubmissionId).toBe(local.clientSubmissionId);expect(found?.status).toBe('pending')
 })
+
+test('reopened page finds the latest frozen submission for the round after the draft revision changes',async()=>{
+  const outbox=new SubmissionOutbox('sampler-a',factory,()=> 'submission-local-00000007'),local=await outbox.create(draft,[])
+  await outbox.markSubmitting(local.clientSubmissionId)
+  await outbox.recordReceipt(local.clientSubmissionId,{clientSubmissionId:local.clientSubmissionId,receiptId:'server-pending',status:'pending',payloadHash:local.payloadHash})
+  const revised=structuredClone(draft);revised.payload.draftRevision=8
+  const reopened=new SubmissionOutbox('sampler-a',factory),found=await reopened.findLatestForRound('round-1')
+  expect(found?.draftRevision).toBe(7);expect(found?.status).toBe('pending')
+  expect(await reopened.findForDraft(revised)).toBeUndefined()
+})

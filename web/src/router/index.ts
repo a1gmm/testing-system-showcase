@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import AppShell from '../components/AppShell.vue'
 import { getToken, currentUser, api, hasRole } from '../api'
 import { PAGE_ROLES } from '../permissions'
 import FieldTask from '../pages/FieldTask.vue'
@@ -13,16 +12,17 @@ const routes: RouteRecordRaw[] = [
   { path: '/test-notices/:id/print', name: 'notice-print', meta: { title: '打印任务通知单', roles: PAGE_ROLES.samples }, component: () => import('../pages/NoticePrint.vue') },
   // 报告打印页（批次二）：0096"最新标准"制式，封面→委托信息→结果→方法表→双语声明
   { path: '/reports/:id/print', name: 'report-print', meta: { title: '打印报告', roles: PAGE_ROLES.reports }, component: () => import('../pages/ReportPrint.vue') },
+  // 现场任务是独立、可离线冷启动的工作面。保持 eager，避免首次离线缺失动态 chunk。
+  { path: '/field-tasks/:id', name: 'field-task', meta: { title: '样品工作台', roles: ['sampler'], offlinePackage: true }, component: FieldTask },
   {
     path: '/',
-    component: AppShell,
+    component: () => import('../components/AppShell.vue'),
     children: [
       { path: '', redirect: '/dashboard' },
       { path: 'dashboard', name: 'dashboard', meta: { title: '工作台' }, component: () => import('../pages/Dashboard.vue') },
       { path: 'customers', name: 'customers', meta: { title: '客户档案', roles: PAGE_ROLES.customers }, component: () => import('../pages/Customers.vue') },
       { path: 'contracts', name: 'contracts', meta: { title: '合同与方案', roles: PAGE_ROLES.contracts }, component: () => import('../pages/Contracts.vue') },
       { path: 'plans', name: 'plans', meta: { title: '采样派工', roles: PAGE_ROLES.plans }, component: () => import('../pages/Plans.vue') },
-      { path: 'field-tasks/:id', name: 'field-task', meta: { title: '样品工作台', roles: ['sampler'], offlinePackage: true }, component: FieldTask },
       { path: 'mobile-confirmation', name: 'mobile-confirmation', meta: { title: '第二设备确认', roles: ['sampler'] }, component: () => import('../pages/MobileConfirmation.vue') },
       { path: 'qc', name: 'qc', meta: { title: '质控交接', roles: PAGE_ROLES.qc }, component: () => import('../pages/Qc.vue') },
       { path: 'samples', name: 'samples', meta: { title: '检测录入', roles: PAGE_ROLES.samples }, component: () => import('../pages/Samples.vue') },

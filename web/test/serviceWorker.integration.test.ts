@@ -81,7 +81,7 @@ describe('production service worker', () => {
 
   test('install discovers and caches the real hashed JS/CSS plus manifest and icon from the built shell', async () => {
     const requested: string[] = []
-    const shell = '<link rel="stylesheet" href="/assets/index-ABC.css"><link rel="manifest" href="/manifest.webmanifest"><script type="module" src="/assets/index-XYZ.js"></script>'
+    const shell = '<link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/assets/index-ABC.css"><link rel="manifest" href="/manifest.webmanifest"><script type="module" src="/assets/index-XYZ.js"></script>'
     const manifest = '{"icons":[{"src":"/pwa-icon.svg"}]}'
     const harness = createHarness(async (request) => {
       const url = typeof request === 'string' ? request : request.url
@@ -101,6 +101,7 @@ describe('production service worker', () => {
       'https://field.local/',
       'https://field.local/assets/index-ABC.css',
       'https://field.local/assets/index-XYZ.js',
+      'https://field.local/favicon.svg',
       'https://field.local/manifest.webmanifest',
       'https://field.local/pwa-icon.svg',
     ]))
@@ -108,7 +109,32 @@ describe('production service worker', () => {
       'https://field.local/__field_public_shell__',
       'https://field.local/assets/index-ABC.css',
       'https://field.local/assets/index-XYZ.js',
+      'https://field.local/favicon.svg',
+      'https://field.local/manifest.webmanifest',
     ]))
+  })
+
+  test.each(['/favicon.svg', '/manifest.webmanifest'])('serves cached public metadata offline for %s', async (path) => {
+    const harness = createHarness(async () => { throw new Error('offline') }, {
+      'field-shell-test-build': [`https://field.local${path}`],
+    })
+    await loadWorker(harness)
+    let response: Promise<unknown> | undefined
+
+    harness.handlers.get('fetch')!({
+      request: {
+        method: 'GET',
+        mode: 'no-cors',
+        destination: path.endsWith('.svg') ? 'image' : 'manifest',
+        credentials: 'same-origin',
+        headers: { get: () => null },
+        url: `https://field.local${path}`,
+      },
+      respondWith: (promise: Promise<unknown>) => { response = promise },
+    })
+
+    expect(response).toBeDefined()
+    await expect(response).resolves.toBeDefined()
   })
 
   test('failed upgrade keeps the previously bootable cache', async () => {
@@ -151,6 +177,7 @@ describe('production service worker', () => {
     ['/assets/font-A.woff', 'font/woff'],
     ['/assets/font-A.woff2', 'font/woff2'],
     ['/assets/font-A.ttf', 'font/ttf'],
+    ['/fonts/source-han-sans-sc-subset.woff2', 'font/woff2'],
   ])('accepts expected production font MIME for %s', async (fontPath, mime) => {
     const harness = createHarness(async (request) => {
       const path = new URL(typeof request === 'string' ? request : request.url).pathname

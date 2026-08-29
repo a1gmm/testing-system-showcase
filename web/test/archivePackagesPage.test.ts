@@ -64,6 +64,22 @@ test('归档页并列呈现可归档、阻塞、已确认和已失效状态，�
   expect(wrapper.text()).toContain('实验室分析还有 2 份记录待审核，暂不能归档')
 })
 
+test('归档阻断按问题类型给出可操作入口', async () => {
+  mocks.listArchivePackages.mockResolvedValueOnce([])
+  mocks.listProjects.mockResolvedValueOnce([{ id: 'WT-5', client: '入口测试厂' }])
+  mocks.getArchiveReadiness.mockResolvedValueOnce({
+    ready: false, contractId: 'WT-5', reportBatchId: null, roundIds: [], issues: [
+      { code: 'ASSIGNMENT_NOT_ACTIVE', entityId: 'laboratory', message: 'laboratory 专业缺少当前有效复核/审核指派' },
+      { code: 'LAB_RECORD_MISSING', entityId: 'W1:氨氮', message: '检测项目 氨氮 尚无实验室记录' },
+    ],
+  })
+  const wrapper = mount(ArchivePackages, { global: { directives: { loading: () => undefined } } })
+  await flushPromises()
+
+  expect(wrapper.get('[data-fix-assignments]').attributes('href')).toContain('/plans?stage=dispatch')
+  expect(wrapper.get('[data-fix-laboratory]').attributes('href')).toContain('/samples?stage=laboratory')
+})
+
 test('只有档案管理员能看到确认归档主动作', async () => {
   mocks.listArchivePackages.mockResolvedValueOnce([pkg('ready-1', 'WT-3', 'ready')])
   mocks.listProjects.mockResolvedValueOnce([{ id: 'WT-3', client: '丙厂' }])

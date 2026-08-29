@@ -1,6 +1,8 @@
 import type { DB } from './db.ts'
-import { hasRole, inTx, type User } from './handlers.ts'
-import { isSingleActorAcceptance, recordAcceptanceOverride } from './acceptanceMode.ts'
+import { hasRole, type User } from './actor.ts'
+import { inTx } from './transaction.ts'
+import { captureSingleActorAcceptance, isSingleActorAcceptance, recordAcceptanceOverride } from './acceptanceMode.ts'
+import { DomainError } from './domainError.ts'
 
 export const PROFESSIONAL_SCOPES = ['sampling', 'quality', 'laboratory', 'report'] as const
 export type ProfessionalScope = typeof PROFESSIONAL_SCOPES[number]
@@ -31,16 +33,13 @@ function now() { return new Date().toISOString() }
 function today(at: string | Date = new Date()) { return typeof at === 'string' ? at.slice(0, 10) : at.toISOString().slice(0, 10) }
 function scopeLabel(scope: ProfessionalScope) { return ({ sampling: '采样', quality: '质控', laboratory: '实验室', report: '报告' })[scope] }
 function assertScope(scope: string): asserts scope is ProfessionalScope {
-  if (!SCOPE_SET.has(scope)) throw new Error('不支持的专业环节')
+  if (!SCOPE_SET.has(scope)) throw new DomainError(400, 'WORKFLOW_SCOPE_INVALID', '不支持的专业环节')
 }
 function assertCode(code: string): asserts code is QualificationCode {
-  if (!CODE_SET.has(code)) throw new Error('不支持的专业审核资格')
+  if (!CODE_SET.has(code)) throw new DomainError(400, 'QUALIFICATION_CODE_INVALID', '不支持的专业审核资格')
 }
 function qualificationError(message: string, errorCode: string): Error {
-  const error: any = new Error(message)
-  error.httpCode = 400
-  error.errorCode = errorCode
-  return error
+  return new DomainError(400, errorCode, message)
 }
 function assertQualificationCode(code: unknown): asserts code is QualificationCode {
   if (typeof code !== 'string' || !CODE_SET.has(code)) {
@@ -60,10 +59,10 @@ function assertIsoDate(value: unknown, field: string): asserts value is string |
   }
 }
 function assertAdmin(actor: User) {
-  if (!hasRole(actor, 'admin')) throw new Error('只有系统管理员可以授予专业审核资格')
+  if (!hasRole(actor, 'admin')) throw new DomainError(403, 'ADMIN_REQUIRED', '只有系统管理员可以授予专业审核资格')
 }
 function assertPlanner(actor: User) {
-  if (!hasRole(actor, 'planner')) throw new Error('只有计划员可以指定项目复核人和审核人')
+  if (!hasRole(actor, 'planner')) throw new DomainError(403, 'PLANNER_REQUIRED', '只有计划员可以指定项目复核人和审核人')
 }
 function audit(db: DB, recordId: string, actor: User, action: string, detail: unknown) {
   db.prepare(`INSERT INTO audit_log (record_id, who, username, action, detail, at) VALUES (?,?,?,?,?,?)`)
@@ -119,7 +118,7 @@ export function replaceValidatedUserQualifications(
 ): UserQualification[] {
   assertAdmin(actor)
   const user = db.prepare(`SELECT username FROM users WHERE username=?`).get(username)
-  if (!user) throw new Error('用户不存在')
+  if (!user) throw new DomainError(404, 'USER_NOT_FOUND', '用户不存在')
   db.prepare(`DELETE FROM user_qualifications WHERE username=?`).run(username)
   const grantedAt = now()
   for (const item of qualifications) {
@@ -174,7 +173,7 @@ export function listWorkflowCandidates(
 
 function assertQualifiedUser(db: DB, username: string, code: QualificationCode, scope: ProfessionalScope, kind: '复核' | '审核', at?: string | Date) {
   const qualified = listQualifiedUsers(db, code, at).some(user => user.username === username)
-  if (!qualified) throw new Error(`${username}没有有效的${scopeLabel(scope)}${kind}资格`)
+  if (!qualified) throw new DomainError(403, 'WORKFLOW_QUALIFICATION_REQUIRED', `${username}没有有效的${scopeLabel(scope)}${kind}资格`)
 }
 
 export function getProjectAssignment(db: DB, contractId: string, scope: ProfessionalScope): ProjectStageAssignment | null {
@@ -195,8 +194,10 @@ export function assignProjectReviewers(
   assertPlanner(actor)
   if (!db.prepare(`SELECT 1 FROM contracts WHERE id=?`).get(contractId)) throw new Error('项目不存在')
   if (!reviewerUsername || !approverUsername) throw new Error('复核人和审核人必填')
-  const acceptanceOverride = reviewerUsername === approverUsername && isSingleActorAcceptance(db, { username: reviewerUsername })
-  if (reviewerUsername === approverUsername && !acceptanceOverride) throw new Error('复核人和审核人不能是同一账号')
+  const acceptanceGrant = reviewerUsername === approverUsername
+    ? captureSingleActorAcceptance(db, { username: reviewerUsername })
+    : null
+  if (reviewerUsername === approverUsername && !acceptanceGrant) throw new DomainError(409, 'WORKFLOW_PERSON_NOT_DISTINCT', '复核人和审核人不能是同一账号')
   assertQualifiedUser(db, reviewerUsername, `${scope}_review` as QualificationCode, scope, '复核')
   assertQualifiedUser(db, approverUsername, `${scope}_approve` as QualificationCode, scope, '审核')
   const current = getProjectAssignment(db, contractId, scope)
@@ -211,7 +212,7 @@ export function assignProjectReviewers(
       VALUES (?,?,?,?,1,?,?,?)`).run(contractId, scope, reviewerUsername, approverUsername, reason?.trim() || null, actor.username, assignedAt)
     assignment = rowToAssignment(db.prepare(`SELECT * FROM project_stage_assignments WHERE id=?`).get(Number(result.lastInsertRowid)))
     audit(db, contractId, actor, 'project_stage_assignment_set', { scope, reviewerUsername, approverUsername, reason: reason?.trim() || null, replacedAssignmentId: current?.id ?? null })
-    if (acceptanceOverride) recordAcceptanceOverride(db, { username: reviewerUsername }, 'workflow_assignment', contractId,
+    if (acceptanceGrant) recordAcceptanceOverride(db, acceptanceGrant, 'workflow_assignment', contractId,
       '复核人与审核人必须使用不同账号', { scope, reviewerUsername, approverUsername, assignedBy: actor.username })
   })
   return assignment
@@ -222,10 +223,10 @@ export function assertAssignedDecisionActor(
 ): ProjectStageAssignment {
   assertScope(scope)
   const assignment = getProjectAssignment(db, contractId, scope)
-  if (!assignment) throw new Error('项目尚未指定复核人和审核人')
+  if (!assignment) throw new DomainError(409, 'WORKFLOW_ASSIGNMENT_REQUIRED', '项目尚未指定复核人和审核人')
   const isReview = level === 'review' || level === 'reviewer'
   const expected = isReview ? assignment.reviewer_username : assignment.approver_username
-  if (actor.username !== expected) throw new Error(`当前账号不是项目指定的${isReview ? '复核人' : '审核人'}`)
+  if (actor.username !== expected) throw new DomainError(403, 'WORKFLOW_WRONG_ASSIGNEE', `当前账号不是项目指定的${isReview ? '复核人' : '审核人'}`)
   assertQualifiedUser(db, actor.username, `${scope}_${isReview ? 'review' : 'approve'}` as QualificationCode, scope, isReview ? '复核' : '审核', at)
   return assignment
 }

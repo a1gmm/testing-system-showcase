@@ -5,6 +5,8 @@ import type { VueWrapper } from '@vue/test-utils'
 // v-model 绑定的值只在 DOM property 上，不会序列化进 html()，只能逐个读 input 的实际值
 const inputValues = (w: VueWrapper<any>) =>
   w.findAll('input').map(i => (i.element as HTMLInputElement).value).filter(v => v !== '')
+const visibleSampleIds = (w: VueWrapper<any>) =>
+  w.findAll('[data-fixed-sample-id]').map(node => node.text())
 
 // 一张表从单组分改成多组分后（templates.json 的 meta.components 由字符串改为数组），
 // 改之前存的老记录只有 data.rows、没有 data.compRows。多组分模式下 activeRows 只读 compRows，
@@ -59,7 +61,7 @@ describe('多组分表读取改版前的老记录', () => {
     })
     const w = mount(StructuredSheet, mountOpts)
     await flushPromises()
-    expect(inputValues(w)).toContain('F-9')
+    expect(visibleSampleIds(w)).toContain('S-2026-0001')
     expect(inputValues(w)).toContain('0.777')
   })
 
@@ -74,7 +76,8 @@ describe('多组分表读取改版前的老记录', () => {
     })
     const w = mount(StructuredSheet, mountOpts)
     await flushPromises()
-    expect(inputValues(w)).toContain('F-1')   // 首个组分「苯」的数据
-    expect(inputValues(w)).not.toContain('F-2')   // 甲苯的数据不该串到苯的表格里
+    expect(visibleSampleIds(w)).toContain('S-2026-0001') // 当前记录的固定样号
+    expect(inputValues(w)).toContain('0.1')              // 首个组分「苯」的数据仍在
+    expect(inputValues(w)).not.toContain('0.2')          // 甲苯的数据不该串到苯的表格里
   })
 })

@@ -16,6 +16,7 @@ const metaBasic = (extra: any[] = []) => [
 // ── pH 电极法（HJ1147-2020）直读，无换算 ──
 const phMeter: Schema = {
   id: 'phMeter', title: () => '水质 pH值的测定 电极法 原始记录表',
+  result: { key: 'ph' },
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute: () => ({}),
   layout: [
@@ -32,6 +33,7 @@ const phMeter: Schema = {
 // ── 溶解氧 电化学探头法（HJ506-2009）直读 mg/L ──
 const doMeter: Schema = {
   id: 'doMeter', title: () => '水质 溶解氧的测定 电化学探头法 原始记录表',
+  result: { key: 'do' },
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute: () => ({}),
   layout: [
@@ -48,6 +50,7 @@ const doMeter: Schema = {
 // ── BOD₅ 稀释与接种法（HJ505-2009）──
 const bod5: Schema = {
   id: 'bod5', title: () => '五日生化需氧量(BOD₅) 稀释与接种法 原始记录表',
+  result: { key: 'bod' },
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute(row: Record<string, any>) {
     const c1 = n(row.c1), c2 = n(row.c2), f = n(row.f) ?? 1, bcorr = n(row.bcorr) ?? 0
@@ -72,6 +75,7 @@ const bod5: Schema = {
 // ── 电导率 电极法（HJ802-2016 土壤 等）直读 ──
 const conductivity: Schema = {
   id: 'conductivity', title: () => '电导率 电极法 原始记录表',
+  result: { key: 'ec' },
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute: () => ({}),
   layout: [
@@ -89,6 +93,7 @@ const conductivity: Schema = {
 // ── 色度 稀释倍数法（HJ1182-2021）──
 const chroma: Schema = {
   id: 'chroma', title: () => '色度 稀释倍数法 原始记录表',
+  result: { key: 'result' },
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute(row: Record<string, any>) {
     const d = n(row.dilution)

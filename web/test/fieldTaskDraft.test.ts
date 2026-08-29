@@ -184,6 +184,8 @@ describe('atomic HJ-TC-136 persistence', () => {
     const rebound = structuredClone(newer); rebound.signedPayload.deviceBindingFingerprint = '0'.repeat(64)
     expect(renewalValid(initial, rebound)).toBe(false)
     const renewed = renewTaskAuthorization(initial, newer, 2_000_000)
+    expect(renewed.payload.package.signedPayload.authorization.nonce).toBe('new')
+    expect(renewed.payload.clock.wallTimeAtTrust).toBe(2_000_000)
     const stored = await db.renewDraftAtomic(initial, 0, newer)
     await expect(db.renewDraftAtomic(initial, 0, newer)).rejects.toThrow(/DRAFT_(REVISION_CONFLICT|TRUST_INVALID)/)
     expect(stored.payload.draftRevision).toBe(1)

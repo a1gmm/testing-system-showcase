@@ -6,12 +6,20 @@ import { ElMessage } from 'element-plus'
 import templatesJson from '../data/templates.json'
 import { templatePhase } from '../data/phase'
 import { resolveSchema } from '../data/schemas'
+import { projectResultSummary, schemaColumns } from '../data/resultProjection'
+import { isTemplateReadyForEntry } from '../data/templateEntry'
+import { templateMatchesSampleMatrix } from '../data/templateMatrix'
 import { api, currentUser, hasRole, type Sample, type TestTask } from '../api'
 import { todayLocal } from '../utils/date'
-import { markDirty, clearDirty } from '../utils/dirty'
+import { markDirty, clearDirty, confirmIfDirty } from '../utils/dirty'
 
-type Tpl = { code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; raw: string; file: string }
-const LAB_TPLS = (templatesJson as Tpl[]).filter(t => (t.sheetType === '原始记录') && templatePhase(t) === '实验室')
+type Tpl = {
+  code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; raw: string; file: string
+  retired?: boolean
+  meta?: { methodFull?: string; detectionLimit?: string; basis?: string }
+}
+const LAB_TPLS = (templatesJson as Tpl[]).filter(t => isTemplateReadyForEntry(t)
+  && t.sheetType === '原始记录' && templatePhase(t) === '实验室')
 
 // 真盲视角同 Samples.vue 口径：盲用户拿到的 contract_id 已被后端脱敏，别把有委托的样标成"散样"
 const isBlindView = computed(() => hasRole('analyst') && !hasRole('admin', 'tech', 'qc', 'sales', 'sampler', 'signer'))
@@ -22,24 +30,40 @@ const tplKeyword = ref('')
 const tpl = ref<Tpl | null>(null)
 const candidates = computed(() => {
   const k = tplKeyword.value.toLowerCase()
-  return LAB_TPLS.filter(t => !k || (t.raw + t.analyte + t.code + t.method).toLowerCase().includes(k)).slice(0, 40)
+  return LAB_TPLS
+    .filter(t => props.samples.some(sample => templateMatchesSampleMatrix(t, sample.matrix)))
+    .filter(t => !k || (t.raw + t.analyte + t.code + t.method).toLowerCase().includes(k)).slice(0, 40)
 })
 
 const schema = computed(() => (tpl.value ? resolveSchema(tpl.value.sheetType, tpl.value.method, tpl.value.code, undefined) : null))
 // 输入列（id/input），auto 列现算
-const cols = computed(() => schema.value?.columns ?? [])
+const cols = computed(() => schema.value ? schemaColumns(schema.value) : [])
+const sampleIdentityColumn = computed(() => cols.value.find(column =>
+  column.kind === 'id' && /^(样品|质控)编号/.test(String(column.label || ''))))
+const sampleIdentityKey = computed(() => sampleIdentityColumn.value?.key || 'id')
+function blankRowFor(sampleId: string) {
+  const blank: Record<string, any> = {}
+  cols.value.forEach(column => (blank[column.key] = ''))
+  blank[sampleIdentityKey.value] = sampleId
+  return blank
+}
 
 // 候选样品：tech 看全部待检样品；实验室分析人员只看质控派给自己的项目匹配这张表的
-function analyteHits(items: string[], analyte: string) {
+function analyteHits(items: string[], analyte: string, raw = '') {
   const a = analyte.toLowerCase()
-  return items.some(it => { const s = it.toLowerCase(); return a && (a.includes(s) || s.includes(a)) })
+  const source = raw.toLowerCase()
+  return items.some(it => {
+    const s = it.toLowerCase().trim()
+    return !!s && ((a && (a.includes(s) || s.includes(a))) || source.includes(s))
+  })
 }
 const pickable = computed<Sample[]>(() => {
   if (!tpl.value) return []
   const t = tpl.value
-  const base = props.samples.filter(s => s.status !== 'done' && s.matrix === t.matrix && (!s.items.length || analyteHits(s.items, t.analyte)))
+  const base = props.samples.filter(s => s.status !== 'done' && templateMatchesSampleMatrix(t, s.matrix)
+    && (!s.items.length || analyteHits(s.items, t.analyte, t.raw)))
   if (hasRole('tech')) return base
-  const mine = new Set(props.myTasks.filter(k => analyteHits([k.analyte], t.analyte)).map(k => k.sample_id))
+  const mine = new Set(props.myTasks.filter(k => analyteHits([k.analyte], t.analyte, t.raw)).map(k => k.sample_id))
   return base.filter(s => mine.has(s.id))
 })
 
@@ -47,10 +71,28 @@ const chosen = reactive<Record<string, boolean>>({})
 const rows = reactive<Record<string, Record<string, any>>>({})
 function toggle(s: Sample) {
   chosen[s.id] = !chosen[s.id]
-  if (chosen[s.id] && !rows[s.id]) { const blank: Record<string, any> = {}; cols.value.forEach(c => (blank[c.key] = '')); blank.id = s.id; rows[s.id] = blank }
+  if (chosen[s.id] && !rows[s.id]) rows[s.id] = blankRowFor(s.id)
   markDirty('batch-entry')
 }
 const chosenIds = computed(() => Object.keys(chosen).filter(id => chosen[id]))
+const allPicked = computed(() => pickable.value.length > 0 && pickable.value.every(sample => chosen[sample.id]))
+async function chooseTemplate(next: Tpl | null) {
+  if (tpl.value && !(await confirmIfDirty())) return
+  tpl.value = next
+  for (const key of Object.keys(chosen)) delete chosen[key]
+  for (const key of Object.keys(rows)) delete rows[key]
+  reg.a = undefined
+  reg.b = undefined
+  clearDirty('batch-entry')
+}
+function toggleAll() {
+  const next = !allPicked.value
+  for (const sample of pickable.value) {
+    chosen[sample.id] = next
+    if (next && !rows[sample.id]) rows[sample.id] = blankRowFor(sample.id)
+  }
+  markDirty('batch-entry')
+}
 
 // 共用回归系数（同一批同一条曲线）；不填不算浓度
 const reg = reactive<{ a: number | undefined; b: number | undefined }>({ a: undefined, b: undefined })
@@ -63,15 +105,9 @@ function autoVals(row: Record<string, any>): Record<string, any> {
   if (s.regression && !regValid.value) return {}
   return s.compute(row, { reg: { a: (regValid.value ? reg.a : 0) as number, b: (regValid.value ? reg.b : 0) as number }, meta: sharedMeta })
 }
-const RESULT_KEY: Record<string, string> = { photometric: 'rho', titration: 'rho', gravimetric: 'rho', ic: 'rho', micro: 'result', generic: 'result' }
 function resultOf(row: Record<string, any>) {
   const s = schema.value!
-  const key = RESULT_KEY[s.id]
-  if (!key) return null
-  const col = s.columns.find(c => c.key === key)
-  const v = col?.kind === 'auto' ? autoVals(row)[key] : row[key]
-  if (v == null || v === '' || isNaN(+v)) return null
-  return { analyte: tpl.value!.analyte, value: +v, unit: col?.unit || '' }
+  return projectResultSummary(s, [row], tpl.value!.analyte, autoVals)
 }
 
 const saving = ref(false)
@@ -101,7 +137,7 @@ async function saveAll(submit = false) {
       <p class="hint">跨合同同表：选一张记录表，把名下所有要测这个项目的样品放进同一张表里录，保存后按样品编号自动归各自委托。</p>
       <input v-model="tplKeyword" class="search" placeholder="搜检测项目 / 表号 / 方法…" />
       <div class="tlist">
-        <div v-for="t in candidates" :key="t.file" class="titem" @click="tpl = t">
+        <div v-for="t in candidates" :key="t.file" class="titem" @click="chooseTemplate(t)">
           <b>{{ t.raw }}</b>
           <span class="mono">{{ t.code }} · {{ t.matrix }} · {{ t.analyte }}</span>
         </div>
@@ -110,22 +146,23 @@ async function saveAll(submit = false) {
 
     <template v-else>
       <div class="bar">
-        <span class="back" @click="tpl = null">← 换一张表</span>
+        <span class="back" @click="chooseTemplate(null)">← 换一张表</span>
         <b>{{ tpl.raw }}</b>
         <span class="mono sub">{{ tpl.code }} · {{ tpl.analyte }}</span>
       </div>
 
       <div class="pick-samples">
         <b>本批样品（{{ chosenIds.length }}/{{ pickable.length }}）</b>
+        <button v-if="pickable.length" type="button" class="select-all" data-select-all-batch @click="toggleAll">{{ allPicked ? '取消全选' : `全选 ${pickable.length} 个` }}</button>
         <span v-if="!pickable.length" class="hint">没有可录的样品——{{ hasRole('tech') ? '没有待检的匹配样品' : '质控还没把该项目的任务派给你' }}</span>
-        <label v-for="s in pickable" :key="s.id" class="cs" :class="{ on: chosen[s.id] }">
+        <label v-for="s in pickable" :key="s.id" class="cs" :class="{ on: chosen[s.id] }" data-batch-sample>
           <input type="checkbox" :checked="!!chosen[s.id]" @change="toggle(s)" />
           <span class="mono">{{ s.id }}</span><i>{{ s.client }}<template v-if="s.contract_id"> · {{ s.contract_id }}</template></i>
         </label>
       </div>
 
       <div v-if="schema?.regression" class="regbar">
-        回归方程 a=<input v-model.number="reg.a" placeholder="必填" /> b=<input v-model.number="reg.b" placeholder="必填" />
+        回归方程 a=<input v-model.number="reg.a" placeholder="必填" @input="markDirty('batch-entry')" /> b=<input v-model.number="reg.b" placeholder="必填" @input="markDirty('batch-entry')" />
         <span v-if="!regValid" class="warn">未填系数不算浓度</span>
       </div>
 
@@ -133,12 +170,12 @@ async function saveAll(submit = false) {
         <table>
           <thead><tr>
             <th class="fixcol">样品编号 / 委托</th>
-            <th v-for="c in cols.filter(c => c.key !== 'id')" :key="c.key" :class="{ autoh: c.kind === 'auto' }">{{ c.label }}<small v-if="c.unit"> {{ c.unit }}</small></th>
+            <th v-for="c in cols.filter(c => c.key !== sampleIdentityKey)" :key="c.key" :class="{ autoh: c.kind === 'auto' }">{{ c.label }}<small v-if="c.unit"> {{ c.unit }}</small></th>
           </tr></thead>
           <tbody>
             <tr v-for="id in chosenIds" :key="id">
               <td class="fixcol mono">{{ id }}<i>{{ isBlindView ? '盲样' : (props.samples.find(s => s.id === id)?.contract_id || '散样') }}</i></td>
-              <template v-for="c in cols.filter(c => c.key !== 'id')" :key="c.key">
+              <template v-for="c in cols.filter(c => c.key !== sampleIdentityKey)" :key="c.key">
                 <td v-if="c.kind === 'auto'" class="auto">{{ autoVals(rows[id])[c.key] ?? '' }}</td>
                 <td v-else><input v-model="rows[id][c.key]" @input="markDirty('batch-entry')" /></td>
               </template>
@@ -148,8 +185,8 @@ async function saveAll(submit = false) {
       </div>
 
       <div v-if="chosenIds.length" class="foot">
-        <label>检测日期<input v-model="sharedMeta.date" type="date" /></label>
-        <label>检验人<input v-model="sharedMeta.signer" /></label>
+        <label>检测日期<input v-model="sharedMeta.date" type="date" @input="markDirty('batch-entry')" /></label>
+        <label>检验人<input v-model="sharedMeta.signer" @input="markDirty('batch-entry')" /></label>
         <span style="flex:1"></span>
         <el-button :loading="saving" @click="saveAll(false)">保存草稿（{{ chosenIds.length }} 样品）</el-button>
         <el-button type="primary" :loading="saving" @click="saveAll(true)">全部提交复核</el-button>
@@ -170,6 +207,8 @@ async function saveAll(submit = false) {
 .bar .back{color:var(--accent);cursor:pointer;font-size:12.5px}
 .bar .sub{color:var(--faint);font-size:12px}
 .pick-samples{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px}
+.select-all{min-height:32px;border:1px solid var(--accent);border-radius:7px;padding:0 12px;background:var(--surface);color:var(--accent);font:600 12px inherit;cursor:pointer}
+.select-all:focus-visible{outline:2px solid var(--accent-ring);outline-offset:2px}
 .cs{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer}
 .cs.on{border-color:var(--accent);background:var(--accent-soft)}
 .cs i{font-style:normal;color:var(--faint);font-size:11.5px}

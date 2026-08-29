@@ -6,7 +6,9 @@ describe('offline field task route', () => {
 
   test('cold-start route is reachable without a login token and component is eagerly present in the main graph', async () => {
     const resolved = router.resolve('/field-tasks/ROUND-1')
+    expect(resolved.matched).toHaveLength(1)
     expect(resolved.matched.at(-1)?.components?.default).toBeTypeOf('object')
+    expect(router.resolve('/dashboard').matched[0]?.components?.default).toBeTypeOf('function')
     await router.push('/field-tasks/ROUND-1')
     expect(router.currentRoute.value.fullPath).toBe('/field-tasks/ROUND-1')
     expect(router.currentRoute.value.meta.offlinePackage).toBe(true)

@@ -1,6 +1,6 @@
 // 业务逻辑：纯函数，接收 db 实例，方便单测（测试用内存库）。
 import { randomUUID, scryptSync, randomBytes, createHash, createPrivateKey, createPublicKey, sign } from 'node:crypto'
-import type { DB } from './db.ts'
+import { reconcileHandoverConfirmationState, type DB } from './db.ts'
 import { rmbUpper } from './rmb.ts'
 import { roundGB, decimalsOf } from './gbround.ts'
 import { PERM, REPORT_READ_ROLES } from './permissions.ts'
@@ -9,7 +9,18 @@ import { ensureSampleSlots, materializeSampleSlots } from './mobileSampleSlots.t
 import { assertWorkflowEditable, decideWorkflow, getWorkflowView, submitWorkflowRevision, withdrawWorkflow, type WorkflowView } from './workflow.ts'
 import { getProjectAssignment } from './qualifications.ts'
 import { assertConfirmedArchiveForReport, getArchivePackage, invalidateAffectedArchives } from './archivePackages.ts'
-import { isSingleActorAcceptance, isSingleActorWorkflowAssignment, recordAcceptanceOverride } from './acceptanceMode.ts'
+import {
+  captureSingleActorAcceptance,
+  captureSingleActorWorkflowAcceptance,
+  isSingleActorWorkflowAssignment,
+  recordAcceptanceOverride,
+} from './acceptanceMode.ts'
+import { DomainError } from './domainError.ts'
+import { hasRole, type User } from './actor.ts'
+import { inTx } from './transaction.ts'
+import { buildReportDocumentV1, isReportDocumentV1 } from './reportDocument.ts'
+export { hasRole, type User } from './actor.ts'
+export { inTx } from './transaction.ts'
 export {
   archiveReadiness, assertConfirmedArchiveForReport, buildArchivePackage, confirmArchivePackage,
   createReportBatch, getArchivePackage, invalidateAffectedArchives, listArchivePackages, listReportBatches,
@@ -22,7 +33,6 @@ export const ROLE_LABEL = {
   analyst: '实验室分析人员', report_editor: '报告编制人员',
   archivist: '档案管理员', signer: '授权签字人',
 } as const
-export type User = { username: string; name: string; roles: string[]; status: string; created_at: string; must_change_pw: boolean }
 
 // 会话空闲超时：最后活动起算，默认 12 小时无操作即失效（可用 SESSION_IDLE_HOURS 覆盖）
 export const SESSION_IDLE_MS = (Number(process.env.SESSION_IDLE_HOURS) || 12) * 3600_000
@@ -47,10 +57,7 @@ export function cleanNum(v: unknown, field: string, opts: { min?: number; int?: 
 
 // 业务层带状态码的错误：server.ts 会读 httpCode（登录锁定 429 / 越权 403 等），普通 Error 仍按 400 处理
 export function httpError(code: number, msg: string, errorCode?: string): Error {
-  const e: any = new Error(msg)
-  e.httpCode = code
-  if (errorCode) e.errorCode = errorCode
-  return e
+  return new DomainError(code, errorCode || 'BUSINESS_ERROR', msg)
 }
 
 // 同人判定：双方登录名都有 → 严格按登录名（重名不互串、改名不绕过）；任一方缺（历史数据）→ 回退姓名比对
@@ -60,15 +67,6 @@ export function samePerson(
 ): boolean {
   if (a.username && b.username) return a.username === b.username
   return !!a.name && a.name === b.name
-}
-
-// 事务包裹：多步写库要么全成要么全不成。用 SAVEPOINT 而非 BEGIN——可安全嵌套（方案保存里套同步计划等）。
-let __spSeq = 0
-export function inTx<T>(db: DB, fn: () => T): T {
-  const sp = `sp_${++__spSeq}`
-  db.exec(`SAVEPOINT ${sp}`)
-  try { const r = fn(); db.exec(`RELEASE ${sp}`); return r }
-  catch (e) { db.exec(`ROLLBACK TO ${sp}`); db.exec(`RELEASE ${sp}`); throw e }
 }
 
 function hashPw(pw: string, salt: string) { return scryptSync(pw, salt, 32).toString('hex') }
@@ -90,13 +88,14 @@ export function validateRoles(roles: unknown): string[] {
 }
 export function createUser(db: DB, input: { username: string; name: string; roles: string[]; password: string }): User {
   if (!input.username || !input.name) throw new Error('用户名和姓名必填')
+  if (typeof input.password !== 'string' || !input.password.trim()) throw new Error('初始密码必填')
   const roles = validateRoles(input.roles ?? [])
   if (getUser(db, input.username)) throw new Error(`用户名「${input.username}」已存在；如需修改请用编辑`)  // 防误覆盖他人账号
   const salt = randomBytes(12).toString('hex')
   // 管理员建账号只是给个初始密码，用户首次登录必须自己改（must_change_pw=1）
   db.prepare(`INSERT INTO users (username, name, roles, pass_salt, pass_hash, status, must_change_pw, created_at)
     VALUES (?,?,?,?,?,'active',1,?)`)
-    .run(input.username, input.name, JSON.stringify(roles), salt, hashPw(input.password || '123456', salt), new Date().toISOString())
+    .run(input.username, input.name, JSON.stringify(roles), salt, hashPw(input.password, salt), new Date().toISOString())
   return getUser(db, input.username)!
 }
 // 编辑人员：改姓名/岗位/在岗状态（不含密码）
@@ -243,13 +242,6 @@ export function corsHeaderValue(allowed: string, requestOrigin: string): string 
   const list = allowed.split(',').map(s => s.trim()).filter(Boolean)
   return list.includes(requestOrigin) ? requestOrigin : null
 }
-// admin 万能；其余角色命中任一即可
-export function hasRole(user: User | null, ...roles: string[]): boolean {
-  if (!user) return false
-  if (user.roles.includes('admin')) return true
-  return roles.some(r => user.roles.includes(r))
-}
-
 // —— 读权限收口（体检8）——
 // 合同/项目对采样员·检测员不能整门拦（登记自送样要选合同），但报价/评审/开票是商务数据，
 // 只有 登记员/技术负责人/授权签字人（admin 恒真）能看全量；其他角色响应里剥掉商务字段。
@@ -288,8 +280,21 @@ export function urlTokenAllowed(method: string, path: string): boolean {
 export function maskUserList(rows: { username: string; name: string }[], full: boolean): ({ username: string; name: string } | { name: string })[] {
   return full ? rows : rows.map(r => ({ name: r.name }))
 }
-export function seedUsers(db: DB) {
-  if ((db.prepare(`SELECT COUNT(*) n FROM users`).get() as any).n > 0) return
+const BOOTSTRAP_PASSWORD_MIN_LENGTH = 16
+const KNOWN_BOOTSTRAP_PASSWORDS = new Set([
+  '123456', '12345678', 'admin', 'admin123', 'password', 'password123', 'qwerty', 'changeme',
+])
+
+export type UserBootstrapConfig = {
+  mode?: string
+  adminUsername?: string
+  adminName?: string
+  adminPassword?: string
+}
+
+export type UserBootstrapResult = 'existing' | 'demo' | 'production'
+
+function seedDemoUsers(db: DB) {
   const seed: [string, string, string[]][] = [
     ['demo_admin', '林工程师', ['admin', 'signer']],
     ['demo_registrar', '周登记', ['sales', 'planner', 'report_editor']],
@@ -301,6 +306,39 @@ export function seedUsers(db: DB) {
     ['demo_tech', '许技术', ['tech']],
   ]
   for (const [username, name, roles] of seed) createUser(db, { username, name, roles, password: '123456' })
+}
+
+export function bootstrapUsers(db: DB, config: UserBootstrapConfig): UserBootstrapResult {
+  if ((db.prepare(`SELECT COUNT(*) n FROM users`).get() as any).n > 0) return 'existing'
+
+  if (config.mode === 'demo') {
+    seedDemoUsers(db)
+    return 'demo'
+  }
+  if (config.mode !== 'production') {
+    throw new Error('空数据库禁止自动创建通用账号；请显式设置 LIMS_BOOTSTRAP_MODE=production 或仅在本地/E2E 使用 demo')
+  }
+
+  const username = String(config.adminUsername || '').trim()
+  const name = String(config.adminName || '').trim()
+  const password = config.adminPassword
+  if (!username) throw new Error('生产首次启动必须设置 BOOTSTRAP_ADMIN_USERNAME')
+  if (!name) throw new Error('生产首次启动必须设置 BOOTSTRAP_ADMIN_NAME')
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/.test(username)) {
+    throw new Error('BOOTSTRAP_ADMIN_USERNAME 必须为 3-64 位字母、数字、点、下划线或连字符')
+  }
+  if (
+    typeof password !== 'string'
+    || !password.trim()
+    || password.length < BOOTSTRAP_PASSWORD_MIN_LENGTH
+    || new Set(password).size < 8
+    || KNOWN_BOOTSTRAP_PASSWORDS.has(password.toLowerCase())
+  ) {
+    throw new Error(`BOOTSTRAP_ADMIN_PASSWORD 必须是至少 ${BOOTSTRAP_PASSWORD_MIN_LENGTH} 位、字符有足够多样性且不是常见默认值的一次性密码`)
+  }
+
+  createUser(db, { username, name, roles: ['admin'], password })
+  return 'production'
 }
 
 export type Sample = {
@@ -782,10 +820,13 @@ export function assignTestTasks(
   return listTestTasks(db, { sampleId })
 }
 // 任务列表（带记录进度：none 没动 / draft / submitted / reviewed / approved / rejected）
-export function listTestTasks(db: DB, f: { sampleId?: string; assignee?: string; unclaimed?: boolean } = {}): (TestTask & { record_status: string })[] {
+export function listTestTasks(db: DB, f: { sampleId?: string; assignee?: string; assigneeUsername?: string; unclaimed?: boolean } = {}): (TestTask & { record_status: string })[] {
   const where: string[] = [], args: any[] = []
   if (f.sampleId) { where.push('t.sample_id=?'); args.push(f.sampleId) }
-  if (f.assignee) { where.push('t.assignee=?'); args.push(f.assignee) }
+  if (f.assigneeUsername) {
+    where.push(`(t.assignee_username=? OR ((t.assignee_username IS NULL OR trim(t.assignee_username)='') AND t.assignee=?))`)
+    args.push(f.assigneeUsername, f.assignee || '')
+  } else if (f.assignee) { where.push('t.assignee=?'); args.push(f.assignee) }
   if (f.unclaimed) where.push(`t.assignee=''`)
   const rows = db.prepare(`
     SELECT t.*, r.id AS record_id, s.contract_id, COALESCE(r.status, 'none') AS record_status
@@ -819,6 +860,9 @@ export function confirmHandover(db: DB, handoverId: number, actor: { name: strin
     throw new Error('交样人不能自己确认签收，须由接收方（样品管理员）确认')
   }
   db.prepare(`UPDATE sample_handovers SET confirmed_by=?, confirmed_at=? WHERE id=?`).run(actor.name, now(), handoverId)
+  const sheet = db.prepare(`SELECT hs.id FROM handover_sheets hs, json_each(hs.sample_ids) member
+    WHERE member.value=? AND hs.status<>'confirmed' ORDER BY hs.created_at DESC LIMIT 1`).get(h.sample_id) as any
+  if (sheet) reconcileHandoverConfirmationState(db, sheet.id)
   return db.prepare(`SELECT * FROM sample_handovers WHERE id=?`).get(handoverId) as Handover
 }
 
@@ -910,8 +954,8 @@ export function confirmHandoverSheet(
   const sameSender = sh.from_username
     ? actor.username === sh.from_username
     : (sh.from_person || '').split('、').filter(Boolean).includes(actor.name)
-  const acceptanceOverride = sameSender && isSingleActorAcceptance(db, actor)
-  if (sameSender && !acceptanceOverride) {
+  const acceptanceGrant = sameSender ? captureSingleActorAcceptance(db, actor) : null
+  if (sameSender && !acceptanceGrant) {
     throw new Error('交样人不能自己签收，须由另一名样品管理员确认')
   }
   const rejects = opts.rejects ?? []
@@ -940,7 +984,7 @@ export function confirmHandoverSheet(
     db.prepare(`UPDATE handover_sheets SET status='confirmed', to_person=?, to_at=?, detail=? WHERE id=?`)
       .run(actor.name, at, JSON.stringify(detail), id)
     logAction(db, id, actor as User, 'handover_sheet_confirm', { rejects })
-    if (acceptanceOverride) recordAcceptanceOverride(db, actor, 'handover_confirm', id,
+    if (acceptanceGrant) recordAcceptanceOverride(db, acceptanceGrant, 'handover_confirm', id,
       '交样人与收样人必须不同', { rejects })
     return getHandoverSheet(db, id)!
   })
@@ -1885,6 +1929,8 @@ export function saveRecordsBatch(
   if (ids.size !== input.entries.length) throw new Error('同一张批量表里一个样品只能占一行')
   const analyte = String(input.analyte ?? '')
   return inTx(db, () => input.entries.map(e => {
+    const sample = getSample(db, e.sampleId)
+    if (!sample) throw new Error('样品不存在')
     const existing = getRecord(db, e.sampleId, input.code)
     const newRow = { ...e.row, analyte }          // 行打上项目名标签：下次批量才认得出哪行是谁的
     let rows: any[] = [newRow]
@@ -1905,7 +1951,7 @@ export function saveRecordsBatch(
     const base = existing?.data ?? {}
     const rec = saveRecord(db, {
       sampleId: e.sampleId, code: input.code, name: input.name, sheetType: input.sheetType,
-      method: input.method, analyte: input.analyte, matrix: input.matrix, instrumentId: input.instrumentId,
+      method: input.method, analyte: input.analyte, matrix: sample.matrix, instrumentId: input.instrumentId,
       data: {
         ...base,                                   // 其余键（cells/老 reg 等）原样带着走
         rows, meta: { ...(base.meta ?? {}), ...(input.sharedMeta ?? {}), batchEntry: true },
@@ -3749,6 +3795,21 @@ export type Report = {
   receipt_id?: string | null; workflow_revision?: number | null; archive_version?: number | null
 }
 
+function attachReportDocument(db:DB,id:string):Report{
+  const report=getReport(db,id)
+  if(!report)throw new Error('报告不存在')
+  const document=buildReportDocumentV1(db,report,getOrgProfile(db))
+  db.prepare(`UPDATE reports SET data=? WHERE id=?`).run(JSON.stringify({...report.data,document}),id)
+  return getReport(db,id)!
+}
+
+function syncReportDocumentHeading(db:DB,id:string){
+  const report=getReport(db,id)
+  if(!report||!isReportDocumentV1(report.data?.document))return
+  const document={...report.data.document,report:{...report.data.document.report,client:report.client,title:report.title,conclusion:report.conclusion}}
+  db.prepare(`UPDATE reports SET data=? WHERE id=?`).run(JSON.stringify({...report.data,document}),id)
+}
+
 function projectReportAuthor(db: DB, username: string): User {
   const user = getUser(db, username)
   if (!user || user.status !== 'active' || !user.roles.includes('report_editor')) {
@@ -3875,7 +3936,7 @@ export function generateRoundReport(db: DB, roundId: string, year = new Date().g
         if (r.reviewer) reviewers.add(r.reviewer); if (r.approver) reviewers.add(r.approver)
         if (!r.data?.resultSummary) continue
       }
-      const rs = r.data?.resultSummary || {}
+      const rs = requireReportResult(r, s.id)
       const analyte = r.analyte || rs.analyte || ''
       // 拍板3（2026-07-31，翻案决策15）：自动判定进草稿，编制人确认/修改后出
       const j = judgeResult(rs.value, limitFor(limits, analyte))
@@ -3941,7 +4002,7 @@ export function generateRoundReport(db: DB, roundId: string, year = new Date().g
         process: buildReportProcess(db, c, roundId),
       }),
       authorActor.name, authorActor.username, voidedPrev?.id ?? null, archivePackageId, now())
-  return getReport(db, id)!
+  return attachReportDocument(db, id)
 }
 // 从某样品已「审核通过」的记录汇总生成报告草稿
 export function generateReport(db: DB, sampleId: string, year = new Date().getFullYear(), reportAuthor = '', reportAuthorUsername = '', archivePackageId = ''): Report {
@@ -3976,7 +4037,7 @@ export function generateReport(db: DB, sampleId: string, year = new Date().getFu
   const limits = scheme?.limits ?? []
   const authors = new Set<string>(), reviewers = new Set<string>()
   const results = approved.map(r => {
-    const rs = r.data?.resultSummary || {}
+    const rs = requireReportResult(r, sampleId)
     const analyte = r.analyte || rs.analyte || ''
     // 拍板3（2026-07-31，翻案决策15）：自动判定进草稿，编制人确认/修改后出
     const j = judgeResult(rs.value, limitFor(limits, analyte))
@@ -3988,7 +4049,15 @@ export function generateReport(db: DB, sampleId: string, year = new Date().getFu
   const id = nextSeqId(db, 'reports', `BG${year}-`)
   db.prepare(`INSERT INTO reports (id, sample_id, contract_id, client, title, conclusion, data, status, author, author_username, reissue_of, archive_package_id, created_at) VALUES (?,?,?,?,?,?,?,'draft',?,?,?,?,?)`)
     .run(id, sampleId, sample.contract_id, sample.client, `${sample.client} 检测报告`, buildConclusionDraft(results, limits), JSON.stringify({ sample, results, author: [...authors].join('、'), reviewer: [...reviewers].join('、') }), projectAuthor?.name ?? (reportAuthor || null), projectAuthor?.username ?? (reportAuthorUsername || null), voidedPrev0?.id ?? null, archivePackageId || null, now())
-  return getReport(db, id)!
+  return attachReportDocument(db, id)
+}
+
+function requireReportResult(record: RecordRow, sampleId: string) {
+  const summary = record.data?.resultSummary
+  if (!summary || summary.value == null || summary.value === '') {
+    throw new Error(`样品 ${sampleId} 的检测记录 ${record.id} 缺少结果汇总，不能生成报告；请打回记录并重新保存结果`)
+  }
+  return summary
 }
 // 样号反查（批次二修补）：期次报告 sample_id 为空，按样品的 round_id 兜底匹配到报告
 export function findReportsBySample(db: DB, sampleId: string): Report[] {
@@ -4055,7 +4124,7 @@ function reportSnapshot(db: DB, report: Report) {
   }
   const { _issuance: _ignored, ...contentData } = report.data || {}
   return {
-    report: { id: report.id, title: report.title, conclusion: report.conclusion, data: contentData },
+    report: { id: report.id, client: report.client, title: report.title, conclusion: report.conclusion, data: contentData },
     archive: { id: archive.id, version: archive.version, manifestSha256: archive.manifest_sha256 },
     attachments: attachments.map(attachment => ({ id: attachment.id, hash: attachment.content_hash })),
   }
@@ -4251,9 +4320,11 @@ export function issueReport(db: DB, id: string, issuer: string, issuerUsername =
     if (!reviewer || !approver) throw new Error('报告专业复核或审核记录缺失，不能签发')
     const workflowActors = [workflow.created_by, reviewer.decided_by, approver.decided_by]
     const reportAssignment = getProjectAssignment(db, workflow.contract_id, 'report')
-    const acceptanceOverride = isSingleActorWorkflowAssignment(db, signer, reportAssignment)
-      && workflowActors.every(username => username === signer.username)
-    if (!acceptanceOverride && workflowActors.includes(signer.username)) {
+    const candidateGrant = captureSingleActorWorkflowAcceptance(db, signer, reportAssignment)
+    const acceptanceGrant = candidateGrant && workflowActors.every(username => username === signer.username)
+      ? candidateGrant
+      : null
+    if (!acceptanceGrant && workflowActors.includes(signer.username)) {
       const role = workflow.created_by === signer.username ? '编制人' : reviewer.decided_by === signer.username ? '复核人' : '审核人'
       throw httpError(409, `授权签字人不能同时是报告${role}`, 'WORKFLOW_PERSON_NOT_DISTINCT')
     }
@@ -4276,11 +4347,13 @@ export function issueReport(db: DB, id: string, issuer: string, issuerUsername =
         archiveVersion: archive.version,
       },
     }
-    db.prepare(`UPDATE reports SET status='issued', issuer=?, issuer_username=?, issued_at=?, data=? WHERE id=?`)
-      .run(signer.name, signer.username, issuedAt, JSON.stringify(data), id)
-    if (acceptanceOverride) recordAcceptanceOverride(db, signer, 'report_issue', id,
-      '报告编制人、复核人、审核人与授权签字人必须使用不同账号', { workflowRevision: workflow.current_revision })
-    return getReport(db, id)!
+    return inTx(db, () => {
+      db.prepare(`UPDATE reports SET status='issued', issuer=?, issuer_username=?, issued_at=?, data=? WHERE id=?`)
+        .run(signer.name, signer.username, issuedAt, JSON.stringify(data), id)
+      if (acceptanceGrant) recordAcceptanceOverride(db, acceptanceGrant, 'report_issue', id,
+        '报告编制人、复核人、审核人与授权签字人必须使用不同账号', { workflowRevision: workflow.current_revision })
+      return getReport(db, id)!
+    })
   }
   if (r.status !== 'checked') throw new Error('报告未经审核，不能签发；请先由报告审核人审核')
   // 三级签字不可同一人：签发人 ≠ 编制人、≠ 审核人。优先登录名比对，缺则回退姓名。
@@ -4289,17 +4362,21 @@ export function issueReport(db: DB, id: string, issuer: string, issuerUsername =
   const issuerIdentity = { name: issuer, username: issuerUsername }
   const authorIsIssuer = !!(author || authorU) && samePerson({ name: author, username: authorU }, issuerIdentity)
   const checkerIsIssuer = !!r.checker && samePerson({ name: r.checker, username: (r as any).checker_username }, issuerIdentity)
-  const legacyAcceptanceOverride = isSingleActorAcceptance(db, issuerIdentity) && authorIsIssuer && checkerIsIssuer
-  if (!legacyAcceptanceOverride && authorIsIssuer) {
+  const legacyAcceptanceGrant = authorIsIssuer && checkerIsIssuer
+    ? captureSingleActorAcceptance(db, issuerIdentity)
+    : null
+  if (!legacyAcceptanceGrant && authorIsIssuer) {
     throw new Error(`报告签发人不能是编制人本人（${author || authorU}）`)
   }
-  if (!legacyAcceptanceOverride && checkerIsIssuer) {
+  if (!legacyAcceptanceGrant && checkerIsIssuer) {
     throw new Error(`报告签发人不能与审核人（${r.checker}）同一人`)
   }
-  db.prepare(`UPDATE reports SET status='issued', issuer=?, issuer_username=?, issued_at=? WHERE id=?`).run(issuer, issuerUsername || null, now(), id)
-  if (legacyAcceptanceOverride) recordAcceptanceOverride(db, { name: issuer, username: issuerUsername }, 'report_issue', id,
-    '报告编制人、审核人与签发人必须使用不同账号')
-  return getReport(db, id)!
+  return inTx(db, () => {
+    db.prepare(`UPDATE reports SET status='issued', issuer=?, issuer_username=?, issued_at=? WHERE id=?`).run(issuer, issuerUsername || null, now(), id)
+    if (legacyAcceptanceGrant) recordAcceptanceOverride(db, legacyAcceptanceGrant, 'report_issue', id,
+      '报告编制人、审核人与签发人必须使用不同账号')
+    return getReport(db, id)!
+  })
 }
 // 决策17：签发后锁死，要改走「作废重出」——作废留痕，重出的新报告记 reissue_of 链。
 // 作废限签发人本人（优先登录名比对）；tech/admin 由路由层传 supervisor 兜底放行。
@@ -4414,7 +4491,7 @@ export function generateContractReport(
         results, roundReports: roundReports.map(r => r.id), process: buildReportProcess(db, c),
       }),
       authorActor.name, authorActor.username, archive.id, now())
-  return getReport(db, id)!
+  return attachReportDocument(db, id)
 }
 // §8.1 审核通则：报告审核后发现问题 → 退回编制（带原因、留痕），不许审核后静默改内容
 export function rejectReport(
@@ -4470,6 +4547,7 @@ export function updateReport(db: DB, id: string, patch: { title?: string; conclu
   if (r.status === 'checked') throw new Error('报告已审核待签发，不能直接改内容；请审核人先「退回编制」再改')
   db.prepare(`UPDATE reports SET title=COALESCE(?,title), conclusion=COALESCE(?,conclusion) WHERE id=?`)
     .run(patch.title ?? null, patch.conclusion ?? null, id)
+  syncReportDocumentHeading(db,id)
   return getReport(db, id)!
 }
 

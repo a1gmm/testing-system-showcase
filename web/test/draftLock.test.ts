@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import { createHash, createPublicKey, generateKeyPairSync, sign } from 'node:crypto'
 import { beforeAll, expect, test, vi } from 'vitest'
-import { createFieldTaskDraft, type OfflineTaskPackage } from '../src/offline/fieldTaskDraft'
+import type { OfflineTaskPackage } from '../src/offline/fieldTaskDraft'
 import { IndexedDbOfflineDatabase } from '../src/offline/indexedDb'
 import { withFieldDraftLock } from '../src/offline/draftLock'
 

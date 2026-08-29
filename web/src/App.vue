@@ -16,5 +16,7 @@ onBeforeUnmount(() => {
 
 <template>
   <OfflineFoundationStatus :online="online" />
-  <router-view />
+  <router-view v-slot="{ Component, route }">
+    <component :is="Component" :key="route.name === 'field-task' ? `field-task:${String(route.params.id)}` : String(route.name || route.path)" />
+  </router-view>
 </template>

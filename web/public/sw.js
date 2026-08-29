@@ -4,6 +4,9 @@ const CACHE_NAME = `${CACHE_PREFIX}${BUILD_ID.replace(/[^A-Za-z0-9_-]/g, '')}`
 const SHELL_KEY = '/__field_public_shell__'
 const MANIFEST_PATH = '/manifest.webmanifest'
 const IMMUTABLE_ASSET_PATH = /^\/assets\/[A-Za-z0-9_.-]+\.(?:js|css|woff2?|ttf)$/
+const PUBLIC_FONT_PATHS = new Set(['/fonts/source-han-sans-sc-subset.woff2','/fonts/source-han-sans-sc-admin.woff2','/fonts/dm-sans-variable.woff2','/fonts/ibm-plex-mono-regular.woff2'])
+const PUBLIC_METADATA_PATHS = new Set([MANIFEST_PATH, '/favicon.svg', '/pwa-icon.svg'])
+const isPublicAssetPath = (path) => IMMUTABLE_ASSET_PATH.test(path) || PUBLIC_FONT_PATHS.has(path) || PUBLIC_METADATA_PATHS.has(path)
 
 function absolute(path) {
   return new URL(path, self.location.origin).href
@@ -54,7 +57,7 @@ function discoverShellAssets(html) {
   const pattern = /(?:src|href)=["']([^"']+)["']/g
   for (const match of html.matchAll(pattern)) {
     const url = new URL(match[1], self.location.origin)
-    if (url.origin === self.location.origin && IMMUTABLE_ASSET_PATH.test(url.pathname) && !url.search) found.add(url.pathname)
+    if (url.origin === self.location.origin && isPublicAssetPath(url.pathname) && !url.search) found.add(url.pathname)
   }
   return [...found]
 }
@@ -124,6 +127,10 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (request.credentials === 'include') return
-  if (!IMMUTABLE_ASSET_PATH.test(url.pathname)) return
-  event.respondWith(caches.open(CACHE_NAME).then((cache) => cache.match(absolute(url.pathname))).then((cached) => cached || fetch(request)))
+  if (!isPublicAssetPath(url.pathname)) return
+  event.respondWith(caches.open(CACHE_NAME).then(async(cache)=>{
+    const cached=await cache.match(absolute(url.pathname));if(cached)return cached
+    const response=assertExpectedContentType(assertPublicResponse(await fetch(publicRequest(url.pathname)),`asset ${url.pathname}`),url.pathname)
+    await cache.put(absolute(url.pathname),response.clone());return response
+  }))
 })

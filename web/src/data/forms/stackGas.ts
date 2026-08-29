@@ -48,6 +48,7 @@ const stackGasSamplerOptions = ['3012H', 'GH-60E', '3012H-D', '3012D', 'JF-3012H
 // 0137.pdf HJ-TC-140：烟尘（生产性粉尘）、烟气及废气采样原始记录（颗粒物采样表 + SO2/CO/NOx/氧含量转置矩阵 + 烟道截面示意图 + 方法设备）
 export const stackDust140: Schema = {
   id: 'stackDust140',
+  result: { key: 'dustMeasured' },
   title: () => '烟尘（生产性粉尘）、烟气及废气采样原始记录',
   columns: [], meta: [], signRoles: ['分析', '复核', '审核'],
   seed: () => [],
@@ -101,6 +102,7 @@ export const stackDust140: Schema = {
 // 0381.pdf HJ-TC-709：烟尘（生产性粉尘）、烟气及废气采样原始记录（同140家族，仅颗粒物采样表，无SO2/CO/NOx矩阵）
 export const stackDust709: Schema = {
   id: 'stackDust709',
+  result: { key: 'dustMeasured' },
   title: () => '烟尘（生产性粉尘）、烟气及废气采样原始记录',
   columns: [], meta: [], signRoles: ['分析', '复核', '审核'],
   seed: () => [],
@@ -181,6 +183,7 @@ export const stackGasCompare653: Schema = {
 // 0119.pdf HJ-TC-119：环境空气 PM10和PM2.5的测定原始记录
 export const ambientAirPM119: Schema = {
   id: 'ambientAirPM119',
+  result: { key: 'c' },
   title: () => '环境空气原始记录表',
   columns: [], meta: [], signRoles: ['分析', '复核', '审核'],
   seed: () => [],
@@ -214,6 +217,7 @@ export const ambientAirPM119: Schema = {
 // 0136.pdf HJ-TC-139：空气中总悬浮颗粒物原始记录
 export const ambientAirTSP139: Schema = {
   id: 'ambientAirTSP139',
+  result: { key: 'c' },
   title: () => '环境空气/无组织废气中原始记录表',
   columns: [], meta: [], signRoles: ['分析', '复核', '审核'],
   seed: () => [],
@@ -265,6 +269,7 @@ export const ambientAirTSP139: Schema = {
 // 0298.pdf HJ-TC-475：空气中降尘测定原始记录
 export const dustfall475: Schema = {
   id: 'dustfall475',
+  result: { key: 'dustfall' },
   title: () => '空气中降尘测定原始记录表',
   columns: [], meta: [], signRoles: ['采样', '分析', '复核', '审核'],
   seed: () => [],
@@ -301,6 +306,7 @@ export const dustfall475: Schema = {
 function num278(v: any): number | null { const n = parseFloat(v); return isFinite(n) ? n : null }
 export const sulfuricMist278: Schema = {
   id: 'sulfuricMist278',
+  result: { key: 'result' },
   title: () => '固定污染源有组织排放废气 硫酸雾的测定 离子色谱法 原始记录表（标况采样体积0.4m³）',
   columns: [], meta: [], signRoles: ['分析', '复核', '审核'],
   seed: () => [],

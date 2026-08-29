@@ -40,6 +40,11 @@ export class SubmissionOutbox {
   }
   async get(id:string):Promise<LocalSubmission|undefined>{const db=await this.open(),tx=db.transaction(STORE,'readonly'),result=await request(tx.objectStore(STORE).get(id)) as LocalSubmission|undefined;await done(tx);if(result&&result.ownerId!==this.ownerId)throw new Error('SUBMISSION_OWNER_MISMATCH');return result?structuredClone(result):undefined}
   async findForDraft(draft:FieldTaskDraft):Promise<LocalSubmission|undefined>{if(draft.ownerId!==this.ownerId)throw new Error('SUBMISSION_OWNER_MISMATCH');const p=draft.payload.package.signedPayload,key=`${p.roundId}\u001f${draft.payload.draftRevision}`,db=await this.open(),tx=db.transaction(STORE,'readonly'),result=await request(tx.objectStore(STORE).index('revisionKey').get(key)) as LocalSubmission|undefined;await done(tx);return result?structuredClone(result):undefined}
+  async findLatestForRound(roundId:string):Promise<LocalSubmission|undefined>{
+    const db=await this.open(),tx=db.transaction(STORE,'readonly'),all=await request(tx.objectStore(STORE).getAll()) as LocalSubmission[];await done(tx)
+    const result=all.filter(item=>item.ownerId===this.ownerId&&item.roundId===roundId).sort((a,b)=>b.draftRevision-a.draftRevision||Date.parse(b.updatedAt)-Date.parse(a.updatedAt))[0]
+    return result?structuredClone(result):undefined
+  }
   private async update(id:string,allowed:LocalSubmissionStatus[],mutate:(value:LocalSubmission)=>LocalSubmission){const db=await this.open(),tx=db.transaction(STORE,'readwrite'),store=tx.objectStore(STORE);try{const current=await request(store.get(id)) as LocalSubmission|undefined;if(!current||current.ownerId!==this.ownerId)throw new Error('SUBMISSION_NOT_FOUND');if(!allowed.includes(current.status))throw new Error(`SUBMISSION_STATE_CONFLICT:${current.status}`);const next={...mutate(current),updatedAt:new Date().toISOString()};store.put(next);await done(tx);return structuredClone(next)}catch(error){try{tx.abort()}catch{}throw error}}
   markSubmitting(id:string){return this.update(id,['queued'],x=>({...x,status:'submitting'}))}
   markUnknown(id:string){return this.update(id,['queued','submitting','unknown_commit'],x=>({...x,status:'unknown_commit'}))}

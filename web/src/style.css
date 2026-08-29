@@ -1,26 +1,32 @@
+@font-face{font-family:"Source Han Sans SC";src:url('/fonts/source-han-sans-sc-subset.woff2') format('woff2');font-style:normal;font-weight:400 700;font-display:swap}
+@font-face{font-family:"DM Sans";src:url('/fonts/dm-sans-variable.woff2') format('woff2');font-style:normal;font-weight:400 700;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url('/fonts/ibm-plex-mono-regular.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
+
 /* 环境检测 LIMS · 现代SaaS（方案C）设计令牌 + 基础样式
    基调：暖中性灰阶 + 唯一靛蓝交互色，浅色导航栏，8px 栅格，克制阴影 */
 :root{
-  --font-sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-mono:"SF Mono","JetBrains Mono","Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
+  --font-sans:"DM Sans","Source Han Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace;
 
   /* 面 / 底：暖调中性灰，不是纯冷灰 */
-  --bg:#f8f8f7; --surface:#ffffff; --surface-2:#f4f4f2;
+  --bg:#F3F0EA; --surface:#FFFEFC; --surface-2:#E9E5DD;
   /* 侧栏：浅色导航轨（方案C），与内容区同世界观 */
-  --sidebar:#fcfcfb; --sidebar-2:#f1f1ef; --sidebar-ink:#55555c; --sidebar-faint:#9a9aa2;
+  --sidebar:#FFFEFC; --sidebar-2:#E9E5DD; --sidebar-ink:#62676E; --sidebar-faint:#62676E;
 
   /* 文字 */
-  --ink:#1a1a1e; --muted:#63636b; --faint:#9a9aa2;
+  --ink:#1E2329; --muted:#62676E; --faint:#62676E;
   /* 描边 */
-  --line:#e8e8e6; --line-strong:#d9d9d6;
+  --line:#CBC5BA; --line-strong:#A9A297;
 
   /* 强调：全局唯一交互色（靛蓝） */
-  --accent:#4f46e5; --accent-2:#4338ca; --accent-soft:#eeedfc; --accent-ink:#4338ca;
+  --accent:#4F46E5; --accent-2:#4338CA; --accent-soft:#EEEDFC; --accent-ink:#4338CA; --accent-ring:#7C75F2;
 
   /* 语义状态（克制，仅用于真实状态） */
-  --good:#1c7a43; --good-soft:#e5f6ec;
-  --warn:#b4690e; --warn-soft:#fdf2e3;
-  --crit:#c23b2e; --crit-soft:#fbe9e7;
+  --local-saved:#176B5B;
+  --good:#157347; --good-soft:#E8F4EC;
+  --warn:#B05C00; --warn-soft:#FFF1DF;
+  --crit:#B42318; --crit-soft:#FDECEA;
+  --info:#2563A6; --info-soft:#EAF2FA;
 
   /* 阴影：极浅，靠描边分层 */
   --shadow-sm:0 1px 2px rgba(26,26,30,.04);
@@ -41,6 +47,8 @@
 html,body,#app{height:100%;margin:0}
 body{font-family:var(--font-sans);background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 a{color:var(--accent);text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:3px solid var(--accent-ring);outline-offset:2px}
 .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 
@@ -94,3 +102,7 @@ kbd.key{font-family:var(--font-sans);font-size:10.5px;color:var(--muted);backgro
 ::-webkit-scrollbar{width:9px;height:9px}
 ::-webkit-scrollbar-thumb{background:#d9d9d6;border-radius:6px}
 ::-webkit-scrollbar-thumb:hover{background:#c4c4c0}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}

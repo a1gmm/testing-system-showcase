@@ -7,6 +7,7 @@ const r3 = (x: number) => Math.round(x * 1000) / 1000
 // 适用 汞/砷/铅/镉/镍/铬·废气、SO₂/镉/镍·环境空气 等（各表波长/检出限按meta）
 const photometricGas: Schema = {
   id: 'photometricGas',
+  result: { key: 'rho' },
   title: () => '废气/环境空气 分光光度(原子吸收)法 原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute(row: Record<string, any>) {
@@ -48,6 +49,7 @@ const photometricGas: Schema = {
 // ── 废气 冷原子吸收测汞（HJ543等）：无波长（测汞仪固定253.7nm）──
 const mercuryCVGas: Schema = {
   id: 'mercuryCVGas',
+  result: { key: 'rho' },
   title: () => '固定污染源废气 汞的测定 冷原子吸收法 原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute(row: Record<string, any>) {
@@ -82,6 +84,7 @@ const mercuryCVGas: Schema = {
 // ── 废气 重量法（沥青烟/颗粒物）：增重ΔW(mg) ÷ 标干体积Vnd(m³) = mg/m³ ──
 const gravimetricGas: Schema = {
   id: 'gravimetricGas',
+  result: { key: 'rho' },
   title: () => '固定污染源废气 重量法 原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute(row: Record<string, any>) {
@@ -117,6 +120,7 @@ const gravimetricGas: Schema = {
 // ── 化学需氧量(COD) 重铬酸盐法：COD=(V₀−V₁)×c×8000/V ──
 const codTitration: Schema = {
   id: 'codTitration',
+  result: { key: 'cod' },
   title: () => '化学需氧量(COD) 重铬酸盐法 原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute(row: Record<string, any>, ctx: any) {
@@ -153,6 +157,7 @@ const codTitration: Schema = {
 // ── 叶绿素a 分光光度法（HJ897-2017）四波长 ──
 const chlorophyll: Schema = {
   id: 'chlorophyll',
+  result: { key: 'chla' },
   title: () => '叶绿素a 分光光度法 原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'], seed: () => [],
   compute(row: Record<string, any>) {

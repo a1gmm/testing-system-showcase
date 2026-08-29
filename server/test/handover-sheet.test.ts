@@ -111,6 +111,107 @@ test('发出→样品管理员整单签收：状态confirmed、收样人落名�
   assert.ok(listHandovers(db, normal.id).some(h => h.confirmed_at))
 })
 
+test('启动时修复历史整单已签收但样品流水仍显示待签收的数据', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'handover-confirmation-backfill-'))
+  const path = join(dir, 'legacy.sqlite')
+  try {
+    const db = openDb(path)
+    const { r, made } = setup(db)
+    const sheet = listHandoverSheets(db, { roundId: r.id })[0]
+    sendHandoverSheet(db, sheet.id, samplerActor)
+    const confirmed = confirmHandoverSheet(db, sheet.id, managerActor)
+    const sample = made.find(item => !item.qc_type)!
+    db.prepare(`UPDATE sample_handovers SET confirmed_by=NULL, confirmed_at=NULL WHERE sample_id=?`).run(sample.id)
+    const later = addHandover(db, sample.id, { action: '流转领用' }, managerActor)
+    db.close()
+
+    const reopened = openDb(path)
+    const handovers = listHandovers(reopened, sample.id)
+    const repaired = handovers.find(handover => handover.action === '采样交接')
+    assert.equal(repaired?.confirmed_by, managerActor.name)
+    assert.equal(repaired?.confirmed_at, confirmed.to_at)
+    assert.equal(handovers.find(handover => handover.id === later.id)?.confirmed_at, null)
+    reopened.close()
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('启动时把同一接收人已逐条签完的历史交接单升级为整单已签收', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'handover-sheet-backfill-'))
+  const path = join(dir, 'legacy.sqlite')
+  try {
+    const db = openDb(path)
+    const { r, made } = setup(db)
+    const sheet = listHandoverSheets(db, { roundId: r.id })[0]
+    for (const sample of made) {
+      const handover = listHandovers(db, sample.id)[0]
+      db.prepare(`UPDATE sample_handovers SET confirmed_by=?,confirmed_at=? WHERE id=?`)
+        .run(managerActor.name, '2026-08-24T08:00:00.000Z', handover.id)
+    }
+    assert.equal(getHandoverSheet(db, sheet.id)!.status, 'draft')
+    db.close()
+
+    const reopened = openDb(path)
+    const repaired = getHandoverSheet(reopened, sheet.id)!
+    assert.equal(repaired.status, 'confirmed')
+    assert.equal(repaired.to_person, managerActor.name)
+    assert.ok(repaired.to_at)
+    const audit = reopened.prepare(`SELECT action,detail FROM audit_log WHERE record_id=? ORDER BY id DESC LIMIT 1`).get(sheet.id) as any
+    assert.equal(audit.action, 'handover_sheet_confirmation_reconciled')
+    assert.equal(JSON.parse(audit.detail).receiver, managerActor.name)
+    reopened.close()
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('最后一个成员逐条签收后立即把交接单同步为已签收', () => {
+  const db = openDb(':memory:')
+  const { r, made } = setup(db)
+  const sheet = listHandoverSheets(db, { roundId: r.id })[0]
+  for (const sample of made) {
+    const handover = listHandovers(db, sample.id)[0]
+    confirmHandover(db, handover.id, managerActor)
+  }
+  assert.equal(getHandoverSheet(db, sheet.id)!.status, 'confirmed')
+  assert.equal(getHandoverSheet(db, sheet.id)!.to_person, managerActor.name)
+})
+
+test('后续流转记录的签字不能冒充采样交接签收', () => {
+  const db = openDb(':memory:')
+  const { r, made } = setup(db)
+  const sheet = listHandoverSheets(db, { roundId: r.id })[0]
+  for (const sample of made) {
+    const later = addHandover(db, sample.id, { action: '流转领用' }, samplerActor)
+    confirmHandover(db, later.id, managerActor)
+  }
+  assert.equal(getHandoverSheet(db, sheet.id)!.status, 'draft')
+})
+
+test('最新的采样交接还未签收时不能沿用旧签字升级整单', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'handover-latest-confirmation-'))
+  const path = join(dir, 'legacy.sqlite')
+  try {
+    const db = openDb(path)
+    const { r, made } = setup(db)
+    const sheet = listHandoverSheets(db, { roundId: r.id })[0]
+    for (const sample of made) {
+      const original = listHandovers(db, sample.id).find(handover => handover.action === '采样交接')!
+      db.prepare(`UPDATE sample_handovers SET confirmed_by=?,confirmed_at=? WHERE id=?`)
+        .run(managerActor.name, '2026-08-24T08:00:00.000Z', original.id)
+    }
+    addHandover(db, made[0].id, { action: '采样交接', note: '补录的当前交接' }, samplerActor)
+    db.close()
+
+    const reopened = openDb(path)
+    assert.equal(getHandoverSheet(reopened, sheet.id)!.status, 'draft')
+    reopened.close()
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('多人采样时按实际发单账号双签，不把样品建档人误当发单人', () => {
   const db = openDb(':memory:')
   const { sheet, samplerA, samplerB } = multiSamplerSetup(db)
