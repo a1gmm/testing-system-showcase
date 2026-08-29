@@ -2170,7 +2170,7 @@
   "file": "0117.pdf",
   "meta": {
    "instrument": "UV-1801紫外分光光度计",
-   "instrumentNo": "TC-005参比溶液:纯水r=",
+   "instrumentNo": "TC-005",
    "methodFull": "环境空气 氮氧化物（一氧化氮和二氧化氮）的测定 盐酸萘乙二胺分光光度法",
    "wavelength": "540nm",
    "detectionLimit": "0.005mg/m3",
