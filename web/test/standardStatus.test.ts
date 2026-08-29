@@ -28,8 +28,8 @@ describe('标准状态判定', () => {
   })
 
   test.each([
-    ['GB/T5750.5-2006', 'GB/T5750.5-2023'],
-    ['GB/T5750.6-2006', 'GB/T5750.6-2023'],
+    ['GB/T5750.5-2006', 'GB/T 5750.5-2023'],
+    ['GB/T5750.6-2006', 'GB/T 5750.6-2023'],
   ])('旧版 %s 提供明确替代编号 %s', (basis, replacement) => {
     const status = resolveStandard(basis)
     expect(status.kind).toBe('outdated')

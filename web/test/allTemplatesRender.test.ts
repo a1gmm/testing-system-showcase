@@ -18,6 +18,7 @@ describe('全部正式录入模板渲染', () => {
           analyte: template.analyte,
           method: template.method,
           matrix: template.matrix,
+          file: template.file,
           code: template.code,
           sheetType: template.sheetType,
           templateName: template.name,

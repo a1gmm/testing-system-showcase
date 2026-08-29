@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import templatesRaw from '../src/data/templates.json'
 import evidenceRaw from '../src/data/templateStandardEvidence.json'
 import {
+  normCode,
   resolveTemplateStandard,
   templateStandardEvidence,
   type TemplateStandardEvidence,
@@ -9,7 +10,7 @@ import {
 import { presentTemplateStandard } from '../src/data/templateStandardPresentation'
 
 type Evidence = {
-  kind: 'standard' | 'managed'
+  kind: 'standard' | 'managed' | 'controlled'
   basis?: string[]
   source: string
   verifiedOn: string
@@ -18,6 +19,11 @@ type Evidence = {
 }
 
 describe('模板标准证据台账', () => {
+  test('同一标准的英文短横线和中文破折号归一为同一个键', () => {
+    expect(normCode('GB/T7475-1987')).toBe('GBT74751987')
+    expect(normCode('GB／T 7475—1987')).toBe('GBT74751987')
+  })
+
   test('以文件名区分重复表号', () => {
     const duplicated = templatesRaw.filter((template) => template.code === 'HJ-TC-194')
 
@@ -50,12 +56,12 @@ describe('模板标准证据台账', () => {
     }
   })
 
-  test('每张启用表都闭环为已核验或管理记录', () => {
+  test('每张启用表都闭环为已核验、受控方法或管理记录', () => {
     const active = templatesRaw.filter((template) => !template.retired)
     const files = active.map((template) => template.file)
     const unresolved = active
       .map((template) => ({ file: template.file, status: resolveTemplateStandard(template) }))
-      .filter(({ status }) => !['verified', 'managed'].includes(status.kind))
+      .filter(({ status }) => !['verified', 'controlled', 'managed'].includes(status.kind))
 
     expect(new Set(files).size).toBe(files.length)
     expect(unresolved).toEqual([])
@@ -112,6 +118,68 @@ describe('模板标准证据台账', () => {
 
     try {
       expect(resolveTemplateStandard({ file }).kind).toBe('outdated')
+    } finally {
+      delete templateStandardEvidence[file]
+    }
+  })
+
+  test('受控方法保留原机构方法依据，但不能伪装为现行国家标准', () => {
+    const file = '__controlled-method-review-test__.pdf'
+    templateStandardEvidence[file] = {
+      kind: 'controlled',
+      basis: ['水和废水监测分析方法（第四版增补版）'],
+      source: '原表PDF与官方标准目录检索',
+      verifiedOn: '2026-08-29',
+      note: '现行国家标准目录没有与原表同方法、同基质的一一对应项目，按机构受控方法管理。',
+    } satisfies TemplateStandardEvidence
+
+    try {
+      const status = resolveTemplateStandard({ file })
+      expect(status.kind).toBe('controlled')
+      expect(status.basis).toEqual(['水和废水监测分析方法（第四版增补版）'])
+      expect(status.info).toBeNull()
+      expect(status.documentAvailable).toBe(false)
+      expect(presentTemplateStandard(status)).toEqual({
+        bucket: 'controlled', label: '受控方法', dot: 'accent',
+      })
+    } finally {
+      delete templateStandardEvidence[file]
+    }
+  })
+
+  test('显式标准决定不能把官方目录未知标准标为已核验', () => {
+    const file = '__unknown-standard-review-test__.pdf'
+    templateStandardEvidence[file] = {
+      kind: 'standard',
+      basis: ['HJ 99999-2099'],
+      source: '测试',
+      verifiedOn: '2026-08-29',
+      note: '用于验证目录未知编号必须失败关闭。',
+    } satisfies TemplateStandardEvidence
+
+    try {
+      const status = resolveTemplateStandard({ file })
+      expect(status.kind).toBe('pending')
+      expect(status.basis).toEqual(['HJ 99999-2099'])
+    } finally {
+      delete templateStandardEvidence[file]
+    }
+  })
+
+  test('复合依据缺少任一官方目录条目时保持待核验', () => {
+    const file = '__partial-catalog-review-test__.pdf'
+    templateStandardEvidence[file] = {
+      kind: 'standard',
+      basis: ['HJ 479-2009', 'HJ 99999-2099'],
+      source: '测试',
+      verifiedOn: '2026-08-29',
+      note: '用于验证复合依据不能凭部分命中闭环。',
+    } satisfies TemplateStandardEvidence
+
+    try {
+      const status = resolveTemplateStandard({ file })
+      expect(status.kind).toBe('pending')
+      expect(status.basis).toEqual(['HJ 479-2009', 'HJ 99999-2099'])
     } finally {
       delete templateStandardEvidence[file]
     }

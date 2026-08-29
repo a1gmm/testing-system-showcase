@@ -22,7 +22,11 @@ import type { BusinessStageKey, StageQueueKey } from '../workflow/businessStages
 import { matchesActorWorkflowQueue } from '../workflow/actorQueueMatching'
 
 // 采样单池 = 作业环节为"现场"的表（采样记录 + 挂在原始记录里的现场直读/比对表），按基质匹配；交接表在样品页挂附件
-type Tpl = { code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; file: string; raw?: string; phase?: string; stage?: string }
+type Tpl = {
+  code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; file: string
+  raw?: string; phase?: string; stage?: string
+  meta?: { methodFull?: string; detectionLimit?: string; basis?: string }
+}
 const SAMPLING_SHEETS = (templatesJson as Tpl[]).filter(t => templatePhase(t) === '现场')
 function sheetsForMatrix(matrix: string): Tpl[] {
   const hit = samplingSheetsForMatrix(SAMPLING_SHEETS, matrix)
@@ -697,9 +701,10 @@ onMounted(() => { if (hasBasePageAccess.value) { refresh(); loadSamplers() } })
                   <!-- 模板库有精确版式的：现场直接填整张原始记录表（独立保存，存到本期次名下） -->
                   <StructuredSheet v-if="hasFullForm(code)"
                     :round-id="detail.round.id" :readonly="!canField" :initial-data="roundSheetSeed(m)"
+                    :file="tplOf(code)?.file"
                     :code="code" :sheet-type="tplOf(code)?.sheetType || '采样记录'"
                     :template-name="tplOf(code)?.name || ''"
-                    :analyte="tplOf(code)?.analyte || ''" :method="tplOf(code)?.method || ''" :matrix="m" />
+                    :analyte="tplOf(code)?.analyte || ''" :method="tplOf(code)?.method || ''" :matrix="m" :tpl-meta="tplOf(code)?.meta" />
                   <!-- 没有精确版式的：每个表号独立一份简化登记 -->
                   <div v-else class="field" :class="{ ro: !canField }">
                     <label>采样点位<input v-model="sheetDraft(code).point" placeholder="本基质实际点位" :disabled="!canField" /></label>

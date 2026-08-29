@@ -1,6 +1,7 @@
 // 各记录表原型的「系统样子」模板定义（数据驱动）
 // 规则：kind='input' 手填；kind='auto' 系统算(只读)；kind='id' 编号(手填,靠左)
 import { FORMS } from './forms'
+import templateSchemaManifestRaw from './templateSchemaManifest.json'
 export type Col = {
   key: string; label: string; unit?: string
   kind: 'id' | 'input' | 'auto'
@@ -589,4 +590,87 @@ export function resolveSchema(sheetType: string, method: string, code?: string, 
   }
   if (method === '声级') return noise
   return generic
+}
+
+type TemplateSchemaBinding = {
+  code: string
+  schemaId: string
+  sourceSha256: string
+  sourcePageCount: number
+  sourceLabels: string[]
+  visualReviewedOn: string
+}
+type TemplateSchemaIdentity = {
+  file: string
+  code: string
+  sheetType: string
+  method: string
+  meta?: { methodFull?: string | null } | null
+}
+
+const templateSchemaManifest = templateSchemaManifestRaw as Record<string, TemplateSchemaBinding>
+const builtinSchemas = [
+  photometric, calibration, calibrationChromatography, calibrationElectrode, titration,
+  gravimetric, ic, chromatographySample, micro, noise, samplingWater, handoff,
+  calibrationMercury, calibrationAAS,
+]
+const schemasById = new Map<string, Schema>()
+for (const schema of [...builtinSchemas, ...Object.values(FORMS)]) {
+  const previous = schemasById.get(schema.id)
+  if (previous && previous !== schema)
+    throw new Error(`录入版式 id 重复且定义不一致：${schema.id}`)
+  schemasById.set(schema.id, schema)
+}
+
+const sourceSignRoles = new Set(['采样', '检验', '检测', '复核', '审核', '批准', '送样人', '收样人'])
+const normalizeLayoutLabel = (value: string) => value.replace(/[\s()（）·:：/\-]/g, '')
+
+function visibleSchemaLabels(schema: Schema): string[] {
+  const values = [...schema.meta.map(item => item.label), ...schema.columns.map(item => item.label), ...schema.signRoles]
+  for (const section of schema.layout || []) {
+    if (section.type === 'table') values.push(...section.columns.map(item => item.label))
+    if (section.type === 'kv') values.push(...section.rows.map(item => item.label), ...section.rows.flatMap(item => item.checks || []))
+    if (section.type === 'checks') values.push(section.label, ...section.options)
+    if (section.type === 'matrix') values.push(...section.rowHeaders.map(item => item.label), ...section.colHeaders.map(item => item.label))
+    if (section.type === 'note' || section.type === 'diagram') values.push(section.label)
+  }
+  return values.map(normalizeLayoutLabel)
+}
+
+function addMissingSourceFields(schema: Schema, binding: TemplateSchemaBinding, file: string): Schema {
+  const visible = visibleSchemaLabels(schema)
+  const missing = binding.sourceLabels.filter(label => {
+    const normalized = normalizeLayoutLabel(label)
+    return !visible.some(value => value.includes(normalized) || normalized.includes(value))
+  })
+  if (!missing.length) return schema
+  const addedRoles = missing.filter(label => sourceSignRoles.has(label))
+  const addedFields = missing.filter(label => !sourceSignRoles.has(label))
+  const signRoles = [...new Set([...schema.signRoles, ...addedRoles])]
+  const fileKey = file.replace(/\D/g, '') || 'source'
+  if (schema.layout) {
+    const sourceSection: Section = {
+      type: 'kv', id: `sourceFields_${fileKey}`, cols: 2,
+      rows: addedFields.map((label, index) => ({ label, key: `source_${fileKey}_${index + 1}` })),
+    }
+    return { ...schema, signRoles, layout: addedFields.length ? [...schema.layout, sourceSection] : schema.layout }
+  }
+  const sourceMeta = addedFields.map((label, index): MetaField => ({ label, key: `source_${fileKey}_${index + 1}` }))
+  return { ...schema, signRoles, meta: [...schema.meta, ...sourceMeta] }
+}
+
+/**
+ * 正式录入路径按 PDF 文件名精确绑定版式。表号只用于交叉校验，不能作为文件级身份；
+ * 因此同一表号的多个 PDF 也必须逐文件登记，未登记文件直接拒绝进入录入。
+ */
+export function resolveTemplateSchema(template: TemplateSchemaIdentity): Schema {
+  const binding = templateSchemaManifest[template.file]
+  if (!binding) throw new Error(`${template.file} 未登记逐文件版式，禁止正式录入`)
+  if (binding.code !== template.code)
+    throw new Error(`${template.file} 的版式登记表号 ${binding.code} 与模板表号 ${template.code} 不一致`)
+  const schema = schemasById.get(binding.schemaId)
+  if (!schema) throw new Error(`${template.file} 登记了不存在的录入版式 ${binding.schemaId}`)
+  if (!binding.sourceSha256 || binding.sourcePageCount < 1 || !binding.visualReviewedOn)
+    throw new Error(`${template.file} 的原表哈希、页数或视觉复核证据不完整`)
+  return addMissingSourceFields(schema, binding, template.file)
 }

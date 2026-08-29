@@ -279,7 +279,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "水质总铬的测定高锰酸钾氧化-二苯测定",
       "wavelength": "540nm",
-      "basis": "GB7466-87",
+      "basis": "GB/T 7466-1987",
       "detectionLimit": "0.004mg/LbVAAa−−0"
     },
     "stage": "样品制备分析"
@@ -297,7 +297,7 @@
       "instrument": "UV-1801紫外分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "水质总铬的测定高锰酸钾氧化-二苯碳酰二肼分光光度法",
-      "basis": "GB7466-87",
+      "basis": "GB/T 7466-1987",
       "wavelength": "540nm"
     },
     "stage": "样品制备分析"
@@ -386,8 +386,8 @@
     "meta": {
       "instrument": "WFX-130B原子吸收分光光度计",
       "instrumentNo": "TC-004",
-      "methodFull": "土壤质量铜、锌的测定火焰原子吸收分光光度法",
-      "basis": "GB/T17138-1997",
+      "methodFull": "土壤和沉积物 铜、锌、铅、镍、铬的测定 火焰原子吸收分光光度法",
+      "basis": "HJ 491-2019",
       "wavelength": "324.7nm"
     },
     "stage": "样品制备分析"
@@ -404,8 +404,8 @@
     "meta": {
       "instrument": "WFX-130B原子吸收分光光度计",
       "instrumentNo": "TC-004",
-      "methodFull": "土壤质量铜、锌的测定火焰原子吸收分光光度法",
-      "basis": "GB/T17138-1997",
+      "methodFull": "土壤和沉积物 铜、锌、铅、镍、铬的测定 火焰原子吸收分光光度法",
+      "basis": "HJ 491-2019",
       "wavelength": "213.9nm"
     },
     "stage": "样品制备分析"
@@ -519,11 +519,11 @@
     "meta": {
       "instrument": "WFX-130B原子吸收分光光度计",
       "instrumentNo": "TC-004",
-      "methodFull": "土壤质量镍的测定火焰原子吸收分光光度法",
+      "methodFull": "土壤和沉积物 铜、锌、铅、镍、铬的测定 火焰原子吸收分光光度法",
       "wavelength": "232.0nm",
-      "basis": "GB/T17139-1997",
+      "basis": "HJ 491-2019",
       "slit": "0.2nm",
-      "detectionLimit": "5mg/kg"
+      "detectionLimit": "3 mg/kg"
     },
     "stage": "样品制备分析"
   },
@@ -539,8 +539,8 @@
     "meta": {
       "instrument": "WFX-130B原子吸收分光光度计",
       "instrumentNo": "TC-004",
-      "methodFull": "土壤质量镍的测定火焰原子吸收分光光度法",
-      "basis": "GB/T17139-1997",
+      "methodFull": "土壤和沉积物 铜、锌、铅、镍、铬的测定 火焰原子吸收分光光度法",
+      "basis": "HJ 491-2019",
       "wavelength": "232.0nm"
     },
     "stage": "样品制备分析"
@@ -744,7 +744,7 @@
       "instrument": "WFX-130B原子吸收分光光度计",
       "methodFull": "原子吸收分光光度法",
       "wavelength": "357.9nm",
-      "basis": "国家环保总局（2003）第四版",
+      "basis": "空气和废气监测分析方法（第四版）原子吸收分光光度法",
       "slit": "0.4nm",
       "detectionLimit": "原表未规定"
     },
@@ -762,7 +762,7 @@
     "meta": {
       "instrument": "WFX-130B原子吸收分光光度计",
       "methodFull": "原子吸收分光光度法",
-      "basis": "国家环保总局（2003）第四版",
+      "basis": "空气和废气监测分析方法（第四版）原子吸收分光光度法",
       "wavelength": "357.9nm"
     },
     "stage": "样品制备分析"
@@ -796,10 +796,10 @@
     "meta": {
       "instrument": "UV-1801紫外可见分光光度法光程：10mm",
       "instrumentNo": "TC-005",
-      "methodFull": "GB/T7494-1987",
+      "methodFull": "水质 阴离子表面活性剂的测定 亚甲蓝分光光度法",
       "wavelength": "652nm",
-      "basis": "水质阴离子表面活性剂的测定亚甲蓝分光光度法测定",
-      "detectionLimit": "0.05mg/Lr="
+      "basis": "GB/T 7494-1987",
+      "detectionLimit": "0.05 mg/L"
     },
     "stage": "样品制备分析"
   },
@@ -934,7 +934,7 @@
       "instrument": "UV-1801型紫外分光光度计标准使用溶液浓度：10.0ug/ml配置溶液体积：25ml",
       "instrumentNo": "TC-005",
       "methodFull": "水质苯胺类化合物的测定N-(1-萘基)乙二胺偶氮分光光度法",
-      "basis": "GB11889-1989",
+      "basis": "GB/T 11889-1989",
       "wavelength": "545nm"
     },
     "stage": "样品制备分析"
@@ -1559,7 +1559,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "空气和废气监测分析方法第三篇第一章十一硫化氢亚甲基蓝分光光度法",
       "wavelength": "665nm",
-      "basis": "国家环保总局（2003）版第四版",
+      "basis": "空气和废气监测分析方法（第四版）环境空气硫化氢亚甲基蓝分光光度法",
       "detectionLimit": "0.001mg/m3"
     },
     "stage": "样品制备分析"
@@ -1577,7 +1577,7 @@
       "instrument": "UV-1801紫外分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "空气和废气监测分析方法第三篇第一章十一硫化氢亚甲基蓝分光光度法",
-      "basis": "国家环保总局（2003）版第四版",
+      "basis": "空气和废气监测分析方法（第四版）环境空气硫化氢亚甲基蓝分光光度法",
       "wavelength": "665nm"
     },
     "stage": "样品制备分析"
@@ -1690,7 +1690,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "水质六价铬的测定二苯碳酰二肼分光光度法测定",
       "wavelength": "540nm",
-      "basis": "GB7467-87",
+      "basis": "GB/T 7467-1987",
       "detectionLimit": "0.004mg/L"
     },
     "stage": "样品制备分析"
@@ -1708,7 +1708,7 @@
       "instrument": "UV-1801紫外可见分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "水质六价铬的测定二苯碳酰二肼分光光度法",
-      "basis": "GB7467-87",
+      "basis": "GB/T 7467-1987",
       "wavelength": "540nm"
     },
     "stage": "样品制备分析"
@@ -2048,7 +2048,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "水和废水监测分析方法第四篇：第二章三硝基苯类（一）还原-偶氮光度法",
       "wavelength": "545nm",
-      "basis": "国家环保总局（2002）第四版",
+      "basis": "水和废水监测分析方法（第四版）硝基苯类还原-偶氮光度法",
       "detectionLimit": "0.2mg/L参比溶液：纯水A1:硝基苯类吸光度A2：苯胺类吸光度"
     },
     "stage": "样品制备分析"
@@ -2066,7 +2066,7 @@
       "instrument": "UV-1801紫外分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "水和废水监测分析方法第四篇：第二章三硝基苯类（一）还原-偶氮光度法",
-      "basis": "国家环保总局（2002）第四版",
+      "basis": "水和废水监测分析方法（第四版）硝基苯类还原-偶氮光度法",
       "wavelength": "545nm"
     },
     "stage": "样品制备分析"
@@ -2536,7 +2536,10 @@
     "sheetType": "原始记录",
     "raw": "142-工业企业厂界（昼夜）噪声测量原始记录表",
     "file": "0138.pdf",
-    "stage": "采样记录"
+    "stage": "采样记录",
+    "meta": {
+      "basis": "GB 12348-2008、GB 3096-2008、GB 22337-2008、GB 12523-2025"
+    }
   },
   {
     "code": "HJ-TC-143",
@@ -2985,9 +2988,9 @@
     "meta": {
       "instrument": "UV-1801紫外可见分光光度法光程：30mm",
       "instrumentNo": "TC-005",
-      "methodFull": "生活饮用水标准检验方法 第四部分感观性状和物理指标（13.1）亚甲蓝分光光度法",
+      "methodFull": "生活饮用水标准检验方法 第4部分：感官性状和物理指标（13.1 亚甲蓝分光光度法）",
       "wavelength": "650nm",
-      "basis": "生活饮用水标准",
+      "basis": "GB/T 5750.4-2023",
       "detectionLimit": "0.050mg/L"
     },
     "stage": "样品制备分析"
@@ -3387,7 +3390,7 @@
     "meta": {
       "instrument": "WFX-130B原子吸收分光光度计",
       "methodFull": "水质钙和镁的测定原子吸收分光光度法",
-      "basis": "GB11905-89",
+      "basis": "GB/T 11905-1989",
       "wavelength": "285.2nm"
     },
     "stage": "样品制备分析"
@@ -3406,7 +3409,7 @@
       "instrumentNo": "TC-004",
       "methodFull": "水质钙和镁的测定原子吸收分光光度法",
       "wavelength": "285.2nm",
-      "basis": "GB11905-89",
+      "basis": "GB/T 11905-1989",
       "slit": "0.2nm",
       "detectionLimit": "0.002mg/L"
     },
@@ -3424,7 +3427,7 @@
     "meta": {
       "instrument": "WFX-130B原子吸收分光光度计",
       "methodFull": "水质钙和镁的测定原子吸收分光光度法",
-      "basis": "GB11905-89",
+      "basis": "GB/T 11905-1989",
       "wavelength": "422.7nm"
     },
     "stage": "样品制备分析"
@@ -3443,7 +3446,7 @@
       "instrumentNo": "TC-004",
       "methodFull": "水质钙和镁的测定原子吸收分光光度法",
       "wavelength": "422.7nm",
-      "basis": "GB11905-89",
+      "basis": "GB/T 11905-1989",
       "slit": "0.4nm",
       "detectionLimit": "0.02mg/L"
     },
@@ -3708,9 +3711,9 @@
     "meta": {
       "instrument": "UV-1801紫外可见分光光度法光程：50mm",
       "instrumentNo": "TC-005",
-      "methodFull": "GB17378.4-2007",
+      "methodFull": "海洋监测规范 第4部分：海水分析（36.2 次溴酸氧化法）",
       "wavelength": "543nm",
-      "basis": "海洋监测规范第4部分：海水分析（36.2）次溴酸",
+      "basis": "GB 17378.4-2007",
       "detectionLimit": "原表未规定"
     },
     "stage": "样品制备分析"
@@ -4089,7 +4092,7 @@
       "instrumentNo": "TC-059",
       "methodFull": "海洋监测规范第4部分：海水分析(42)无火焰原子吸收分光光度法",
       "wavelength": "232.0nm",
-      "basis": "GB/T17378.4-2007",
+      "basis": "GB 17378.4-2007",
       "slit": "0.2nm",
       "detectionLimit": "0.3ug/L"
     },
@@ -4105,7 +4108,7 @@
     "raw": "370-嗅和味原始记录",
     "file": "0225.pdf",
     "meta": {
-      "basis": "GB/T17378.4-2007"
+      "basis": "GB 17378.4-2007"
     },
     "stage": "样品制备分析"
   },
@@ -4138,7 +4141,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "海洋监测规范第4部分海水分析11.2砷化氢-硝酸银分光光度法测定",
       "wavelength": "406nm",
-      "basis": "GB/T17378.4-2007",
+      "basis": "GB 17378.4-2007",
       "detectionLimit": "0.4ug/L"
     },
     "stage": "样品制备分析"
@@ -4175,7 +4178,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "空气和废气监测分析方法第三篇第一章九异烟酸-吡唑啉酮分光光度法",
       "wavelength": "638nm",
-      "basis": "国家环保局（2003）第四版",
+      "basis": "空气和废气监测分析方法（第四版）环境空气氰化氢异烟酸-吡唑啉酮分光光度法",
       "detectionLimit": "0.004mg/m³"
     },
     "stage": "样品制备分析"
@@ -4208,7 +4211,7 @@
       "instrumentNo": "TC-059",
       "methodFull": "海洋监测规范第4部分：海水分析(6)无火焰原子吸收分光光度法",
       "wavelength": "324.7nm",
-      "basis": "GB/T17378.4-2007",
+      "basis": "GB 17378.4-2007",
       "slit": "0.2nm",
       "detectionLimit": "0.2ug/L"
     },
@@ -4228,7 +4231,7 @@
       "instrumentNo": "TC-059",
       "methodFull": "海洋监测规范第4部分：海水分析(6)无火焰原子吸收分光光度法",
       "wavelength": "283.3nm",
-      "basis": "GB/T17378.4-2007",
+      "basis": "GB 17378.4-2007",
       "slit": "0.2nm",
       "detectionLimit": "0.03ug/L"
     },
@@ -4259,7 +4262,7 @@
       "instrumentNo": "TC-059",
       "methodFull": "海洋监测规范第4部分：海水分析(6)无火焰原子吸收分光光度法",
       "wavelength": "228.8nm",
-      "basis": "GB/T17378.4-2007",
+      "basis": "GB 17378.4-2007",
       "slit": "0.2nm",
       "detectionLimit": "0.01ug/L"
     },
@@ -4314,7 +4317,7 @@
     "file": "0237.pdf",
     "meta": {
       "methodFull": "地下水质分析方法第49部分：碳酸根、碳酸氢根",
-      "basis": "DZ/T0064.49-2021",
+      "basis": "DZ/T 0064.49-2021",
       "detectionLimit": "3mg/LρHCO3－(mg/L)="
     },
     "stage": "样品制备分析"
@@ -4369,7 +4372,7 @@
       "instrument": "TAS-990AFG型原子吸收分光光度计",
       "instrumentNo": "TC-059",
       "methodFull": "山东省固定污染源废气颗粒物中铜的测定石墨炉原子吸收分光光度法",
-      "basis": "DB37/T3460-2018",
+      "basis": "DB37/T 3460-2018",
       "wavelength": "324.7nm"
     },
     "stage": "样品制备分析"
@@ -4387,7 +4390,7 @@
       "instrument": "WFX-130B原子吸收分光光度计",
       "instrumentNo": "TC-004",
       "methodFull": "山东省固定污染源废气颗粒物中铜、锌的测定火焰原子吸收分光光度法",
-      "basis": "DB37/T3461-2018",
+      "basis": "DB37/T 3461-2018",
       "slit": "0.4nm",
       "wavelength": "324.7nm"
     },
@@ -4406,7 +4409,7 @@
       "instrument": "WFX-130B原子吸收分光光度计",
       "instrumentNo": "TC-004",
       "methodFull": "山东省固定污染源废气颗粒物中铜、锌的测定火焰原子吸收分光光度法",
-      "basis": "DB37/T3461-2018",
+      "basis": "DB37/T 3461-2018",
       "slit": "0.4nm",
       "wavelength": "213.9nm"
     },
@@ -4667,7 +4670,7 @@
       "instrument": "UV-1801紫外分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "海水硒标准",
-      "basis": "GB/T17378.4-2007"
+      "basis": "GB 17378.4-2007"
     },
     "stage": "样品制备分析"
   },
@@ -4736,7 +4739,7 @@
       "instrument": "ME204/02E 电子天平 DHG-9070A 电热鼓风干燥箱",
       "instrumentNo": "TC-006 TC-010",
       "methodFull": "水和废水监测分析方法第三篇第一章八矿化度重量法",
-      "basis": "国家环保局（2002）第四版",
+      "basis": "水和废水监测分析方法（第四版）矿化度重量法",
       "detectionLimit": "不适用"
     },
     "stage": "样品制备分析"
@@ -4892,7 +4895,7 @@
       "instrument": "ME204E/02电子分析天平",
       "instrumentNo": "TC-006",
       "methodFull": "城镇污水水质标准",
-      "basis": "CJ/T51-2018式中：W1-总重，W2-容",
+      "basis": "CJ/T 51-2018",
       "detectionLimit": "不适用"
     },
     "stage": "样品制备分析"
@@ -5150,7 +5153,7 @@
       "instrument": "UV-1801紫外分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "二苯基碳酰二肼分光光度法",
-      "basis": "空气和废气监测分析方法第三篇第二章八铬（六价）二",
+      "basis": "空气和废气监测分析方法（第四版）铬（六价）二苯基碳酰二肼分光光度法",
       "wavelength": "540nm"
     },
     "stage": "样品制备分析"
@@ -5429,9 +5432,9 @@
       "instrumentNo": "TC-004",
       "methodFull": "水质银的测定火焰原子吸收分光光度法",
       "wavelength": "328.1nm",
-      "basis": "GB11907-89",
+      "basis": "HJ 1443-2026",
       "slit": "0.4nm",
-      "detectionLimit": "0.03mg/L"
+      "detectionLimit": "0.02mg/L"
     },
     "stage": "样品制备分析"
   },
@@ -5517,8 +5520,8 @@
     "meta": {
       "instrument": "PHS-3C型实验室PH计标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
       "instrumentNo": "TC-014",
-      "methodFull": "水质pH的测定电极法标准缓冲溶液II测定值",
-      "basis": "国家环保总局（2002）第四版"
+      "methodFull": "水质 pH值的测定 电极法",
+      "basis": "HJ 1147-2020"
     },
     "stage": "样品制备分析"
   },
@@ -5550,8 +5553,8 @@
     "file": "0303.pdf",
     "meta": {
       "instrument": "标准缓冲溶液I定位值 室温：标准缓冲溶液II理论值",
-      "methodFull": "水质pH的测定电极法标准缓冲溶液II测定值",
-      "basis": "国家环保总局（2002）第四版"
+      "methodFull": "水质 pH值的测定 电极法",
+      "basis": "HJ 1147-2020"
     },
     "stage": "样品制备分析"
   },
@@ -5990,7 +5993,7 @@
       "instrument": "AF-7500 原子荧光分光光度计",
       "instrumentNo": "TC-122",
       "methodFull": "空气和废气监测分析方法 第五篇 第三章 七（二）原子荧光分光光度法（B）",
-      "basis": "国家环保总局（2003）第四版",
+      "basis": "空气和废气监测分析方法（第四版）环境空气汞原子荧光分光光度法",
       "detectionLimit": "3*10-3 μg/m3"
     },
     "stage": "样品制备分析"
@@ -6268,7 +6271,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "水和废水监测方法第三篇第三章七磷（三）钼锑抗分光光度法测定",
       "wavelength": "700nm",
-      "basis": "国家环保总局（2002）第四版",
+      "basis": "水和废水监测分析方法（第四版）磷酸盐钼锑抗分光光度法",
       "detectionLimit": "0.01mg/L"
     },
     "stage": "样品制备分析"
@@ -6286,7 +6289,7 @@
       "instrument": "UV-1801紫外可见分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "水和废水监测方法第三篇第三章七磷（三）钼锑抗分光光度法",
-      "basis": "国家环保总局（2002）第四版",
+      "basis": "水和废水监测分析方法（第四版）磷酸盐钼锑抗分光光度法",
       "wavelength": "700nm"
     },
     "stage": "样品制备分析"
@@ -6302,7 +6305,7 @@
     "file": "0345.pdf",
     "meta": {
       "methodFull": "水和废水分析方法第三篇第一章十二碱度（总碱度、重碳酸盐和碳酸盐）（一）酸碱指示剂滴定法（B）",
-      "basis": "国家环保总局（2002）第四版",
+      "basis": "水和废水监测分析方法（第四版）碱度酸碱指示剂滴定法",
       "detectionLimit": "3mg/LρHCO3－(mg/L)="
     },
     "stage": "样品制备分析"
@@ -6443,7 +6446,7 @@
     "raw": "636-浊度原始记录-废水",
     "file": "0355.pdf",
     "meta": {
-      "basis": "水和废水监测分析方法（第四版）增补版"
+      "basis": "水和废水监测分析方法（第四版增补版）浊度目视比浊法"
     },
     "stage": "样品制备分析"
   },
@@ -6473,7 +6476,7 @@
     "raw": "640-嗅和味原始记录废水",
     "file": "0357.pdf",
     "meta": {
-      "basis": "水和废水监测分析方法（第四版） 增补版"
+      "basis": "水和废水监测分析方法（第四版增补版）废水臭（嗅和味）测定法"
     },
     "stage": "样品制备分析"
   },
@@ -6650,7 +6653,7 @@
     "raw": "650-嗅和味原始记录废水",
     "file": "0367.pdf",
     "meta": {
-      "basis": "水和废水监测分析方法（第四版） 增补版"
+      "basis": "水和废水监测分析方法（第四版增补版）废水臭（嗅和味）测定法"
     },
     "stage": "样品制备分析"
   },
@@ -7426,9 +7429,9 @@
     "meta": {
       "instrument": "UV-1801紫外可见分光光度法光程：20mm",
       "instrumentNo": "TC-005",
-      "methodFull": "GB17378.4-2007",
+      "methodFull": "海洋监测规范 第4部分：海水分析（阴离子洗涤剂 亚甲基蓝分光光度法）",
       "wavelength": "650nm",
-      "basis": "水质阴离子洗涤剂的测定亚甲基蓝分光光度法测定",
+      "basis": "GB 17378.4-2007",
       "detectionLimit": "10.0ug/L"
     },
     "stage": "样品制备分析"
@@ -7465,7 +7468,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "空气和废气监测分析方法第五篇第四章十（三）硫化氢亚甲基蓝分光光度法",
       "wavelength": "665nm",
-      "basis": "国家环保总局（2003）版第四版",
+      "basis": "空气和废气监测分析方法（第四版）硫化氢亚甲基蓝分光光度法",
       "detectionLimit": "0.01mg/m3"
     },
     "stage": "样品制备分析"
@@ -7483,7 +7486,7 @@
       "instrument": "UV-1801紫外分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "空气和废气监测分析方法第五篇第四章十（三）硫化氢亚甲基蓝分光光度法",
-      "basis": "国家环保总局（2003）版第四版",
+      "basis": "空气和废气监测分析方法（第四版）硫化氢亚甲基蓝分光光度法",
       "wavelength": "665nm"
     },
     "stage": "样品制备分析"
@@ -7517,7 +7520,7 @@
       "instrument": "UV-1801紫外分光光度计",
       "instrumentNo": "TC-005",
       "methodFull": "空气和废气监测分析方法第三篇第一章九异烟酸-吡唑啉酮分光光度法",
-      "basis": "国家环保局（2003）第四版",
+      "basis": "空气和废气监测分析方法（第四版）环境空气氰化氢异烟酸-吡唑啉酮分光光度法",
       "wavelength": "638nm"
     },
     "stage": "样品制备分析"
@@ -7675,7 +7678,7 @@
       "instrumentNo": "TC-005",
       "methodFull": "二苯基碳酰二肼分光光度法",
       "wavelength": "540nm",
-      "basis": "空气和废气监测分析方法第三篇第二章八铬（六价）二",
+      "basis": "空气和废气监测分析方法（第四版）铬（六价）二苯基碳酰二肼分光光度法",
       "detectionLimit": "0.3ug/25ml"
     },
     "stage": "样品制备分析"
@@ -7803,10 +7806,10 @@
     "meta": {
       "instrument": "TAS-990AFG型原子吸收分光光度计",
       "instrumentNo": "TC-059",
-      "methodFull": "水和废水监测分析方法第三篇第四章十六（五）石墨炉原子吸收法（B）",
+      "methodFull": "水质 铜、铅、镉、镍、铬的测定 石墨炉原子吸收分光光度法",
       "wavelength": "283.3nm",
-      "basis": "国家环保总局（2002）第四版",
-      "detectionLimit": "1ug/L"
+      "basis": "HJ 1453-2026",
+      "detectionLimit": "0.7 μg/L（总铅）"
     },
     "stage": "样品制备分析"
   },
@@ -7822,10 +7825,10 @@
     "meta": {
       "instrument": "TAS-990AFG型原子吸收分光光度计",
       "instrumentNo": "TC-059",
-      "methodFull": "水和废水监测分析方法第三篇第四章七（四）石墨炉原子吸收法测定镉、铜和铅（B）",
+      "methodFull": "水质 铜、铅、镉、镍、铬的测定 石墨炉原子吸收分光光度法",
       "wavelength": "228.8nm",
-      "basis": "国家环保总局（2002）第四版",
-      "detectionLimit": "0.1ug/L"
+      "basis": "HJ 1453-2026",
+      "detectionLimit": "0.09 μg/L（总镉）"
     },
     "stage": "样品制备分析"
   },
@@ -7883,7 +7886,7 @@
     "meta": {
       "instrument": "TN100便携式浊度计",
       "instrumentNo": "Tc-130",
-      "basis": "水和废水监测分析方法（第四版）增补版"
+      "basis": "水和废水监测分析方法（第四版增补版）废水便携式浊度仪法"
     },
     "stage": "样品制备分析"
   },
@@ -8050,7 +8053,8 @@
     "raw": "717-电导率检测原始记录",
     "file": "0453.pdf",
     "meta": {
-      "instrumentNo": "样品测定 样品编号 采样人"
+      "instrumentNo": "样品测定 样品编号 采样人",
+      "basis": "水和废水监测分析方法（第四版增补版）便携式电导率仪法"
     },
     "stage": "采样记录"
   },
@@ -8065,7 +8069,8 @@
     "file": "0454.pdf",
     "meta": {
       "instrument": "透明度盘",
-      "instrumentNo": "TC-276 样品测定 样品编号 采样人"
+      "instrumentNo": "TC-276 样品测定 样品编号 采样人",
+      "basis": "水和废水监测分析方法（第四版增补版）塞氏盘法"
     },
     "stage": "采样记录"
   },

@@ -5,7 +5,7 @@ import { reactive, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { resolveSchema } from '../data/schemas'
+import { resolveSchema, resolveTemplateSchema } from '../data/schemas'
 import { projectResultSummary } from '../data/resultProjection'
 import { normalizeComponents } from '../data/multiComponent'
 import { api, currentUser, type Audit, type RecordData } from '../api'
@@ -26,6 +26,7 @@ function secComp(t: string) { return SEC[t] }
 
 const props = defineProps<{
   analyte: string; method: string; matrix: string; code: string; sheetType: string
+  file?: string                       // 正式入口必须传：按 PDF 文件精确绑定版式
   sampleId?: string; templateName?: string
   roundId?: string                // 期次模式：采样员现场填，存 round_sheets；专业审核由阶段工作流承载
   tplMeta?: Record<string, any>   // 每张表从原件抽出的页脚元数据(方法依据/仪器编号/波长/狭缝/检出限等)
@@ -39,7 +40,9 @@ const roundPersist = computed(() => !props.sampleId && !!props.roundId)
 // 演示模式 = 模板库预览。真实录入（样品/期次）绝不预填演示数据——
 // 假编号/假吸光值只改一半就保存，假数据就成了正式原始记录
 const isDemo = !props.sampleId && !props.roundId
-const schema = resolveSchema(props.sheetType, props.method, props.code, props.tplMeta?.methodFull)
+const schema = props.file
+  ? resolveTemplateSchema({ file: props.file, code: props.code, sheetType: props.sheetType, method: props.method, meta: props.tplMeta })
+  : resolveSchema(props.sheetType, props.method, props.code, props.tplMeta?.methodFull)
 // 真实录入用与演示同结构的空行（保留行数和列键，值全清空）
 function blankRowsFrom(seedRows: Record<string, any>[]): Record<string, any>[] {
   return seedRows.map(r => { const o: Record<string, any> = {}; for (const k in r) o[k] = ''; return o })
