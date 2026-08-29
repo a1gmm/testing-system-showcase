@@ -101,7 +101,7 @@ test('废水样品不会把正式开放的废气镉表或已停用空气镉表�
   expect(choices).not.toContain('HJ-TC-700')
 })
 
-test('未完成修订对照的模板不能进入正式样品录入', async () => {
+test('已完成修订对照的模板可以进入正式样品录入', async () => {
   const wastewaterZincSample = { ...sample, items: ['锌'] }
   const { api } = await import('../src/api')
   vi.mocked(api.listSamples).mockResolvedValueOnce([wastewaterZincSample])
@@ -130,5 +130,5 @@ test('未完成修订对照的模板不能进入正式样品录入', async () =>
   await flushPromises()
   await wrapper.get('.pk-search').setValue('HJ-TC-003')
 
-  expect(wrapper.get('.pk-list').text()).not.toContain('HJ-TC-003')
+  expect(wrapper.get('.pk-list').text()).toContain('HJ-TC-003')
 })

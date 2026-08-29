@@ -16,7 +16,7 @@ const wastewaterSample = {
   created_at: '2026-08-28T00:00:00.000Z',
 }
 
-test('跨合同批量录入不显示未完成修订对照的模板', async () => {
+test('跨合同批量录入显示已完成修订对照的模板', async () => {
   const wrapper = mount(BatchEntry, {
     props: { samples: [wastewaterSample], myTasks: [] },
     global: { stubs: { 'el-button': { template: '<button><slot /></button>' } } },
@@ -24,7 +24,7 @@ test('跨合同批量录入不显示未完成修订对照的模板', async () =>
 
   await wrapper.get('.search').setValue('HJ-TC-003')
 
-  expect(wrapper.get('.tlist').text()).not.toContain('HJ-TC-003')
+  expect(wrapper.get('.tlist').text()).toContain('HJ-TC-003')
 })
 
 test('跨合同批量录入能用证据明确但未标基质的模板匹配真实样品', async () => {

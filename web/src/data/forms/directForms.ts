@@ -111,11 +111,23 @@ const chroma: Schema = {
 }
 
 export const directForms: Record<string, Schema> = {
+  'HJ-TC-047': phMeter, // pH·水质 GB/T 6920
   'HJ-TC-550': phMeter, // pH·废水
+  'HJ-TC-551': phMeter, // pH·水质（实验室）
+  'HJ-TC-552': phMeter, // pH·固体废物浸出液
+  'HJ-TC-553': phMeter, // pH·水质（便携式）
+  'HJ-TC-562': phMeter, // pH·大气降水
+  'HJ-TC-626': phMeter, // pH·地下水
+  'HJ-TC-641': phMeter, // pH·海水
   'HJ-TC-627': phMeter, // pH
   'HJ-TC-206': phMeter, // pH·土壤 HJ962
+  'HJ-TC-716': doMeter, // 溶解氧·现场直读
   'HJ-TC-638': doMeter, // 溶解氧
+  'HJ-TC-431': bod5,    // BOD5·海水
   'HJ-TC-071': bod5,    // BOD5
   'HJ-TC-112': chroma,  // 色度
+  'HJ-TC-0656': conductivity, // 电导率·地下水
+  'HJ-TC-563': conductivity, // 电导率·大气降水
+  'HJ-TC-717': conductivity, // 电导率·现场直读
   'HJ-TC-0418': conductivity, // 电导率·土壤 HJ802
 }

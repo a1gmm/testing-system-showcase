@@ -14,6 +14,7 @@ import { directForms } from './directForms'
 import { gasForms } from './gasForms'
 import { specialForms } from './specialForms'
 import { fieldSurveyForms } from './fieldSurveys'
+import { remainingForms } from './remainingForms'
 
 // 各家族 1:1 还原的固定版式表汇总（按表号精确命中，优先于按方法猜的通用 schema）
 export const FORMS: Record<string, Schema> = {
@@ -31,5 +32,6 @@ export const FORMS: Record<string, Schema> = {
   ...directForms,
   ...gasForms,
   ...specialForms,
+  ...remainingForms,
   ...fieldSurveyForms,
 }
