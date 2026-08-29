@@ -13,7 +13,7 @@ vi.mock('../src/data/templates.json', () => ({ default: [{
   method: '重铬酸盐法', sheetType: '原始记录', file: 'batch.pdf', phase: '实验室', meta: { detectionLimit: '4mg/L' },
 }] }))
 vi.mock('../src/data/phase', () => ({ templatePhase: () => '实验室' }))
-vi.mock('../src/data/schemas', () => ({ resolveSchema: () => ({
+vi.mock('../src/data/schemas', () => ({ resolveTemplateSchema: () => ({
   id: 'codTitration', columns: [{ key: 'no', label: '样品编号', kind: 'id' }, { key: 'value', label: '结果', kind: 'input' }],
   regression: true,
 }) }))

@@ -845,9 +845,10 @@ watch(() => route.query.queue, loadLaboratoryQueue)
                   <StructuredSheet
                     :key="selected.id + chosenTpl.file"
                     :sample-id="selected.id"
+                    :file="chosenTpl.file"
                     :template-name="chosenTpl.raw"
                     :analyte="chosenTpl.analyte" :method="chosenTpl.method" :matrix="selected.matrix"
-                    :code="chosenTpl.code" :sheet-type="chosenTpl.sheetType"
+                    :code="chosenTpl.code" :sheet-type="chosenTpl.sheetType" :tpl-meta="chosenTpl.meta"
                     :readonly="!can('record_save')" lock-text="只有实验室分析人员能填写检测原始记录" />
                 </div>
               </div>

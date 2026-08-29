@@ -43,7 +43,7 @@ function badgeOf(t: Tpl): Badge {
   return { kind: presentation.bucket, dot: presentation.dot, label: presentation.label }
 }
 function infosOf(status: TemplateStandardStatus): StandardInfo[] {
-  if (status.kind === 'pending' || status.kind === 'managed') return []
+  if (status.kind === 'pending' || status.kind === 'managed' || status.kind === 'controlled') return []
   if ('infos' in status) return status.infos
   return status.info ? [status.info] : []
 }
@@ -94,12 +94,13 @@ const methods = computed(() => [['全部', all.length] as [string, number], ...c
 const stdBuckets: { key: string; dot: Dot; label: string }[] = [
   { key: 'verified', dot: 'good', label: '已核验' },
   { key: 'managed', dot: 'accent', label: '管理记录' },
+  { key: 'controlled', dot: 'accent', label: '受控方法' },
   { key: 'outdated', dot: 'crit', label: '旧版' },
   { key: 'pending', dot: 'warn', label: '待核验' },
   { key: 'retired', dot: '', label: '已停用' },
 ]
 const stdCounts = computed(() => {
-  const m: Record<string, number> = { verified: 0, managed: 0, outdated: 0, pending: 0, retired: 0 }
+  const m: Record<string, number> = { verified: 0, managed: 0, controlled: 0, outdated: 0, pending: 0, retired: 0 }
   for (const t of all) m[kindOf(t)]++
   return m
 })
@@ -232,12 +233,13 @@ function reset() { phase.value = '全部'; sheetType.value = '全部'; matrix.va
             <div v-else class="gap">
               <el-icon class="gapicon"><Document /></el-icon>
               <div v-if="selStatus?.kind==='managed'" class="gaptitle">管理记录不对应单一检测标准</div>
+              <div v-else-if="selStatus?.kind==='controlled'" class="gaptitle">受控方法无对应的单一现行国家标准</div>
               <div v-else-if="selStatus?.kind==='verified'" class="gaptitle">依据已核验，全文尚未入库</div>
               <div v-else-if="selStatus?.kind==='outdated'" class="gaptitle">原依据已被替代</div>
               <div v-else class="gaptitle">依据仍待核验</div>
               <div class="gapbody">
                 <div v-if="selStatus?.basis.length">依据：<b>{{ selBasis }}</b></div>
-                <div v-else-if="selStatus?.kind==='managed'">{{ selEvidence?.note }}</div>
+                <div v-else-if="selStatus?.kind==='managed' || selStatus?.kind==='controlled'">{{ selEvidence?.note }}</div>
                 <div v-else>该表尚无足够证据确认方法依据。</div>
                 <div v-if="selStatus?.kind==='verified' && !selStatus.documentAvailable" class="gapline"><span class="sdot good"></span>核验结论已完成；这里只提示本系统没有可预览的标准全文。</div>
                 <a v-if="selPane?.info?.detail" :href="selPane.info.detail" target="_blank" class="gaplink">查看官方详情 →</a>
@@ -247,7 +249,7 @@ function reset() { phase.value = '全部'; sheetType.value = '全部'; matrix.va
 
           <iframe v-if="view === 'revised'" class="frame revframe" :src="`/优化/${selected.code}.html`" title="修订版"></iframe>
           <iframe v-show="view === 'original'" class="frame" :src="`/sheets/${selected.file}?v=3`" title="记录表预览"></iframe>
-          <StructuredSheet v-if="view === 'system'" :key="selected.file" :analyte="selected.analyte" :method="selected.method" :matrix="selected.matrix" :code="selected.code" :sheet-type="selected.sheetType" :tpl-meta="selected.meta" />
+          <StructuredSheet v-if="view === 'system'" :key="selected.file" :file="selected.file" :analyte="selected.analyte" :method="selected.method" :matrix="selected.matrix" :code="selected.code" :sheet-type="selected.sheetType" :tpl-meta="selected.meta" />
         </div>
         <div v-else class="empty tall">左侧选一张表查看还原效果</div>
       </div>

@@ -15,7 +15,7 @@ export type StandardInfo = {
 const standards = standardsRaw as Record<string, StandardInfo>
 
 export type TemplateStandardEvidence = {
-  kind: 'standard' | 'managed'
+  kind: 'standard' | 'managed' | 'controlled'
   basis?: string[]
   source: string
   verifiedOn: string
@@ -31,7 +31,7 @@ export const templateStandardEvidence = templateEvidenceRaw as Record<string, Te
 
 /** 归一化标准编号：去空格/破折号/斜杠，大写。HJ 491—2019 -> HJ4912019 */
 export function normCode(s: string): string {
-  return (s || '').replace(/[\s—–－/／]/g, '').toUpperCase()
+  return (s || '').replace(/[\s—–－\-/／]/g, '').toUpperCase()
 }
 
 export type StandardStatus =
@@ -43,6 +43,13 @@ export type TemplateStandardStatus =
   | StandardStatus
   | {
       kind: 'managed'
+      basis: string[]
+      info: null
+      documentAvailable: false
+      evidence: TemplateStandardEvidence
+    }
+  | {
+      kind: 'controlled'
       basis: string[]
       info: null
       documentAvailable: false
@@ -97,11 +104,27 @@ export function resolveTemplateStandard(template: TemplateIdentity): TemplateSta
       evidence,
     }
   }
+  if (evidence.kind === 'controlled') {
+    return {
+      kind: 'controlled',
+      basis: evidence.basis || [],
+      info: null,
+      documentAvailable: false,
+      evidence,
+    }
+  }
 
   const basis = evidence.basis || []
   const infos = basis.map(code => standards[normCode(code)]).filter((info): info is StandardInfo => Boolean(info))
+  if (basis.length === 0 || infos.length !== basis.length) {
+    return {
+      kind: 'pending',
+      basis,
+      info: null,
+      documentAvailable: false,
+    }
+  }
   const documentAvailable = basis.length > 0
-    && infos.length === basis.length
     && infos.every(info => Boolean(info.crawled && info.pdf))
   const outdated = infos.find(info => !info.current)
   if (outdated) {

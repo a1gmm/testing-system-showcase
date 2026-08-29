@@ -5,7 +5,7 @@ import { ref, computed, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import templatesJson from '../data/templates.json'
 import { templatePhase } from '../data/phase'
-import { resolveSchema } from '../data/schemas'
+import { resolveTemplateSchema } from '../data/schemas'
 import { projectResultSummary, schemaColumns } from '../data/resultProjection'
 import { isTemplateReadyForEntry } from '../data/templateEntry'
 import { templateMatchesSampleMatrix } from '../data/templateMatrix'
@@ -35,7 +35,7 @@ const candidates = computed(() => {
     .filter(t => !k || (t.raw + t.analyte + t.code + t.method).toLowerCase().includes(k)).slice(0, 40)
 })
 
-const schema = computed(() => (tpl.value ? resolveSchema(tpl.value.sheetType, tpl.value.method, tpl.value.code, undefined) : null))
+const schema = computed(() => (tpl.value ? resolveTemplateSchema(tpl.value) : null))
 // 输入列（id/input），auto 列现算
 const cols = computed(() => schema.value ? schemaColumns(schema.value) : [])
 const sampleIdentityColumn = computed(() => cols.value.find(column =>
