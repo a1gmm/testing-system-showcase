@@ -8,6 +8,7 @@ const r3 = (x: number) => Math.round(x * 1000) / 1000
 // 非甲烷总烃 ρ_NMHC=(ρ_THC−ρ_CH4)×12/16(以碳计)
 const nmhcGC: Schema = {
   id: 'nmhcGC',
+  result: { key: 'nmhc' },
   title: () => '非甲烷总烃 气相色谱法 原始记录表（双通道）',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 90 },
@@ -49,6 +50,7 @@ const nmhcGC: Schema = {
 // ρ=((A₁−a)/b)×(M/Vm)×D；此处以查得浓度 φ(μmol/mol) 录入：ρ=φ×M/Vm×D，Vm参比状态24.5
 const benzeneSeriesGC: Schema = {
   id: 'benzeneSeriesGC',
+  result: { key: 'rho' },
   title: () => '固定污染源废气 苯系物 气相色谱法 原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 100 },

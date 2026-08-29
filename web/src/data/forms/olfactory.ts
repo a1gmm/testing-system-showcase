@@ -227,6 +227,7 @@ export const smellTraining435: Schema = {
 // ===================================================================
 export const smellTaste233: Schema = {
   id: 'smellTaste233',
+  result: { key: 'result', allowText: true },
   title: () => '臭和味分析原始记录',
   columns: [], meta: [], signRoles: ['检测', '复核', '审核'],
   seed: smellTasteSeed,
@@ -244,6 +245,7 @@ export const smellTaste233: Schema = {
 // ===================================================================
 export const smellTaste370: Schema = {
   id: 'smellTaste370',
+  result: { key: 'result', allowText: true },
   title: () => '嗅和味分析原始记录',
   columns: [], meta: [], signRoles: ['检测', '复核', '审核'],
   seed: smellTasteSeed,
@@ -261,6 +263,7 @@ export const smellTaste370: Schema = {
 function smellWaterForm(id: string): Schema {
   return {
     id,
+    result: { key: 'result', allowText: true },
     title: () => '臭分析原始记录',
     columns: [], meta: [], signRoles: ['检测', '复核', '审核'],
     seed: smellTasteSeed,
@@ -284,6 +287,7 @@ export const smell650: Schema = smellWaterForm('smell650')
 // ===================================================================
 export const visibleMatter234: Schema = {
   id: 'visibleMatter234',
+  result: { key: 'result', allowText: true },
   title: () => '肉眼可见物分析原始记录',
   columns: [], meta: [], signRoles: ['检测', '复核', '审核'],
   seed: smellTasteSeed,
@@ -301,6 +305,7 @@ export const visibleMatter234: Schema = {
 // ===================================================================
 export const floatingMatter371: Schema = {
   id: 'floatingMatter371',
+  result: { key: 'result', allowText: true },
   title: () => '漂浮物质分析原始记录',
   columns: [], meta: [], signRoles: ['检测', '复核', '审核'],
   seed: () => Array.from({ length: 8 }, () => ({ id: '', result: '', note: '' })),

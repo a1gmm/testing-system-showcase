@@ -6,6 +6,7 @@ function n(v: any): number | null { const x = parseFloat(v); return isFinite(x) 
 
 const soilMetalAAS: Schema = {
   id: 'soilMetalAAS',
+  result: { key: 'w' },
   title: () => '土壤和沉积物 金属元素的测定 火焰原子吸收分光光度法 原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'],
   seed: () => [],

@@ -28,7 +28,7 @@ import {
   addSystemRecord, listSystemRecords, updateSystemRecord,
   addSubcontract, listSubcontracts, updateSubcontract,
   statsOverview, statsYearly, revokeTestNotice,
-  login, logout, sessionUser, listUsers, createUser, updateUser, resetPassword, changeOwnPassword, hasRole, seedUsers, ROLE_LABEL,
+  login, logout, sessionUser, listUsers, createUser, updateUser, resetPassword, changeOwnPassword, hasRole, bootstrapUsers, ROLE_LABEL,
   needsPasswordChange, corsHeaderValue,
   logAction, listAudit,
   addAttachment, listAttachments, getAttachment, deleteAttachment, ATTACH_ENTITY_TYPES, type AttachEntityType,
@@ -62,16 +62,26 @@ import {
 } from './qualifications.ts'
 import { updateUserPersonnel } from './personnel.ts'
 import { hasBaseBusinessRole, qualificationOnlyRouteAllowed } from './qualificationOnlyRoutePolicy.ts'
+import { DomainError, publicErrorResponse } from './domainError.ts'
 
 const PORT = Number(process.env.PORT) || 3001
 const UPLOAD_DIR = process.env.UPLOAD_DIR || 'uploads'
 const LEGACY_STAGING_DIR=resolveLegacyStagingDir(UPLOAD_DIR,process.env.ATTACHMENT_STAGING_DIR)
 const db = openDb(process.env.DB_PATH || 'data.db',{legacyStagingDir:LEGACY_STAGING_DIR})
 try{gcStagedAttachments(db)}catch(error){console.error('[staging-gc] startup failed; ledger retained',error)}
+bootstrapUsers(db, {
+  mode: process.env.LIMS_BOOTSTRAP_MODE,
+  adminUsername: process.env.BOOTSTRAP_ADMIN_USERNAME,
+  adminName: process.env.BOOTSTRAP_ADMIN_NAME,
+  adminPassword: process.env.BOOTSTRAP_ADMIN_PASSWORD,
+})
 // 演示台账（仪器/标物/试剂）默认不灌：生产上清过的数据不能因为重启又长回来。
-// 本地开发要样例数据：SEED_DEMO=1 npm run dev
-if (process.env.SEED_DEMO === '1') { seedInstruments(db); seedResources(db) }
-seedUsers(db)   // 账号是系统能登录的前提，始终建
+// 本地开发要完整样例：LIMS_BOOTSTRAP_MODE=demo SEED_DEMO=1 npm run dev
+if (process.env.SEED_DEMO === '1') {
+  if (process.env.LIMS_BOOTSTRAP_MODE !== 'demo') throw new Error('SEED_DEMO=1 只能与 LIMS_BOOTSTRAP_MODE=demo 一起使用')
+  seedInstruments(db)
+  seedResources(db)
+}
 try{recoverSubmissions(db,{publish:publishConfirmedSubmission})}catch(error){console.error('[mobile-submission-recovery] failed; receipts retained',error)}
 
 if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true })
@@ -137,32 +147,11 @@ function needLogin(c: Ctx): User {
 function needP(c: Ctx, action: PermAction): User { return need(c, ...PERM[action]) }
 
 function withStableWorkflowError<T>(operation: () => T): T {
-  try {
-    return operation()
-  } catch (error: any) {
-    if (error?.errorCode) throw error
-    const message = String(error?.message || '工作流操作失败')
-    if (/版本冲突|已有新版本/.test(message)) throw httpError(409, '内容已有新版本，请刷新', 'WORKFLOW_STALE_REVISION')
-    if (/指定的复核人|指定的审核人|不是项目指定|只有.*编制人/.test(message)) throw httpError(403, message, 'WORKFLOW_WRONG_ASSIGNEE')
-    if (/没有有效的.*资格|资格.*失效|账号无效/.test(message)) throw httpError(403, message, 'WORKFLOW_QUALIFICATION_REQUIRED')
-    if (/必须不同|不能是同一|不能同时是/.test(message)) throw httpError(409, message, 'WORKFLOW_PERSON_NOT_DISTINCT')
-    if (/归档/.test(message)) throw httpError(409, message, 'ARCHIVE_REQUIRED')
-    throw error
-  }
+  return operation()
 }
 
 function withStableQualificationError<T>(operation: () => T): T {
-  try {
-    return operation()
-  } catch (error: any) {
-    if (error?.errorCode) throw error
-    const message = String(error?.message || '专业审核资格保存失败')
-    if (/不支持的专业审核资格/.test(message)) throw httpError(400, message, 'QUALIFICATION_CODE_INVALID')
-    if (/日期格式|失效日期不能早于生效日期/.test(message)) throw httpError(400, message, 'QUALIFICATION_DATE_INVALID')
-    if (/专业审核资格不能重复/.test(message)) throw httpError(400, message, 'QUALIFICATION_DUPLICATE')
-    if (/用户不存在/.test(message)) throw httpError(404, message, 'USER_NOT_FOUND')
-    throw error
-  }
+  return operation()
 }
 
 function professionalWorkflowForActor(subjectType: string, subjectId: string, actor: User) {
@@ -375,7 +364,7 @@ const routes: [string, string, Handler][] = [
   ['GET', '/api/org-profile', c => { needLogin(c); return getOrgProfile(db) }],
   ['POST', '/api/org-profile', c => { const u = needP(c, 'org_profile'); return updateOrgProfile(db, c.body, u) }],
   // 检测任务派工：qc 按样品×项目派给检测员；检测员看「我的任务」
-  ['GET', '/api/tasks', c => { const u = needLogin(c); const a = c.query.get('assignee'); return listTestTasks(db, { assignee: a === 'me' ? u.name : (a || undefined), sampleId: c.query.get('sampleId') || undefined, unclaimed: c.query.get('unclaimed') === '1' }) }],
+  ['GET', '/api/tasks', c => { const u = needLogin(c); const a = c.query.get('assignee'); return listTestTasks(db, { assignee: a === 'me' ? u.name : (a || undefined), assigneeUsername: a === 'me' ? u.username : undefined, sampleId: c.query.get('sampleId') || undefined, unclaimed: c.query.get('unclaimed') === '1' }) }],
   ['POST', '/api/samples/:id/tasks', c => { const u = needP(c, 'task_assign'); const r = assignTestTasks(db, decodeURIComponent(c.parts[3]), c.body.items, u); logAction(db, decodeURIComponent(c.parts[3]), u, 'tasks_assign', { items: c.body.items }); return r }],
   ['GET', '/api/users/testers', c => { const u = needLogin(c); return maskUserList(listTesters(db), hasRole(u, ...PERM.task_assign)) }],
   ['POST', '/api/handovers/:hid/confirm', c => { const u = needP(c, 'handover_confirm'); const r = confirmHandover(db, Number(c.parts[3]), u); logAction(db, r.sample_id, u, 'handover_confirm', { handover: r.id }); return r }],
@@ -816,6 +805,11 @@ const server = createServer(async (rreq, res) => {
     const result = await fn({ method: rreq.method!, parts: path.split('/'), query: url.searchParams, body, headers: rreq.headers, user, token, setHeader: (name, value) => res.setHeader(name, value) })
     res.writeHead(200); res.end(JSON.stringify(result ?? null))
   } catch (e: any) {
+    if (e instanceof DomainError) {
+      const response = publicErrorResponse(e)
+      if (response.status >= 500) console.error('[500]', rreq.method, path, e)
+      res.writeHead(response.status); return res.end(JSON.stringify(response.body))
+    }
     // 业务校验错（handlers 里 throw new Error）算 400 客户端错误，只有真异常才 500——
     // 否则监控里分不清「用户少填一格」和「服务器炸了」
     const code = e instanceof HttpErr ? e.code

@@ -12,6 +12,8 @@ import SymbolInput from '../components/SymbolInput.vue'
 const route = useRoute()
 import templatesJson from '../data/templates.json'
 import { templatePhase } from '../data/phase'
+import { templateMatchesSampleMatrix } from '../data/templateMatrix'
+import { isTemplateReadyForEntry } from '../data/templateEntry'
 import StructuredSheet from '../components/StructuredSheet.vue'
 import StageQueueNav from '../components/StageQueueNav.vue'
 import WorkflowReviewPanel from '../components/WorkflowReviewPanel.vue'
@@ -27,7 +29,11 @@ const laboratoryAssignment = ref<WorkflowAssignment | null>(null)
 const laboratoryBusy = ref(false)
 const laboratoryError = ref<{ code: string; message: string }>({ code: '', message: '' })
 
-type Tpl = { code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; raw: string; file: string }
+type Tpl = {
+  code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; raw: string; file: string
+  retired?: boolean
+  meta?: { methodFull?: string; detectionLimit?: string; basis?: string }
+}
 const templates = templatesJson as Tpl[]
 
 const MATRICES = ['废水', '地表水', '地下水', '海水', '土壤', '固废', '环境空气', '有组织废气', '无组织废气', '废气', '生活饮用水', '大气降水', '噪声']
@@ -123,12 +129,12 @@ const shown = computed(() => {
   const rows = samples.value.filter(s => {
     if (onlyMine.value && !myTaskSampleIds.value.has(s.id)) return false
     if (contractFilter.value && s.contract_id !== contractFilter.value) return false
-    if (keyword.value) { const k = keyword.value.toLowerCase(); if (!((s.id + s.client + s.matrix + s.items.join('') + (s.contract_id || '')).toLowerCase().includes(k))) return false }
+    if (keyword.value) { const k = keyword.value.toLowerCase(); if (!((s.id + s.client + s.matrix + displayedItems(s).join('') + (s.contract_id || '')).toLowerCase().includes(k))) return false }
     return true
   })
   // 按合同聚合（全站列表原则）：同一家挨在一起再分页，组头才能连续；盲用户合同已脱敏，保持平铺
   if (isBlindView.value) return rows
-  return [...rows].sort((a, b) => String(a.contract_id || '￿').localeCompare(String(b.contract_id || '￿')) || String(a.id).localeCompare(String(b.id)))
+  return [...rows].sort((a, b) => String(a.contract_id || '\uffff').localeCompare(String(b.contract_id || '\uffff')) || String(a.id).localeCompare(String(b.id)))
 })
 // 样品成百上千时全量渲染会卡：轻量分页，每页 50；搜索/筛选变了回到第 1 页
 const PAGE_SIZE = 50
@@ -150,6 +156,10 @@ const isPureTester = computed(() => hasRole('analyst') && !hasRole('tech') && !(
 // 真盲视角（拍板2）：与后端 isBlindViewer 同口径——纯实验室分析人员（不兼质控/采样/商务/管理/签字岗）
 const isBlindView = computed(() => hasRole('analyst') && !hasRole('admin', 'tech', 'qc', 'sales', 'sampler', 'signer'))
 const myTaskSampleIds = computed(() => new Set(myTasks.value.map(t => t.sample_id)))
+function displayedItems(sample: Sample): string[] {
+  if (!onlyMine.value) return sample.items || []
+  return [...new Set(myTasks.value.filter(task => task.sample_id === sample.id).map(task => task.analyte))]
+}
 async function loadMyTasks() {
   try { myTasks.value = await api.listTasks({ assignee: 'me' }) } catch { myTasks.value = [] }
   // 纯实验室分析人员且确实有派给他的活 → 默认只看自己的
@@ -161,12 +171,23 @@ function toggleMine() { touchedMineToggle.value = true; onlyMine.value = !onlyMi
 
 // —— 选中样品 + 选记录表录入 ——
 const selected = ref<Sample | null>(null)
+const selectedItems = computed(() => selected.value ? displayedItems(selected.value) : [])
+const selectedLabAssignment = ref<WorkflowAssignment | null | undefined>(undefined)
 const chosenTpl = ref<Tpl | null>(null)
 const tplKeyword = ref('')
+async function loadSelectedLabAssignment(sample: Sample) {
+  selectedLabAssignment.value = undefined
+  if (!sample.contract_id) return
+  try {
+    const assignments = await api.listWorkflowAssignments(sample.contract_id)
+    if (selected.value?.id === sample.id) selectedLabAssignment.value = assignments.find(item => item.scope === 'laboratory') || null
+  } catch { /* 无权或断网时不误报成“尚未设置” */ }
+}
 async function select(s: Sample) {
   if (selected.value?.id === s.id) return
   if (!(await confirmIfDirty())) return   // 表里有没保存的内容，先拦一道
   selected.value = s; chosenTpl.value = null; tplKeyword.value = ''; showAllTpls.value = false; showHo.value = false; showPre.value = false; showTasks.value = false; loadHandovers(); loadPre(); loadTasks(); loadRetention()
+  void loadSelectedLabAssignment(s)
   // 保存条件从交接单带出（4℃冷藏/加酸这类要求，盲样也要看得到才好干活）
   api.getSample(s.id).then(d => { if (selected.value?.id === s.id) selected.value = { ...selected.value, storage: (d as any).storage } }).catch(() => {})
 }
@@ -178,6 +199,9 @@ async function onBatchSaved() { await refresh(); await loadMyTasks() }
 
 // —— 阶段 7：质控员按样品×项目派给实验室分析人员 ——
 const tasks = ref<TestTask[]>([])
+const visibleTasks = computed(() => onlyMine.value
+  ? tasks.value.filter(task => myTasks.value.some(mine => mine.id === task.id))
+  : tasks.value)
 const showTasks = ref(false)
 const canAssignTasks = computed(() => can('task_assign'))
 const testers = ref<{ username: string; name: string }[]>([])
@@ -403,11 +427,12 @@ const baseTpls = computed(() => {
   const k = tplKeyword.value.toLowerCase()
   return templates
     // 实验室检测步骤只列"实验室"环节的表：把混在原始记录里的现场表（油烟/烟气比对/噪声等）剔掉
-    .filter(t => (!t.matrix || t.matrix === mx) && (t.sheetType === '原始记录' || t.sheetType === '前处理') && templatePhase(t) === '实验室')
+    .filter(t => isTemplateReadyForEntry(t) && templateMatchesSampleMatrix(t, mx)
+      && (t.sheetType === '原始记录' || t.sheetType === '前处理') && templatePhase(t) === '实验室')
     .filter(t => !k || (t.raw + t.analyte + t.code + t.method).toLowerCase().includes(k))
 })
 const matchedTpls = computed(() => {
-  const its = selected.value?.items || []
+  const its = selectedItems.value
   return its.length ? baseTpls.value.filter(t => tplHitsItem(t, its)) : []
 })
 const candidateTpls = computed(() => {
@@ -439,7 +464,7 @@ watch(() => route.query.queue, loadLaboratoryQueue)
       </div>
       <div class="hact">
         <span v-if="samples.length" class="hcount num">在库 {{ samples.length }} 个样品</span>
-        <el-button v-if="activeQueue === 'write' && can('record_save')" :type="batchMode ? 'primary' : 'default'" plain @click="toggleBatch">{{ batchMode ? '返回逐样录入' : '同表批量录入' }}</el-button>
+        <el-button v-if="activeQueue === 'write' && can('record_save')" :type="batchMode ? 'primary' : 'default'" plain @click="toggleBatch">{{ batchMode ? '返回逐样录入' : '批量选择样品录入' }}</el-button>
         <el-button v-if="activeQueue === 'write' && can('sample_create')" type="primary" @click="showReg = !showReg">自送样登记</el-button>
       </div>
     </div>
@@ -555,7 +580,7 @@ watch(() => route.query.queue, loadLaboratoryQueue)
             <div class="filters">
               <span class="chips">
                 <span v-for="[lab, val] in STATUS" :key="val" class="chip" :class="{ on: statusFilter === val }" @click="setStatus(val)">{{ lab }}</span>
-                <span v-if="myTasks.length" class="chip mine" :class="{ on: onlyMine }" @click="toggleMine">我的任务<i class="num">{{ myTaskSampleIds.size }}</i></span>
+                <span v-if="myTasks.length" class="chip mine" :class="{ on: onlyMine }" @click="toggleMine">我的检测任务<i class="num">{{ myTaskSampleIds.size }}</i></span>
               </span>
               <input v-model="keyword" class="search" placeholder="搜编号 / 单位 / 项目 / 委托号…" />
               <span v-if="contractOpts.length" class="pchips">
@@ -574,7 +599,7 @@ watch(() => route.query.queue, loadLaboratoryQueue)
                   <span class="sid mono">{{ s.id }}</span>
                   <span class="sst"><span class="sdot" :class="statusTone[s.status]"></span>{{ statusLabel[s.status] || s.status }}</span>
                 </div>
-                <div class="isub">{{ isBlindView ? '盲样' : (s.client || '（未填单位）') }} · {{ s.matrix }}<span v-if="s.items.length"> · {{ s.items.join('、') }}</span></div>
+                <div class="isub">{{ isBlindView ? '盲样' : (s.client || '（未填单位）') }} · {{ s.matrix }}<span v-if="displayedItems(s).length"> · {{ displayedItems(s).join('、') }}</span></div>
                 <div v-if="s.contract_id" class="ifrom">来自委托 <span class="mono lk">{{ s.contract_id }}</span><span v-if="s.round_id" class="rno">第{{ (s.round_id.match(/-R(\d+)$/) || [])[1] }}期</span></div>
                 <div v-else-if="isBlindView" class="ifrom">盲样模式 · 受检单位与点位不可见</div>
                 <div v-else class="ifrom">自送样 · 客户送检，无委托来源</div>
@@ -603,8 +628,16 @@ watch(() => route.query.queue, loadLaboratoryQueue)
                   <el-button v-else-if="can('handover_send')" size="small" type="warning" :loading="resampleBusy" @click="doResample">补采</el-button>
                 </template>
               </div>
-              <div class="dsub">{{ isBlindView ? '盲样' : (selected.client || '（未填单位）') }} · {{ selected.matrix }}<span v-if="selected.items.length"> · 检测项目：{{ selected.items.join('、') }}</span></div>
+              <div class="dsub">{{ isBlindView ? '盲样' : (selected.client || '（未填单位）') }} · {{ selected.matrix }}<span v-if="selectedItems.length"> · {{ onlyMine ? '我的检测项目' : '检测项目' }}：{{ selectedItems.join('、') }}</span></div>
             </div>
+          </div>
+
+          <div v-if="selected.contract_id && selectedLabAssignment === null" class="lab-assignment-blocker" data-lab-assignment-blocker role="alert">
+            <span>提交复核前，还需为本项目指定实验室复核人和审核人。两人通常必须是不同账号；若下拉只有一个人，请管理员先配置其他人员的有效资格。</span>
+            <span class="blocker-links">
+              <a href="/plans?stage=dispatch" data-go-reviewer-assignment>去④采样指派设置</a>
+              <a v-if="currentUser?.roles.includes('admin')" href="/users">去人员与权限配置资格</a>
+            </span>
           </div>
 
           <div class="steps">
@@ -656,7 +689,7 @@ watch(() => route.query.queue, loadLaboratoryQueue)
                 <span class="step-no">2</span>
                 <span class="step-t">检测任务派工</span>
                 <span class="step-sum">
-                  <template v-if="tasks.length">{{ tasks.map(t => `${t.analyte}→${t.assignee}`).join(' · ') }}</template>
+                  <template v-if="visibleTasks.length">{{ visibleTasks.map(t => `${t.analyte}→${t.assignee}`).join(' · ') }}</template>
                   <template v-else-if="selected.round_id"><em class="warn">还没派活——质量安排审核通过后把项目派给实验室分析人员</em></template>
                   <template v-else>自送样可不派（登记人直接测）</template>
                 </span>
@@ -664,7 +697,7 @@ watch(() => route.query.queue, loadLaboratoryQueue)
               </button>
               <div v-if="showTasks" class="step-body">
                 <div class="ho-timeline">
-                  <div v-for="t in tasks" :key="t.id" class="ho-ev">
+                  <div v-for="t in visibleTasks" :key="t.id" class="ho-ev">
                     <span class="ho-act">{{ t.analyte }}</span>
                     <span class="ho-flow">→ <b>{{ t.assignee }}</b></span>
                     <span class="ho-f" :class="TASK_TONE[t.record_status]">{{ TASK_ST[t.record_status] || t.record_status }}</span>
@@ -813,7 +846,7 @@ watch(() => route.query.queue, loadLaboratoryQueue)
                     :key="selected.id + chosenTpl.file"
                     :sample-id="selected.id"
                     :template-name="chosenTpl.raw"
-                    :analyte="chosenTpl.analyte" :method="chosenTpl.method" :matrix="chosenTpl.matrix || selected.matrix"
+                    :analyte="chosenTpl.analyte" :method="chosenTpl.method" :matrix="selected.matrix"
                     :code="chosenTpl.code" :sheet-type="chosenTpl.sheetType"
                     :readonly="!can('record_save')" lock-text="只有实验室分析人员能填写检测原始记录" />
                 </div>
@@ -836,7 +869,7 @@ watch(() => route.query.queue, loadLaboratoryQueue)
 .hact{display:flex;align-items:center;gap:14px;flex:none}
 .hcount{color:var(--faint);font-size:12.5px}
 
-.split{flex:1;display:grid;grid-template-columns:360px 1fr;gap:16px;min-height:0}
+.split{flex:1;display:grid;grid-template-columns:minmax(300px,340px) minmax(0,1fr);gap:16px;min-height:0}
 .left{display:flex;flex-direction:column;gap:20px;min-height:0}
 .regsec{flex:none}
 .listsec{flex:1;display:flex;flex-direction:column;min-height:0}
@@ -890,6 +923,8 @@ watch(() => route.query.queue, loadLaboratoryQueue)
 .dhead{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex:none}
 .dname{font-size:15px;font-weight:650;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .dsub{font-size:12.5px;color:var(--muted);margin-top:5px}
+.lab-assignment-blocker{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 18px;border-bottom:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);font-size:13px;line-height:1.5}
+.blocker-links{display:flex;flex:none;gap:12px}.blocker-links a{display:inline-flex;align-items:center;min-height:32px;color:var(--accent);font-weight:600;text-decoration:none}.blocker-links a:hover{text-decoration:underline}.blocker-links a:focus-visible{outline:2px solid var(--accent-ring);outline-offset:2px}
 
 /* 分步区块：① 交接确认 → ② 前处理 → ③ 选表录数据 */
 .steps{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
@@ -984,6 +1019,7 @@ button.step-h:hover{background:var(--surface-2)}
 @media (max-width:760px){
   .split{grid-template-columns:1fr}
   .list{max-height:45vh}
+  .lab-assignment-blocker{display:grid}.blocker-links{display:grid;gap:4px}
 }
 .duechip{font-size:11px;color:var(--warn);background:var(--warn-soft);border-radius:20px;padding:1px 8px}
 .duechip.over{color:var(--crit);background:var(--crit-soft)}

@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { openDb } from '../src/db.ts'
-import { createUser, updateUser, resetPassword, changeOwnPassword, listUsers, login, sessionUser, logout, hasRole, seedUsers, listSamplers } from '../src/handlers.ts'
+import { bootstrapUsers, createUser, updateUser, resetPassword, changeOwnPassword, listUsers, login, sessionUser, logout, hasRole, listSamplers } from '../src/handlers.ts'
 
 function freshDb() { return openDb(':memory:') }
 
@@ -67,16 +67,76 @@ test('改密码：本人验原密码，管理员可重置；短密码被拒', ()
   assert.ok(login(db, 'lisi', 'reset123').token)
 })
 
-test('种子用户：8 个岗位齐（含质控员）、密码 123456 可登录、幂等', () => {
+test('演示模式：显式创建 8 个岗位账号（含质控员）、密码 123456 可登录、幂等', () => {
   const db = freshDb()
-  seedUsers(db)
+  bootstrapUsers(db, { mode: 'demo' })
   assert.equal(listUsers(db).length, 8)
   const { user } = login(db, 'demo_admin', '123456')
   assert.ok(user.roles.includes('signer'))
   const qc = listUsers(db).find(u => u.roles.includes('qc'))
   assert.ok(qc, '种子里应有质控员账号')
-  seedUsers(db)   // 再跑不重复
+  bootstrapUsers(db, {})   // 已有账号时不要求重复提供启动配置
   assert.equal(listUsers(db).length, 8)
+})
+
+test('空库：没有显式启动模式时拒绝创建通用账号', () => {
+  const db = freshDb()
+  assert.throws(() => bootstrapUsers(db, {}), /LIMS_BOOTSTRAP_MODE/)
+  assert.equal(listUsers(db).length, 0)
+})
+
+test('生产启动：缺少、默认、短或低多样性密码均拒绝且不回显密码', () => {
+  for (const password of [undefined, '123456', 'short-secret', '                ', 'aaaaaaaaaaaaaaaa']) {
+    const db = freshDb()
+    let message = ''
+    try {
+      bootstrapUsers(db, {
+        mode: 'production',
+        adminUsername: 'initial-admin',
+        adminName: '首位管理员',
+        adminPassword: password,
+      })
+      assert.fail('弱生产启动配置不应成功')
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error)
+    }
+    assert.match(message, /BOOTSTRAP_ADMIN_PASSWORD/)
+    if (password) assert.ok(!message.includes(password), '错误信息不得回显启动密码')
+    assert.equal(listUsers(db).length, 0)
+  }
+})
+
+test('生产启动：强一次性密码只创建一个必须改密的管理员', () => {
+  const db = freshDb()
+  const result = bootstrapUsers(db, {
+    mode: 'production',
+    adminUsername: 'initial-admin',
+    adminName: '首位管理员',
+    adminPassword: 'Correct-Horse-2026!',
+  })
+  assert.equal(result, 'production')
+  assert.equal(listUsers(db).length, 1)
+  const { user } = login(db, 'initial-admin', 'Correct-Horse-2026!')
+  assert.deepEqual(user.roles, ['admin'])
+  assert.equal(user.must_change_pw, true)
+})
+
+test('已有账号：不需要启动变量，也不增删改账号', () => {
+  const db = freshDb()
+  createUser(db, { username: 'owner', name: '现有管理员', roles: ['admin'], password: 'existing-secret' })
+  const before = listUsers(db)
+  assert.equal(bootstrapUsers(db, {}), 'existing')
+  assert.deepEqual(listUsers(db), before)
+  assert.ok(login(db, 'owner', 'existing-secret').token)
+})
+
+test('创建账号：必须显式提供非空初始密码', () => {
+  const db = freshDb()
+  assert.throws(
+    () => createUser(db, { username: 'blank-password', name: '空密码', roles: ['analyst'], password: '' }),
+    /初始密码必填/,
+  )
+  assert.equal(listUsers(db).length, 0)
 })
 
 test('listSamplers：只列在职的采样员/技术负责人（派工下拉用）', () => {

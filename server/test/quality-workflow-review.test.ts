@@ -95,7 +95,11 @@ test('quality plan uses assigned generic review and excludes later QC result val
   const snapshot = getWorkflowView(db, 'quality_plan', round.id)!.revisions[0].snapshot as any
   assert.ok(snapshot.requirements.some((item: any) => item.qcType === '加标回收'))
   assert.equal('qcRecords' in snapshot, false)
-  assert.equal(JSON.stringify(snapshot).includes('9.8'), false)
+  for (const item of [...snapshot.requirements, ...snapshot.adjustments]) {
+    assert.equal('background' in item, false)
+    assert.equal('spikedMeasured' in item, false)
+    assert.equal('spikeAdded' in item, false)
+  }
 })
 
 test('test notice issue and task assignment fail closed until the quality plan is approved', () => {

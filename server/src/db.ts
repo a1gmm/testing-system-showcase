@@ -5,6 +5,7 @@ import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, unl
 import { resolve, sep } from 'node:path'
 import { createHash } from 'node:crypto'
 import { detectImageMime } from './attachmentSecurity.ts'
+import { runMigrations, type Migration } from './migrations.ts'
 
 export type DB = DatabaseSync
 
@@ -769,6 +770,39 @@ export function backfill(db: DB, sql: string, why: string) {
   }
 }
 
+// 兼容早期“逐样签收”入口：只有一张交接单的全部成员都已由同一接收人确认时，
+// 才能安全地把整单升级为 confirmed。部分签收或多人签收保持原状，留给人工核对。
+export function reconcileHandoverConfirmationState(db: DB, sheetId?: string): number {
+  const sheets = db.prepare(`SELECT id,sample_ids FROM handover_sheets
+    WHERE status<>'confirmed'${sheetId ? ' AND id=?' : ''}`).all(...(sheetId ? [sheetId] : [])) as any[]
+  const latest = db.prepare(`SELECT confirmed_by,confirmed_at FROM sample_handovers
+    WHERE sample_id=? AND action='采样交接' ORDER BY at DESC,id DESC LIMIT 1`)
+  let repaired = 0
+  for (const sheet of sheets) {
+    let sampleIds: string[] = []
+    try {
+      const parsed = JSON.parse(sheet.sample_ids || '[]')
+      if (Array.isArray(parsed)) sampleIds = parsed.filter((value): value is string => typeof value === 'string' && value.length > 0)
+    } catch { continue }
+    if (!sampleIds.length) continue
+    const confirmations = sampleIds.map(sampleId => latest.get(sampleId) as any)
+      .filter(item => item?.confirmed_by && item?.confirmed_at)
+    if (confirmations.length !== sampleIds.length) continue
+    const receivers = [...new Set(confirmations.map(item => item.confirmed_by))]
+    if (receivers.length !== 1) continue
+    const confirmedAt = confirmations.map(item => String(item.confirmed_at)).sort().at(-1)!
+    const result = db.prepare(`UPDATE handover_sheets SET status='confirmed',to_person=?,to_at=?
+      WHERE id=? AND status<>'confirmed'`).run(receivers[0], confirmedAt, sheet.id)
+    if (result.changes) {
+      db.prepare(`INSERT INTO audit_log (record_id,who,username,action,detail,at) VALUES (?,?,?,?,?,?)`)
+        .run(sheet.id, '系统', null, 'handover_sheet_confirmation_reconciled',
+          JSON.stringify({ source: 'sample_handover_confirmations', sample_ids: sampleIds, receiver: receivers[0] }), confirmedAt)
+    }
+    repaired += Number(result.changes)
+  }
+  return repaired
+}
+
 // 老库 rounds.sampler 是姓名顿号串。只有每个姓名都唯一命中 users 时才回填 immutable username；
 // 重名、缺账号或脏数据进入 quarantined，管理角色核对并重新派工前不向任何采样员开放。
 export function migrateRoundAssignments(db: DB) {
@@ -867,11 +901,7 @@ function migrateLegacyUserRoles(db: DB) {
       .run(user.username, '系统', null, 'user_role_migrated', JSON.stringify({ from: oldRoles, to: roles, requires_explicit_qualification: true }), at)
   }
 }
-export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
-  const db = new DatabaseSync(path)
-  db.exec('PRAGMA journal_mode = WAL;')
-  db.exec('PRAGMA foreign_keys = ON;')
-  db.exec(SCHEMA)
+function applyLegacySchemaCompatibility(db: DB) {
   addColumn(db, `ALTER TABLE staged_attachments ADD COLUMN sample_slot_id TEXT NOT NULL DEFAULT ''`)
   addColumn(db, `ALTER TABLE staged_attachments ADD COLUMN client_attachment_id TEXT NOT NULL DEFAULT ''`)
   addColumn(db, `ALTER TABLE staged_attachments ADD COLUMN owner_id TEXT NOT NULL DEFAULT ''`)
@@ -949,6 +979,20 @@ export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
   addColumn(db, 'ALTER TABLE contracts ADD COLUMN urgent INTEGER NOT NULL DEFAULT 0')  // 加急标记：列表置顶+红标
   addColumn(db, 'ALTER TABLE test_tasks ADD COLUMN due_at TEXT')     // 完成时限：通知单下达时落到任务，检测员可见
   addColumn(db, 'ALTER TABLE reagents ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0')
+}
+
+const SCHEMA_MIGRATIONS: readonly Migration[] = [{
+  id: '2026082501',
+  name: 'record legacy schema compatibility baseline',
+  up: applyLegacySchemaCompatibility,
+}]
+
+export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
+  const db = new DatabaseSync(path)
+  db.exec('PRAGMA journal_mode = WAL;')
+  db.exec('PRAGMA foreign_keys = ON;')
+  db.exec(SCHEMA)
+  runMigrations(db, SCHEMA_MIGRATIONS)
 
   // —— 幂等回填：条件只认 NULL（=还没回填过的老行），每次启动都跑，失败过也能自动补 ——
   // 存量账号（含默认口令的老账号）一律要求下次登录改密；新库/新账号由代码显式写 0/1，不受影响
@@ -958,6 +1002,21 @@ export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
   // 老样品补来源：既无委托又无期次的是自送样，其余是受托采样
   backfill(db, "UPDATE samples SET source='self' WHERE source IS NULL AND contract_id IS NULL AND round_id IS NULL", 'samples.source 自送样回填')
   backfill(db, "UPDATE samples SET source='field' WHERE source IS NULL", 'samples.source 受托采样回填')
+  reconcileHandoverConfirmationState(db)
+  // 早期版本只把整张交接单标成 confirmed，没有同步成员样品的逐条流水，导致实验室页仍显示“待签收”。
+  // 以最近一张有完整签收人和时间的已确认交接单为准，幂等补齐仍为空的逐条签收字段。
+  backfill(db, `UPDATE sample_handovers
+    SET confirmed_by=(SELECT hs.to_person FROM handover_sheets hs, json_each(hs.sample_ids) member
+      WHERE hs.status='confirmed' AND hs.to_person IS NOT NULL AND hs.to_at IS NOT NULL
+        AND member.value=sample_handovers.sample_id ORDER BY hs.to_at DESC LIMIT 1),
+      confirmed_at=(SELECT hs.to_at FROM handover_sheets hs, json_each(hs.sample_ids) member
+      WHERE hs.status='confirmed' AND hs.to_person IS NOT NULL AND hs.to_at IS NOT NULL
+        AND member.value=sample_handovers.sample_id ORDER BY hs.to_at DESC LIMIT 1)
+    WHERE action='采样交接' AND confirmed_at IS NULL AND EXISTS (
+      SELECT 1 FROM handover_sheets hs, json_each(hs.sample_ids) member
+      WHERE hs.status='confirmed' AND hs.to_person IS NOT NULL AND hs.to_at IS NOT NULL
+        AND member.value=sample_handovers.sample_id
+    )`, '历史整单签收同步到样品交接流水')
   migrateRoundAssignments(db)
   if(options.legacyStagingDir)migrateLegacyStagedFiles(db,options.legacyStagingDir,options)
   return db

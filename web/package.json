@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "check:bundle-budget": "node tools/check-bundle-budget.mjs",
     "preview": "vite preview",
+    "lint": "eslint . --max-warnings=0",
+    "deadcode": "knip --include files,dependencies,unlisted,unresolved --reporter compact",
+    "check": "pnpm lint && pnpm deadcode && pnpm test && pnpm build",
     "test": "vitest run",
     "test:watch": "vitest",
     "体检": "node tools/体检.mjs"
@@ -21,16 +25,23 @@
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/katex": "^0.16.8",
     "@types/node": "^24.13.2",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
+    "eslint": "^10.9.1",
+    "eslint-plugin-vue": "^10.10.0",
     "fake-indexeddb": "^6.2.5",
+    "globals": "^17.11.0",
     "jsdom": "^29.1.1",
+    "knip": "^6.33.0",
     "typescript": "~6.0.2",
+    "typescript-eslint": "^8.68.0",
     "vite": "^8.1.1",
     "vitest": "^4.1.10",
+    "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^3.3.5"
   }
 }

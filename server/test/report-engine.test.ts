@@ -100,6 +100,23 @@ test('结论句式库：单标准全符合 / 不予判定 / 多标准分组 / �
   assert.ok(c5.includes('其它检测项目检测结果符合'), c5)
 })
 
+test('报告生成拒绝没有结果汇总的已批准实验室记录', () => {
+  const db = openDb(':memory:')
+  const sample = createSample(db, { matrix: '废水', items: ['五日生化需氧量'], client: '结果完整性客户' })
+  const record = approveLaboratoryRecord(db, {
+    sampleId: sample.id,
+    code: 'HJ-TC-071',
+    analyte: '五日生化需氧量',
+    method: '稀释与接种法',
+    data: { rows: [{ c1: 8, c2: 3, f: 2, bod: 10 }], meta: {} },
+  })
+
+  assert.throws(
+    () => generateReport(db, sample.id, 2026),
+    new RegExp(`${record.id}.*结果|结果.*${record.id}`),
+  )
+})
+
 test('报告生成：项目归档不能绑定无期次合同样品或无项目样品，legacy路径仍可编制', () => {
   const db = openDb(':memory:')
   const c = createContract(db, { client: '判定厂', plan: [{ matrix: '废水', items: ['COD'], qty: 1 }] })

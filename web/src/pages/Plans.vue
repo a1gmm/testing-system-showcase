@@ -3,7 +3,7 @@ import { ref, computed, nextTick, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { api, currentUser, QC_TYPES, UNIT_OPTS, type DueRound, type RoundDetail, type FieldInfo, type QcRecord, type QcRequirement, type WorkflowAssignment, type WorkflowView, type WorkflowDecisionLevel } from '../api'
-import { can, PAGE_ROLES } from '../permissions'
+import { can } from '../permissions'
 import { confirmIfDirty, hasDirty } from '../utils/dirty'
 import { todayLocal } from '../utils/date'
 import RecordAttachments from '../components/RecordAttachments.vue'
@@ -50,11 +50,16 @@ const reviewBusy = ref(false)
 const reviewError = ref<{ code: string; message: string }>({ code: '', message: '' })
 const activeStage = computed<BusinessStageKey>(() => route.query.stage === 'dispatch' ? 'dispatch' : 'sampling')
 const activeQueue = computed<StageQueueKey>(() => ['write', 'review', 'approve', 'rejected', 'final'].includes(String(route.query.queue)) ? route.query.queue as StageQueueKey : 'write')
-const hasBasePageAccess = computed(() => currentUser.value?.roles.includes('admin')
-  || PAGE_ROLES.plans.some(role => currentUser.value?.roles.includes(role)))
+// 普通工作台会读取期次明细，必须与服务端 assertRoundAccess 的权限边界一致。
+// 只有专业审核资格的其他岗位走本人精确待办，不去请求会被对象权限过滤的全量期次。
+const hasBasePageAccess = computed(() => can('round_assign') || can('round_field'))
 
 function stateOf(r: DueRound) { return r.status === 'failed' ? 'failed' : (r.status === 'cancelled' ? 'cancelled' : (r.status === 'done' ? 'done' : (r.status === 'rescheduled' ? 'rescheduled' : (r.sampler ? 'assigned' : 'todo')))) }
 const stateLabel: Record<string, string> = { todo: '待派工', assigned: '已派工·待采样', done: '已采样', failed: '未采成·待改期', rescheduled: '已改期·待采样', cancelled: '已终止' }
+function isMySamplingRound(r: DueRound) { return !!currentUser.value?.username && (r.sampler_ids || []).includes(currentUser.value.username) }
+function isMyOpenSamplingTask(r: DueRound) { return isMySamplingRound(r) && !['done', 'cancelled'].includes(stateOf(r)) }
+const mySamplingRounds = computed(() => rounds.value.filter(isMyOpenSamplingTask))
+const mySamplingMode = computed(() => activeStage.value === 'dispatch' && activeQueue.value === 'write' && filter.value === 'mine')
 // 状态 → 语义色调（仅用于圆点/胶囊）；已终止不上色（灰）
 const stateTone: Record<string, string> = { todo: 'warn', assigned: 'accent', done: 'good', failed: 'warn', rescheduled: 'accent', cancelled: '' }
 const rollupTone: Record<string, string> = { pending: '', testing: 'accent', review: 'warn', approved: 'good' }
@@ -95,8 +100,12 @@ function queueMatches(r: DueRound) {
     currentUser.value?.username || '', r.sampler_ids || [])
 }
 const shown = computed(() => rounds.value.filter(r => {
-  if (!queueMatches(r)) return false
-  if (filter.value && stateOf(r) !== filter.value) return false
+  if (mySamplingMode.value) {
+    if (!isMyOpenSamplingTask(r)) return false
+  } else {
+    if (!queueMatches(r)) return false
+    if (filter.value && filter.value !== 'mine' && stateOf(r) !== filter.value) return false
+  }
   if (keyword.value) {
     const k = keyword.value.toLowerCase()
     if (!(r.client + (r.project || '') + r.contract_id + (r.sampler || '')).toLowerCase().includes(k)) return false
@@ -124,7 +133,8 @@ function grpSummary(g: { rounds: any[] }): string {
   for (const r of g.rounds) n[stateOf(r)] = (n[stateOf(r)] || 0) + 1
   return (['todo', 'assigned', 'failed', 'rescheduled', 'done'] as const).filter(s => n[s]).map(s => `${stateLabel[s]} ${n[s]}`).join(' · ')
 }
-const alerts = computed(() => rounds.value.filter(r => r.bucket === 'overdue' || r.bucket === 'soon'))
+const alerts = computed(() => rounds.value.filter(r =>
+  (r.bucket === 'overdue' || r.bucket === 'soon') && (!mySamplingMode.value || isMyOpenSamplingTask(r))))
 
 const field = ref<FieldInfo>({})
 // 方案里约定的点位（供现场记录参考，实际不同可改）
@@ -470,7 +480,7 @@ onMounted(() => { if (hasBasePageAccess.value) { refresh(); loadSamplers() } })
   <div class="pagewrap wide">
     <div class="phead">
       <div>
-        <h1 class="page">{{ activeStage === 'dispatch' ? '④ 采样指派' : '⑤ 现场采样' }}</h1>
+        <h1 class="page">{{ hasBasePageAccess && activeStage === 'dispatch' ? '④ 采样指派' : '⑤ 现场采样' }}</h1>
         <p class="sub">按期次聚焦当前岗位的填写、复核、审核、退回和定稿任务</p>
       </div>
       <span v-if="alerts.length" class="hcount num">{{ alerts.length }} 项监测该采样了</span>
@@ -506,7 +516,11 @@ onMounted(() => { if (hasBasePageAccess.value) { refresh(); loadSamplers() } })
         </div>
         <div class="left card">
           <div class="filters">
-            <span class="chips"><span v-for="[v, l] in FILTERS" :key="v" class="chip" :class="{ on: filter === v }" @click="filter = v">{{ l }}</span></span>
+            <span class="chips">
+              <span v-for="[v, l] in FILTERS" :key="v" class="chip" :class="{ on: filter === v }" @click="filter = v">{{ l }}</span>
+              <span v-if="activeStage === 'dispatch' && activeQueue === 'write'" class="chip mine" :class="{ on: filter === 'mine' }"
+                data-my-sampling-tasks @click="filter = 'mine'">我的采样任务 <i class="num">{{ mySamplingRounds.length }}</i></span>
+            </span>
             <input v-model="keyword" class="search" placeholder="搜单位 / 项目 / 委托号 / 采样员…" />
           </div>
           <div class="list" v-loading="loading">
@@ -876,6 +890,7 @@ onMounted(() => { if (hasBasePageAccess.value) { refresh(); loadSamplers() } })
 .chip{font-size:11.5px;padding:3px 10px;border-radius:20px;color:var(--muted);cursor:pointer;transition:background .12s ease,color .12s ease}
 .chip:hover{background:var(--surface-2)}
 .chip.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+.chip.mine{display:inline-flex;align-items:center;gap:4px}.chip.mine i{font-style:normal;color:var(--faint)}
 .search{width:100%;border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:7px 10px;font-size:12.5px;font-family:inherit;background:var(--surface);color:var(--ink)}
 .search:focus{outline:2px solid var(--accent);outline-offset:-1px}
 .list{flex:1;overflow-y:auto}

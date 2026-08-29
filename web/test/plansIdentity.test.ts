@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   route: { query: { stage: 'sampling', queue: 'final' } as Record<string, string> },
   currentUser: { value: { username: 'same-b', name: '同名采样员', roles: ['sampler', 'qc'], status: 'active', created_at: '' } as any },
   assignments: [] as any[],
+  rounds: [] as any[],
   scrollIntoView: vi.fn(),
   round: {
   id: 'ROUND-WEB-ID', contract_id: 'C1', round_no: 1, due_date: '2026-08-01', status: 'pending',
@@ -34,7 +35,7 @@ vi.mock('../src/api', () => ({
   currentUser: mocks.currentUser,
   QC_TYPES: [], UNIT_OPTS: [],
   api: {
-    listAllRounds: vi.fn(async () => [mocks.round]),
+    listAllRounds: vi.fn(async () => mocks.rounds.length ? mocks.rounds : [mocks.round]),
     listSamplers: vi.fn(async () => [
       { username: 'same-a', name: '同名采样员' },
       { username: 'same-b', name: '同名采样员' },
@@ -88,8 +89,34 @@ beforeEach(() => {
     id: 1, contract_id: 'C1', scope: 'sampling', reviewer_username: 'reviewer', approver_username: 'approver',
     active: true, reason: null, assigned_by: 'planner', assigned_at: '2026-08-01',
   }]
+  mocks.rounds = []
   mocks.scrollIntoView.mockReset()
   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: mocks.scrollIntoView })
+})
+
+test('④采样指派可切换到我的采样任务，只显示按账号派给当前人的期次', async () => {
+  mocks.route.query = { stage: 'dispatch', queue: 'write' }
+  mocks.rounds = [
+    { ...mocks.round, id: 'ROUND-MINE', contract_id: 'C-MINE', client: '我的客户', round_no: 2, sampler: '同名采样员', sampler_ids: ['same-b'] },
+    { ...mocks.round, id: 'ROUND-MINE-DONE', contract_id: 'C-MINE-DONE', client: '我的历史客户', round_no: 1, status: 'done', bucket: 'done', sampler: '同名采样员', sampler_ids: ['same-b'] },
+    { ...mocks.round, id: 'ROUND-OTHER', contract_id: 'C-OTHER', client: '其他客户', round_no: 3, sampler: '其他采样员', sampler_ids: ['other-sampler'] },
+    { ...mocks.round, id: 'ROUND-OPEN', contract_id: 'C-OPEN', client: '待派客户', round_no: 4, sampler: null, sampler_ids: [] },
+  ]
+  const wrapper = mount(Plans, { global: { stubs } })
+  await flushPromises()
+
+  expect(wrapper.findAll('.item.ingrp')).toHaveLength(1)
+  expect(wrapper.text()).toContain('待派客户')
+  const mine = wrapper.get('[data-my-sampling-tasks]')
+  expect(mine.text()).toContain('我的采样任务')
+  expect(mine.text()).toContain('1')
+
+  await mine.trigger('click')
+  expect(wrapper.findAll('.item.ingrp')).toHaveLength(1)
+  expect(wrapper.text()).toContain('我的客户')
+  expect(wrapper.text()).not.toContain('我的历史客户')
+  expect(wrapper.text()).not.toContain('其他客户')
+  expect(wrapper.text()).not.toContain('待派客户')
 })
 
 test('采样审核人未指定时计划员可从阻断提示直达人员指定区', async () => {

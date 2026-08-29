@@ -8,6 +8,7 @@ const r4 = (x: number) => Math.round(x * 10000) / 10000
 // 校正吸光度 Ar=(A220样−2A275样)−(A220空−2A275空)；ρ=(Ar−a)/b×(定容/取样)×K
 const dualWaveSample: Schema = {
   id: 'dualWaveSample',
+  result: { key: 'rho' },
   title: () => '双波长紫外分光光度法 原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 90 },
@@ -102,6 +103,7 @@ const dualWaveCalib: Schema = {
 // ── 热灼减率 重量法（HJ1024-2019）P=(m1−m2)/(m1−m0)×100 ──
 const ignitionLoss: Schema = {
   id: 'ignitionLoss',
+  result: { key: 'p' },
   title: () => '固体废物 热灼减率 重量法 原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 100 },
@@ -133,6 +135,7 @@ const ignitionLoss: Schema = {
 // ── 土壤 分光光度法（氰化物HJ745等）ω=(A−A₀−a)×V₁/(b·m·w_dm·V₂) mg/kg ──
 const soilPhotometric: Schema = {
   id: 'soilPhotometric',
+  result: { key: 'w' },
   title: () => '土壤 分光光度法 原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 88 },
@@ -205,6 +208,7 @@ const decolorCalib: Schema = {
 // ρ=[X·A2930+Y·A2960+Z(A3030−A2930/F)]·(V0/Vw)·D − ρ0
 const irOil: Schema = {
   id: 'irOil',
+  result: { key: 'rho' },
   title: () => '水质 石油类/动植物油 红外分光光度法 原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 88 },
@@ -245,6 +249,7 @@ const irOil: Schema = {
 // ── 环境空气 氮氧化物（HJ479）双吸收瓶 ρNOx=ρNO2+ρNO，mg/m³ ──
 const noxAir: Schema = {
   id: 'noxAir',
+  result: { key: 'rho' },
   title: () => '环境空气 氮氧化物 盐酸萘乙二胺分光光度法 原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 82 },

@@ -21,6 +21,9 @@ const task = (scope: 'sampling' | 'quality', level: 'review' | 'approve') => ({
 })
 
 beforeEach(async () => {
+  mocks.actor.username = 'qualified-only'
+  mocks.actor.name = '资格专员'
+  mocks.actor.roles = ['sales']
   mocks.tasks.mockReset().mockResolvedValue([])
   await router.replace('/dashboard')
 })
@@ -42,4 +45,15 @@ test('未指派账号和非精确专业队列不能借 capability 进入基础�
   mocks.tasks.mockResolvedValue([])
   await router.push('/qc?stage=quality&queue=review')
   expect(router.currentRoute.value.fullPath).toBe('/dashboard')
+})
+
+test('具备质控岗位的采样审核人可从历史 dispatch 链接进入精确待办', async () => {
+  mocks.actor.username = 'demo_qc'
+  mocks.actor.name = '吴质控'
+  mocks.actor.roles = ['qc', 'sample_manager']
+  mocks.tasks.mockImplementation(async (scope: string) => scope === 'sampling' ? [task('sampling', 'approve')] : [])
+
+  await router.push('/plans?stage=dispatch&queue=approve')
+
+  expect(router.currentRoute.value.fullPath).toBe('/plans?stage=dispatch&queue=approve')
 })

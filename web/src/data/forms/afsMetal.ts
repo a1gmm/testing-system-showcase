@@ -7,6 +7,7 @@ function n(v: any): number | null { const x = parseFloat(v); return isFinite(x) 
 
 const afsMetal: Schema = {
   id: 'afsMetal',
+  result: { key: 'rho' },
   title: () => '水质 汞、砷、硒、铋和锑的测定 原子荧光法 原始记录表',
   columns: [], meta: [], signRoles: ['检验', '复核', '审核'],
   seed: () => [],

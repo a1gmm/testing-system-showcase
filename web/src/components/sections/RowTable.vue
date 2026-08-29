@@ -11,6 +11,7 @@ const props = defineProps<{
   rows: Record<string, any>[]
   autoVals: (row: Record<string, any>) => Record<string, any>
   locked?: boolean
+  fixedValues?: Record<string, string>
 }>()
 const emit = defineEmits<{ edit: [row: Record<string, any>, label: string] }>()
 
@@ -30,7 +31,7 @@ const hasGroups = computed(() => groupedCols.value.length > 0)
 function addRow() {
   if (props.locked) return
   const blank: Record<string, any> = {}
-  props.columns.forEach(c => (blank[c.key] = ''))
+  props.columns.forEach(c => (blank[c.key] = props.fixedValues?.[c.key] ?? ''))
   props.rows.push(blank)
 }
 async function delRow(i: number) {
@@ -68,6 +69,7 @@ async function delRow(i: number) {
         <tr v-for="(r, i) in rows" :key="i">
           <template v-for="c in columns" :key="c.key">
             <td v-if="c.kind === 'auto'" class="auto">{{ autoVals(r)[c.key] ?? '' }}</td>
+            <td v-else-if="fixedValues?.[c.key]" class="fixed-id"><span data-fixed-sample-id>{{ r[c.key] || fixedValues[c.key] }}</span></td>
             <td v-else><input v-model="r[c.key]" class="f" :class="{ wide: c.kind === 'id' || (c.w && c.w >= 100) }" :disabled="locked" @change="emit('edit', r, c.label)" /></td>
           </template>
           <td class="opcol"><span v-if="!locked" class="del" @click="delRow(i)" title="删除此行">×</span></td>
@@ -92,6 +94,7 @@ input.f:focus{outline:2px solid var(--accent);outline-offset:-2px;background:var
 input.f:disabled{color:var(--ink);opacity:.85;cursor:not-allowed;background:transparent}
 input.f.wide{font-family:var(--font-sans);text-align:left;padding-left:8px;min-width:90px}
 .auto{background:color-mix(in srgb,var(--good) 12%,transparent);font-family:var(--font-mono);font-weight:700;color:var(--good)}
+.fixed-id{min-width:112px;padding:0 8px;text-align:left;background:var(--surface-2);color:var(--ink);font-family:var(--font-mono);font-weight:600}
 .opcol{width:26px} th.opcol{border:0;background:var(--surface-2)}
 .del{color:var(--faint);cursor:pointer;font-size:15px;padding:4px}
 .del:hover{color:var(--crit)}

@@ -104,8 +104,10 @@ const issuedNotices = computed(() => notices.value.filter(x => x.status === 'iss
 const visibleSheets = computed(() => sheets.value.filter(sheet => activeQueue.value === 'write' ? sheet.status === 'draft' : activeQueue.value === 'review' ? sheet.status === 'sent' : activeQueue.value === 'rejected' ? sheet.detail.some(row => row.rejected) : false))
 const canEditQuality = computed(() => currentUser.value?.roles.includes('qc') === true)
 const canAssignReviewers = computed(() => currentUser.value?.roles.some(role => role === 'planner' || role === 'admin') === true)
+const canViewQualityOverview = computed(() => canAssignReviewers.value
+  || currentUser.value?.roles.some(role => role === 'qc' || role === 'tech') === true)
 const qualitySheets = computed(() => confirmedSheets.value.filter(sheet => {
-  if (activeQueue.value === 'write' && canAssignReviewers.value) return true
+  if (activeQueue.value === 'write' && canViewQualityOverview.value) return true
   const workflow = workflowByRound.value[sheet.round_id]
   const assignment = assignmentsByContract.value[sheet.contract_id]?.find(item => item.scope === 'quality')
   const plan = qualityPlanByRound.value[sheet.round_id]
@@ -116,6 +118,12 @@ const qualitySheets = computed(() => confirmedSheets.value.filter(sheet => {
 const selectedQualitySheet = computed(() => confirmedSheets.value.find(sheet => sheet.round_id === selectedRoundId.value) || null)
 const selectedQualityWorkflow = computed(() => selectedRoundId.value ? workflowByRound.value[selectedRoundId.value] || null : null)
 const selectedQualityAssignment = computed(() => selectedQualitySheet.value ? assignmentsByContract.value[selectedQualitySheet.value.contract_id]?.find(item => item.scope === 'quality') || null : null)
+const canEditSelectedQuality = computed(() => canEditQuality.value
+  && (!qualityPlan.value || qualityPlan.value.author_username === currentUser.value?.username))
+const otherQualityAuthorMessage = computed(() => qualityPlan.value && canEditQuality.value
+  && qualityPlan.value.author_username !== currentUser.value?.username
+  ? `本质量计划由账号 ${qualityPlan.value.author_username} 编制，本账号仅可查看。需要修改时请由原编制人操作。`
+  : '')
 const missingQualityAssignmentMessage = computed(() => canAssignReviewers.value
   ? '本项目尚未指定质控复核人和审核人，指定后才能提交复核。'
   : '本项目尚未指定质控复核人和审核人。请联系计划员或管理员指定；当前账号可编制质控安排和派检测任务，不能指定审核人员。')
@@ -272,7 +280,7 @@ const dt = (iso?: string | null) => (iso ? iso.slice(5, 16).replace('T', ' ') : 
             <b>{{ item.qcType }}</b><span>{{ item.matrix || '全部基质' }} · {{ item.analyte || '全部项目' }}</span><span class="num">× {{ item.qty }}</span><small>{{ item.basis || item.note || '项目质控安排' }}</small>
           </div>
         </div>
-        <div v-if="canEditQuality && !selectedQualityWorkflow" class="adjustments">
+        <div v-if="canEditSelectedQuality && !selectedQualityWorkflow" class="adjustments">
           <div v-for="(item, index) in adjustments" :key="index" class="adjustment">
             <input v-model="item.qcType" placeholder="质控类型" /><input v-model="item.matrix" placeholder="基质（可空）" />
             <input v-model="item.analyte" placeholder="项目（可空）" /><input v-model.number="item.qty" type="number" min="1" />
@@ -287,13 +295,14 @@ const dt = (iso?: string | null) => (iso ? iso.slice(5, 16).replace('T', ' ') : 
           :busy="qualityBusy" :error-code="qualityError.code" :error-message="qualityError.message"
           @submit="submitQualityReview" @decide="decideQualityReview" @refresh="refreshSelectedQuality"
           @resolve-qualification-problem="focusQualityAssignment" />
+        <p v-if="otherQualityAuthorMessage" class="quality-readonly" role="status">{{ otherQualityAuthorMessage }}</p>
         <div v-if="canAssignReviewers" ref="qualityAssignmentTarget" data-quality-assignment-target class="assignment-focus-target">
           <WorkflowAssignmentEditor :contract-id="selectedQualitySheet.contract_id"
             :assignments="assignmentsByContract[selectedQualitySheet.contract_id] || []" :scopes="['quality']"
             @saved="onQualityAssignmentSaved" />
         </div>
-        <p v-else-if="qualityError.message" class="errbar" role="alert">{{ qualityError.message }}</p>
-        <p v-else class="empty">尚未保存质控安排。质控员保存后才可提交复核。</p>
+        <p v-if="!canAssignReviewers && qualityError.message" class="errbar" role="alert">{{ qualityError.message }}</p>
+        <p v-else-if="!canAssignReviewers && !qualityPlan" class="empty">尚未保存质控安排。质控员保存后才可提交复核。</p>
       </template>
       <div v-else class="empty">当前队列没有需要处理的质控期次</div>
     </div>
@@ -366,4 +375,5 @@ const dt = (iso?: string | null) => (iso ? iso.slice(5, 16).replace('T', ' ') : 
 .dtl th{text-align:left;color:var(--faint);font-weight:600;padding:4px 8px;border-bottom:1px solid var(--line)}
 .dtl td{padding:5px 8px;border-bottom:1px solid var(--line)}
 .empty{color:var(--faint);font-size:12.5px;padding:8px 0}
+.quality-readonly{padding:10px 12px;margin:12px 0;background:#EAF2FB;color:#2563A6;border-radius:6px;font-size:14px}
 </style>

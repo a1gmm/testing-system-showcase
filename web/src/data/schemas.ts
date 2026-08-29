@@ -40,6 +40,7 @@ export type Schema = {
   id: string
   title: (method: string) => string
   columns: Col[]
+  result?: { key: string; unit?: string; allowText?: boolean }
   compute?: (row: Record<string, any>, ctx: Ctx) => Record<string, number | null>
   fit?: (rows: Record<string, any>[], ctx: Ctx) => { a: number; b: number; r: number } | null
   meta: MetaField[]
@@ -78,6 +79,7 @@ function linfitPts(pts: number[][]) {
 // ============ 原型模板 ============
 const photometric: Schema = {
   id: 'photometric',
+  result: { key: 'rho' },
   title: m => `${m}原始记录表`,
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 110 },
@@ -255,6 +257,7 @@ const calibrationElectrode: Schema = {
 
 const titration: Schema = {
   id: 'titration',
+  result: { key: 'rho' },
   title: () => '容量测量原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 100 },
@@ -295,6 +298,7 @@ const titration: Schema = {
 
 const gravimetric: Schema = {
   id: 'gravimetric',
+  result: { key: 'rho' },
   title: () => '重量测量原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 100 },
@@ -330,6 +334,7 @@ const gravimetric: Schema = {
 
 const ic: Schema = {
   id: 'ic',
+  result: { key: 'rho' },
   title: () => '离子色谱法原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 100 },
@@ -365,6 +370,7 @@ const ic: Schema = {
 
 const chromatographySample: Schema = {
   id: 'chromatographySample',
+  result: { key: 'rho' },
   title: () => '气相色谱法原始记录表',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 100 },
@@ -400,6 +406,7 @@ const chromatographySample: Schema = {
 
 const micro: Schema = {
   id: 'micro',
+  result: { key: 'result' },
   title: () => '微生物检验原始记录表(平皿计数)',
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 100 },
@@ -434,6 +441,7 @@ const micro: Schema = {
 
 const noise: Schema = {
   id: 'noise',
+  result: { key: 'leq' },
   title: () => '噪声测量原始记录表',
   columns: [
     { key: 'point', label: '测点', kind: 'id', w: 80 },
@@ -518,6 +526,7 @@ const handoff: Schema = {
 // 通用兜底（任何未匹配的表：可填数据网格 + 元数据 + 签名）
 const generic: Schema = {
   id: 'generic',
+  result: { key: 'result', allowText: true },
   title: m => `${m || ''}原始记录表`,
   columns: [
     { key: 'id', label: '样品编号', kind: 'id', w: 110 },

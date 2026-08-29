@@ -114,3 +114,21 @@ test('项目存量任务进度显示待迁移，真正无范围的存量任务�
   assert.equal(listTestTasks(db, { sampleId: projectSample.id })[0].record_status, 'migration_required')
   assert.equal(listTestTasks(db, { sampleId: unscopedSample.id })[0].record_status, 'approved')
 })
+
+test('我的检测任务优先按用户名隔离同名账号，只对历史无用户名任务回退姓名', () => {
+  const db = openDb(':memory:')
+  const first = createSample(db, { client: '同名甲', matrix: '废水', items: ['COD'] })
+  const second = createSample(db, { client: '同名乙', matrix: '废水', items: ['COD'] })
+  const legacy = createSample(db, { client: '历史任务', matrix: '废水', items: ['COD'] })
+  const at = new Date().toISOString()
+  db.prepare(`INSERT INTO test_tasks(sample_id,analyte,assignee,assignee_username,assigned_by,assigned_at) VALUES(?,?,?,?,?,?)`)
+    .run(first.id, 'COD', '同名分析员', 'analyst-a', '质控员', at)
+  db.prepare(`INSERT INTO test_tasks(sample_id,analyte,assignee,assignee_username,assigned_by,assigned_at) VALUES(?,?,?,?,?,?)`)
+    .run(second.id, 'COD', '同名分析员', 'analyst-b', '质控员', at)
+  db.prepare(`INSERT INTO test_tasks(sample_id,analyte,assignee,assignee_username,assigned_by,assigned_at) VALUES(?,?,?,?,?,?)`)
+    .run(legacy.id, 'COD', '同名分析员', null, '质控员', at)
+
+  const mine = listTestTasks(db, { assignee: '同名分析员', assigneeUsername: 'analyst-a' })
+  assert.deepEqual(mine.map(task => task.sample_id).sort(), [first.id, legacy.id].sort())
+  db.close()
+})

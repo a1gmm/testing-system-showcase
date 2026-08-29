@@ -3,9 +3,10 @@
 // 两种模式：预览模式(模板库,假数据本地留痕) / 持久化模式(传 sampleId,连后端存取真留痕)
 import { reactive, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import katex from 'katex'
+import 'katex/dist/katex.min.css'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { roundGB } from '../data/schemas'
 import { resolveSchema } from '../data/schemas'
+import { projectResultSummary } from '../data/resultProjection'
 import { normalizeComponents } from '../data/multiComponent'
 import { api, currentUser, type Audit, type RecordData } from '../api'
 import { markDirty, clearDirty } from '../utils/dirty'
@@ -56,6 +57,26 @@ if (rows.length === 0 && schema.layout) {
   }
 }
 
+// 一条实验室记录只属于当前样品。记录表里的“样品编号/质控编号”由系统带入并固定，
+// 防止分析员手抄错号，或把别的样品误填进当前记录。序号、滤筒号、加油机号等业务编号不受影响。
+const schemaColumns = schema.layout
+  ? schema.layout.filter(section => section.type === 'table').flatMap((section: any) => section.columns || [])
+  : schema.columns
+const fixedSampleValues = computed<Record<string, string>>(() => {
+  if (!props.sampleId) return {}
+  return Object.fromEntries(schemaColumns
+    .filter((column: any) => column.kind === 'id' && /^(样品|质控)编号/.test(String(column.label || '')))
+    .map((column: any) => [column.key, props.sampleId!]))
+})
+function enforceSampleIdentity(targetRows: Record<string, any>[]) {
+  for (const row of targetRows) {
+    for (const [key, value] of Object.entries(fixedSampleValues.value)) {
+      row[key] = value
+    }
+  }
+}
+enforceSampleIdentity(rows)
+
 // 元数据
 const meta = reactive<Record<string, any>>({})
 schema.meta.forEach(f => (meta[f.key] = f.key === 'analyte' ? (props.analyte || f.value || '') : (f.value ?? '')))
@@ -88,6 +109,7 @@ const isMulti = componentsList.length > 0 && !schema.layout
 const activeComp = ref(componentsList[0] || '')
 const compRows = reactive<Record<string, Record<string, any>[]>>({})
 if (isMulti) for (const c of componentsList) compRows[c] = isDemo ? schema.seed() : blankRowsFrom(schema.seed())
+if (isMulti) for (const c of componentsList) enforceSampleIdentity(compRows[c])
 // 当前生效的行：多组分时取活动组分那套，否则用共用 rows
 const activeRows = computed<Record<string, any>[]>(() => (isMulti ? compRows[activeComp.value] : rows))
 // 曲线核查按组分分键存，避免组分间串数据
@@ -178,6 +200,8 @@ function applyData(d: any) {
   if (d.meta) Object.assign(meta, d.meta)
   if (d.cells) Object.assign(cells, d.cells)
   if (d.reg && (d.reg.a != null || d.reg.b != null)) { manualReg.a = d.reg.a ?? manualReg.a; manualReg.b = d.reg.b ?? manualReg.b }
+  enforceSampleIdentity(rows)
+  if (isMulti) for (const c of componentsList) enforceSampleIdentity(compRows[c])
 }
 
 // 新建现场表时从监测计划带入日期、单位、点位和项目。这里只做初始种子；
@@ -233,21 +257,8 @@ function finishLoad() {
 }
 onBeforeUnmount(() => clearDirty(dirtyKey))
 
-// 哪一列是「最终结果」，用于出报告 + 冻结留档
-const RESULT_KEY: Record<string, string> = { photometric: 'rho', titration: 'rho', gravimetric: 'rho', ic: 'rho', micro: 'result', generic: 'result' }
 function resultSummary() {
-  const key = RESULT_KEY[schema.id]
-  if (!key) return null
-  const col = schema.columns.find(c => c.key === key)
-  const vals: number[] = []
-  for (const r of activeRows.value) {
-    if (String(r.note ?? '').includes('空白')) continue
-    const v = col?.kind === 'auto' ? autoVals(r)[key] : r[key]
-    if (v != null && v !== '' && !isNaN(+v)) vals.push(+v)
-  }
-  if (!vals.length) return null
-  const value = roundGB(vals.reduce((s, v) => s + v, 0) / vals.length, 4)
-  return { analyte: meta.analyte || props.analyte || '', value, unit: col?.unit || '' }
+  return projectResultSummary(schema, activeRows.value, meta.analyte || props.analyte || '', autoVals)
 }
 // 把自动算的值也烤进每行（冻结留档），供报告与防篡改
 function bakedRows() {
@@ -404,6 +415,7 @@ function logEdit(row: Record<string, any>, label: string) {
           :columns="sec.type === 'table' ? sec.columns : undefined"
           :rows="sec.type === 'table' ? rows : undefined"
           :autoVals="sec.type === 'table' ? autoVals : undefined"
+          :fixedValues="sec.type === 'table' ? fixedSampleValues : undefined"
           @edit="logEdit" />
       </template>
       <template v-else>
@@ -411,7 +423,7 @@ function logEdit(row: Record<string, any>, label: string) {
           <span class="ctlabel">组分（各存一条曲线）</span>
           <button v-for="c in componentsList" :key="c" class="ctab" :class="{ on: activeComp === c }" @click="activeComp = c">{{ c }}</button>
         </div>
-        <RowTable :key="isMulti ? activeComp : 'single'" :columns="schema.columns" :rows="activeRows" :autoVals="autoVals" :locked="locked" @edit="logEdit" />
+        <RowTable :key="isMulti ? activeComp : 'single'" :columns="schema.columns" :rows="activeRows" :autoVals="autoVals" :locked="locked" :fixed-values="fixedSampleValues" @edit="logEdit" />
 
         <div class="meta">
           <div v-for="f in schema.meta" :key="f.key" :class="{ wide2: metaWide(f) }">
@@ -474,7 +486,7 @@ function logEdit(row: Record<string, any>, label: string) {
 .ssheet{padding:18px;overflow:auto;height:100%}
 .tip{display:flex;gap:9px;align-items:center;background:var(--accent-soft);color:var(--accent-ink);border:1px dashed var(--accent);border-radius:9px;padding:9px 13px;font-size:12.5px;margin-bottom:16px}
 .tip .g{color:var(--good);font-weight:600}
-.sheet{border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;font-size:12.5px;max-width:960px}
+.sheet{box-sizing:border-box;width:100%;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;font-size:12.5px}
 .shead{display:flex;justify-content:space-between;padding:7px 11px;border-bottom:1px solid var(--ink);color:var(--muted);font-size:11.5px;background:var(--surface-2)}
 .stitle{text-align:center;font-size:15px;font-weight:700;padding:9px;border-bottom:1.5px solid var(--ink);letter-spacing:1px}
 input.f{width:100%;min-width:56px;height:30px;border:0;background:transparent;text-align:center;font-family:var(--font-mono);font-size:12.5px;color:var(--ink);padding:0 2px}

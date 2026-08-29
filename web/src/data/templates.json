@@ -344,7 +344,7 @@
    "instrument": "JKG-205型冷原子吸收测汞仪",
    "instrumentNo": "TC-032",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006",
+   "basis": "GB/T5750.6-2023",
    "detectionLimit": "0.2ug/L"
   },
   "stage": "样品制备分析"
@@ -362,7 +362,7 @@
    "instrument": "JKG-205型冷原子吸收分光光度计",
    "instrumentNo": "TC-032",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006"
+   "basis": "GB/T5750.6-2023"
   },
   "stage": "样品制备分析"
  },
@@ -1315,7 +1315,7 @@
    "instrument": "WFX-130B原子吸收分光光度计",
    "instrumentNo": "TC-004",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006"
+   "basis": "GB/T5750.6-2023"
   },
   "stage": "样品制备分析"
  },
@@ -1353,7 +1353,7 @@
    "instrumentNo": "TC-004",
    "methodFull": "生活饮用水标准",
    "wavelength": "283.3nm",
-   "basis": "GB/T5750.6-2006",
+   "basis": "GB/T5750.6-2023",
    "slit": "0.4nm",
    "detectionLimit": "2.5ug/L"
   },
@@ -1372,7 +1372,7 @@
    "instrument": "WFX-130B原子吸收分光光度计",
    "instrumentNo": "TC-004",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006"
+   "basis": "GB/T5750.6-2023"
   },
   "stage": "样品制备分析"
  },
@@ -1409,7 +1409,7 @@
    "instrument": "WFX-130B原子吸收分光光度计",
    "instrumentNo": "TC-004",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006"
+   "basis": "GB/T5750.6-2023"
   },
   "stage": "样品制备分析"
  },
@@ -1426,7 +1426,7 @@
    "instrument": "WFX-130B原子吸收分光光度计",
    "instrumentNo": "TC-004",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006"
+   "basis": "GB/T5750.6-2023"
   },
   "stage": "样品制备分析"
  },
@@ -1444,7 +1444,7 @@
    "instrumentNo": "TC-004",
    "methodFull": "生活饮用水标准",
    "wavelength": "228.8nm",
-   "basis": "GB/T5750.6-2006",
+   "basis": "GB/T5750.6-2023",
    "slit": "0.4nm",
    "detectionLimit": "0.01mg/L"
   },
@@ -1483,7 +1483,7 @@
    "instrument": "WFX-130B原子吸收分光光度计",
    "instrumentNo": "TC-004",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006"
+   "basis": "GB/T5750.6-2023"
   },
   "stage": "样品制备分析"
  },
@@ -4313,7 +4313,7 @@
    "instrument": "TAS-990AFG型原子吸收分光光度计",
    "instrumentNo": "TC-059",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006"
+   "basis": "GB/T5750.6-2023"
   },
   "stage": "样品制备分析"
  },
@@ -6540,7 +6540,7 @@
    "instrument": "UV-1801紫外可见分光光度计",
    "instrumentNo": "TC-005",
    "methodFull": "生活饮用水标准",
-   "basis": "GB/T5750.6-2006"
+   "basis": "GB/T5750.6-2023"
   },
   "stage": "样品制备分析"
  },
@@ -6558,7 +6558,7 @@
    "instrumentNo": "TC-005 1*)a(bVVA−",
    "methodFull": "生活饮用水标准",
    "wavelength": "620nm参比溶液：空白b=",
-   "basis": "GB/T5750.6-2006",
+   "basis": "GB/T5750.6-2023",
    "detectionLimit": "0.008mg/L"
   },
   "stage": "样品制备分析"
@@ -7579,7 +7579,7 @@
   "file": "0426.pdf",
   "meta": {
    "methodFull": "地下水硫化物的测定碘量法",
-   "basis": "GB/T5750.5-2006",
+   "basis": "GB/T5750.5-2023",
    "detectionLimit": "1㎎/L"
   },
   "stage": "样品制备分析"

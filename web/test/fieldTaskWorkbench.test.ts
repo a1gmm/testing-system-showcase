@@ -14,7 +14,7 @@ const draft = createFieldTaskDraft(packageData, 1_000_000)
 describe('mobile field task workbench', () => {
   test('each input is serialized to its sample slot and real save button flushes focused value', async () => {
     let revision = 0
-    const saveField = vi.fn(async (command) => ({ ...draft, payload: { ...draft.payload, draftRevision: ++revision, localSavedAt: '2026-08-16T08:05:00.000Z' } }))
+    const saveField = vi.fn(async (_command) => ({ ...draft, payload: { ...draft.payload, draftRevision: ++revision, localSavedAt: '2026-08-16T08:05:00.000Z' } }))
     const authorize = vi.fn(async () => true)
     const wrapper = mount(FieldTaskWorkbench, { props: { draft, online: false, editable: true, authorize, saveField } })
     await wrapper.get('[data-testid="row-0-point"]').setValue('1号排口')
@@ -68,7 +68,7 @@ describe('mobile field task workbench', () => {
 
   test('explicit submission milestone creates only a pending-confirmation submission and keeps save as the sole primary action', async () => {
     const prepare = vi.fn(async () => undefined)
-    const wrapper = mount(FieldTaskWorkbench, { props: { draft, online: true, editable: true, authorize: vi.fn(async()=>true), saveField: vi.fn(), submissionController: { status: 'queued', prepare } } })
+    const wrapper = mount(FieldTaskWorkbench, { props: { draft, online: true, editable: true, authorize: vi.fn(async()=>true), saveField: vi.fn(), submissionController: { status: 'idle', prepare } } })
     expect(wrapper.text()).toContain('已保存到本机')
     expect(wrapper.text()).toContain('尚未创建服务端提交')
     await wrapper.get('[data-testid="prepare-submission"]').trigger('click')
@@ -78,11 +78,20 @@ describe('mobile field task workbench', () => {
   })
 
   test('submission failure stays visible and does not masquerade as completion',async()=>{
-    const wrapper=mount(FieldTaskWorkbench,{props:{draft,online:true,editable:true,authorize:vi.fn(async()=>true),saveField:vi.fn(),submissionController:{status:'queued',prepare:vi.fn(async()=>{throw new Error('ATTACHMENTS_NOT_READY')})}}})
+    const wrapper=mount(FieldTaskWorkbench,{props:{draft,online:true,editable:true,authorize:vi.fn(async()=>true),saveField:vi.fn(),submissionController:{status:'idle',prepare:vi.fn(async()=>{throw new Error('ATTACHMENTS_NOT_READY')})}}})
     await wrapper.get('[data-testid="prepare-submission"]').trigger('click')
     await vi.waitFor(()=>expect(wrapper.get('[data-testid="submission-error"]').text()).toContain('未完成'))
     expect(wrapper.text()).toContain('尚未创建服务端提交')
   })
   test('frozen summary confirmation requires an explicit password and remains a secondary action',async()=>{const confirm=vi.fn(async()=>undefined),wrapper=mount(FieldTaskWorkbench,{props:{draft,online:true,editable:true,authorize:vi.fn(async()=>true),saveField:vi.fn(),confirmationController:{snapshot:{summaryHash:'a'.repeat(64),taskVersion:'v1',ruleVersion:'r1',draftRevision:3,confirmedBy:['user-a']},confirm}}});expect(wrapper.text()).toContain('已确认 1 / 2 人');expect(wrapper.text()).toContain('a'.repeat(64));expect(wrapper.get('[data-testid="confirm-frozen-snapshot"]').attributes('disabled')).toBeDefined();await wrapper.get('[data-testid="confirmation-password"]').setValue('secret');await wrapper.get('[data-testid="confirm-frozen-snapshot"]').trigger('click');expect(confirm).toHaveBeenCalledWith('secret');expect(wrapper.findAll('[data-primary-action="true"]')).toHaveLength(1)})
-  test('readiness and departure checks distinguish milestones and location remains user-triggered',async()=>{const getCurrentPosition=vi.fn((done:any)=>done({coords:{latitude:31,longitude:121,accuracy:180},timestamp:1}));Object.defineProperty(navigator,'geolocation',{configurable:true,value:{getCurrentPosition}});const wrapper=mount(FieldTaskWorkbench,{props:{draft,online:false,editable:true,authorize:vi.fn(async()=>true),saveField:vi.fn(),submissionController:{status:'pending',prepare:vi.fn()}}});expect(wrapper.text()).toContain('出发前离线准备');expect(wrapper.text()).toContain('本机采集完成：未完成');expect(wrapper.text()).toContain('双人确认完成：未完成');expect(wrapper.text()).toContain('正式提交完成：未完成');expect(getCurrentPosition).not.toHaveBeenCalled();await wrapper.get('[data-testid="capture-location"]').trigger('click');await vi.waitFor(()=>expect(wrapper.text()).toContain('low_accuracy'));expect(wrapper.text()).toContain('定位失败不会阻断“保存本机”')})
+  test('readiness and departure checks distinguish milestones and location remains user-triggered',async()=>{const getCurrentPosition=vi.fn((done:any)=>done({coords:{latitude:31,longitude:121,accuracy:180},timestamp:1}));Object.defineProperty(navigator,'geolocation',{configurable:true,value:{getCurrentPosition}});const wrapper=mount(FieldTaskWorkbench,{props:{draft,online:false,editable:false,readonlyReason:'提交已冻结',authorize:vi.fn(async()=>true),saveField:vi.fn(),submissionController:{status:'pending',prepare:vi.fn()}}});expect(wrapper.text()).toContain('出发前离线准备');expect(wrapper.text()).toContain('本机数据：尚未完整保存');expect(wrapper.text()).toContain('双人确认：待确认');expect(wrapper.text()).toContain('正式记录：尚未正式提交');expect(wrapper.text()).toContain('可以离场：暂不可');expect(getCurrentPosition).not.toHaveBeenCalled();await wrapper.get('[data-testid="capture-location"]').trigger('click');await vi.waitFor(()=>expect(wrapper.text()).toContain('low_accuracy'));expect(wrapper.text()).toContain('定位失败不会阻断“保存本机”')})
+
+  test.each(['queued','submitting','unknown_commit','pending','finalizing','complete'])('frozen submission status %s disables every draft mutation control', status => {
+    const wrapper=mount(FieldTaskWorkbench,{props:{draft,online:true,editable:false,readonlyReason:'提交快照已冻结',authorize:vi.fn(async()=>true),saveField:vi.fn(),attachmentController:{enabled:true,list:()=>[{attachmentId:'photo-1',status:'retryable_error',size:1}],add:vi.fn(),retry:vi.fn(),remove:vi.fn(),startUpload:vi.fn()},submissionController:{status,prepare:vi.fn()}}})
+    expect(wrapper.get('[data-testid="field-org"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-testid="attachment-input-0"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-primary-action="true"]').attributes('disabled')).toBeDefined()
+    if(status==='complete')expect(wrapper.get('[data-testid="prepare-submission"]').attributes('disabled')).toBeDefined()
+    else expect(wrapper.get('[data-testid="prepare-submission"]').attributes('disabled')).toBeUndefined()
+  })
 })

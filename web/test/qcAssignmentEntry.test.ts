@@ -89,6 +89,16 @@ test('质控员看到责任角色和自身可操作范围，不显示越权指�
   expect(wrapper.find('[data-quality-assignment-target]').exists()).toBe(false)
 })
 
+test('其他质控员仍能看见已由同事编制的项目但不能修改质量计划', async () => {
+  mocks.currentUser.value = { username: 'another-quality', name: '另一质控员', roles: ['qc'], status: 'active', created_at: '' }
+  const wrapper = mount(Qc, { global: { stubs, directives: { loading: () => undefined } } })
+  await flushPromises()
+
+  expect(wrapper.get('.quality-select').text()).toContain('WT-1')
+  expect(wrapper.text()).toContain('本质量计划由账号 quality-author 编制，本账号仅可查看')
+  expect(wrapper.find('.adjustments').exists()).toBe(false)
+})
+
 test('计划员保存质控指定后立即解除当前项目的未指派阻断', async () => {
   const wrapper = mount(Qc, { global: { stubs, directives: { loading: () => undefined } } })
   await flushPromises()

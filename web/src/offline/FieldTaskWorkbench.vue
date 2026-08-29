@@ -3,11 +3,12 @@ import { computed, reactive, ref, watch } from 'vue'
 import type { FieldTaskDraft } from './fieldTaskDraft'
 import { recoveryActionFor, recoveryText } from './mobileRecovery'
 import { assessFieldReadiness, departureMilestones, requestOneShotLocation, type LocationEvidence } from './fieldReadiness'
+import { submissionStatusText, type FieldSubmissionUiStatus } from './fieldSubmissionState'
 
 type SaveCommand = { scope: 'global' | 'row'; field: string; sampleSlotId?: string; value: unknown; baseValue: unknown; expectedRevision: number }
 type AttachmentView = { attachmentId: string; status: string; size: number }
 type AttachmentController = { enabled: boolean; list: (sampleSlotId: string) => AttachmentView[]; add: (sampleSlotId: string, file: File) => Promise<void>; retry: (sampleSlotId: string, attachmentId: string) => Promise<void>; remove: (sampleSlotId: string, attachmentId: string, confirmed: boolean) => Promise<void>; startUpload: (sampleSlotId: string) => Promise<void> }
-type SubmissionController = { status: string; prepare: () => Promise<void> }
+type SubmissionController = { status: FieldSubmissionUiStatus; prepare: () => Promise<void> }
 type ConfirmationController = { snapshot: { summaryHash:string;taskVersion:string;ruleVersion:string;draftRevision:number;confirmedBy:string[];assignedIds?:string[] }; confirm:(password:string)=>Promise<unknown>; invite?:(intendedConfirmerId:string)=>Promise<{qrPayload:string;expiresAt:string}> }
 const props = defineProps<{
   draft: FieldTaskDraft; online: boolean; editable: boolean; readonlyReason?: string; recoveryNotice?: string
@@ -38,8 +39,10 @@ let saveQueue = Promise.resolve()
 let lastCommand: Omit<SaveCommand, 'expectedRevision' | 'baseValue'> | null = null
 
 watch(() => props.draft, next => {
-  Object.assign(globalFields, next.payload.global)
-  rows.splice(0, rows.length, ...next.payload.rows.map(row => ({ ...row })))
+  if (!saving.value) {
+    Object.assign(globalFields, next.payload.global)
+    rows.splice(0, rows.length, ...next.payload.rows.map(row => ({ ...row })))
+  }
   revision.value = next.payload.draftRevision
   savedAt.value = next.payload.localSavedAt ?? next.updatedAt
 })
@@ -72,7 +75,11 @@ function uploadedCount(sampleSlotId: string) { return attachments(sampleSlotId).
 const statusText: Record<string, string> = { local_saved: '已保存本机', queued: '待上传', uploading: '正在上传整个文件', uploaded_staged: '已上传暂存', retryable_error: '上传失败，可整个文件重试', invalid: '文件无效', auth_required: '需要重新登录', rejected: '服务器拒绝', deleted_tombstone: '已删除（留痕）', storage_error: '本机存储错误' }
 async function pickFile(sampleSlotId: string, event: Event) { const file = (event.target as HTMLInputElement).files?.[0]; if (file && props.attachmentController?.enabled) await props.attachmentController.add(sampleSlotId, file) }
 function confirmAttachmentDelete(){return window.confirm('确定删除这张未正式提交的照片吗？删除会保留审计记录。')}
-const submissionText = computed(() => ({ queued:'尚未创建服务端提交', submitting:'正在创建服务端提交', unknown_commit:'正在确认服务器结果，请勿重复操作', pending:'服务端已接收，等待冻结与确认', finalizing:'服务端正在完成提交', complete:'已取得永久服务端回执', invalid:'提交内容需要修正', rejected:'服务器已拒绝提交' } as Record<string,string>)[props.submissionController?.status ?? 'queued'] ?? '尚未创建服务端提交')
+const submissionText = computed(() => submissionStatusText(props.submissionController?.status ?? 'idle'))
+const canPrepareSubmission = computed(() => {
+  const status=props.submissionController?.status??'idle'
+  return props.online&&!preparingSubmission.value&&status!=='complete'&&(!['idle','invalid','rejected'].includes(status)||props.editable)
+})
 async function prepareSubmission(){if(!props.submissionController||preparingSubmission.value)return;preparingSubmission.value=true;submissionError.value='';try{await props.submissionController.prepare()}catch(error:any){submissionError.value=error?.message==='ATTACHMENTS_NOT_READY'?'仍有照片未完成安全暂存；本机草稿和照片均已保留。':error?.message==='SUBMISSION_RECEIPT_MISMATCH'?'服务器回执与本机内容不一致，已阻断并保留本机数据。':recoveryText(recoveryActionFor(error))}finally{preparingSubmission.value=false}}
 async function confirmFrozenSnapshot(){if(!props.confirmationController||!confirmationPassword.value||confirming.value)return;confirming.value=true;submissionError.value='';try{await props.confirmationController.confirm(confirmationPassword.value);confirmationPassword.value=''}catch(error){submissionError.value=recoveryText(recoveryActionFor(error))}finally{confirming.value=false}}
 async function createConfirmationInvite(){if(!props.confirmationController?.invite||!invitee.value||confirming.value)return;confirming.value=true;submissionError.value='';try{inviteResult.value=await props.confirmationController.invite(invitee.value)}catch(error){submissionError.value=recoveryText(recoveryActionFor(error))}finally{confirming.value=false}}
@@ -80,7 +87,7 @@ async function checkReadiness(){const p=props.draft.payload.package.signedPayloa
 async function captureLocation(){locationEvidence.value=await requestOneShotLocation(navigator.geolocation)}
 const requiredFieldsComplete=computed(()=>Object.entries(globalFields).every(([key,value])=>key==='orgSign'||String(value??'').trim())&&rows.every(row=>['sampleNo','point','time','item','volume','preserve'].every(field=>String(row[field]??'').trim())))
 const attachmentsComplete=computed(()=>rows.every(row=>attachments(row.sampleSlotId).length>0&&attachments(row.sampleSlotId).every(file=>file.status==='uploaded_staged')))
-const milestones=computed(()=>departureMilestones({requiredFieldsComplete:requiredFieldsComplete.value,attachmentsComplete:attachmentsComplete.value,localSaved:!saving.value,confirmationCount:props.confirmationController?.snapshot.confirmedBy.length??0,submissionStatus:props.submissionController?.status??'queued'}))
+const milestones=computed(()=>departureMilestones({requiredFieldsComplete:requiredFieldsComplete.value,attachmentsComplete:attachmentsComplete.value,localSaved:!saving.value,confirmationCount:props.confirmationController?.snapshot.confirmedBy.length??0,submissionStatus:props.submissionController?.status??'idle'}))
 const availableInvitees=computed(()=>{const snapshot=props.confirmationController?.snapshot;if(!snapshot)return[];return(snapshot.assignedIds??[]).filter(id=>!snapshot.confirmedBy.includes(id))})
 </script>
 
@@ -102,7 +109,7 @@ const availableInvitees=computed(()=>{const snapshot=props.confirmationControlle
       <section v-if="submissionController" class="submission-status" aria-labelledby="submission-title">
         <h3 id="submission-title">提交与确认</h3><p aria-live="polite">{{ submissionText }}</p>
         <p v-if="submissionError" data-testid="submission-error" class="save-error" role="alert">{{ submissionError }}</p>
-        <button data-testid="prepare-submission" type="button" class="secondary-action" :disabled="!online || !editable || preparingSubmission || submissionController.status==='complete'" @click="prepareSubmission">{{ preparingSubmission ? '正在处理' : ['unknown_commit','pending','finalizing'].includes(submissionController.status) ? '查询提交状态' : '创建待确认提交' }}</button>
+        <button data-testid="prepare-submission" type="button" class="secondary-action" :disabled="!canPrepareSubmission" @click="prepareSubmission">{{ preparingSubmission ? '正在处理' : ['queued','submitting','unknown_commit','pending','finalizing'].includes(submissionController.status) ? '查询提交状态' : '创建待确认提交' }}</button>
         <p>此动作不会跳过规则重验、双人确认或正式编号步骤。</p>
       </section>
       <section v-if="confirmationController" class="submission-status" aria-labelledby="confirmation-title"><h3 id="confirmation-title">冻结快照双人确认</h3><p>摘要 {{ confirmationController.snapshot.summaryHash }}</p><p>任务 {{ confirmationController.snapshot.taskVersion }} · 规则 {{ confirmationController.snapshot.ruleVersion }} · 草稿修订 {{ confirmationController.snapshot.draftRevision }}</p><p>已确认 {{ confirmationController.snapshot.confirmedBy.length }} / 2 人。请当前登录人员独立核对后重新输入自己的密码。</p><label>当前人员密码<input data-testid="confirmation-password" v-model="confirmationPassword" type="password" autocomplete="current-password" /></label><button data-testid="confirm-frozen-snapshot" type="button" class="secondary-action" :disabled="!online||confirming||!confirmationPassword" @click="confirmFrozenSnapshot">{{ confirming?'正在确认':'确认冻结快照' }}</button><template v-if="confirmationController.invite"><label>邀请另一名采样员<select v-model="invitee"><option value="">请选择</option><option v-for="id in availableInvitees" :key="id" :value="id">{{ id }}</option></select></label><button data-testid="create-confirmation-invite" type="button" class="secondary-action" :disabled="!online||confirming||!invitee" @click="createConfirmationInvite">生成第二设备确认码</button><div v-if="inviteResult" class="invite-code" data-testid="confirmation-invite-code"><strong>{{ inviteResult.qrPayload }}</strong><span>10 分钟内有效；只含一次性随机令牌，不含客户或样品信息。</span></div></template></section>
@@ -139,7 +146,7 @@ const availableInvitees=computed(()=>{const snapshot=props.confirmationControlle
           <p v-if="attachmentController?.enabled">文件上传只进入服务器暂存区，不会自动正式提交记录。</p>
         </section>
       </article>
-      <section class="submission-status departure-check" aria-labelledby="departure-title"><h3 id="departure-title">离场检查</h3><ul><li :class="{done:milestones.localComplete}">本机采集完成：{{ milestones.localComplete?'完成':'未完成' }}</li><li :class="{done:milestones.confirmationComplete}">双人确认完成：{{ milestones.confirmationComplete?'完成':'未完成' }}</li><li :class="{done:milestones.formalSubmissionComplete}">正式提交完成：{{ milestones.formalSubmissionComplete?'完成':'未完成' }}</li></ul><p>这三个状态独立显示；本机完成不会被误写成已正式提交。</p><button data-testid="capture-location" type="button" class="secondary-action" @click="captureLocation">主动记录一次位置</button><p v-if="locationEvidence">定位结果：{{ locationEvidence.status }}<template v-if="locationEvidence.accuracy"> · 精度约 {{ Math.round(locationEvidence.accuracy) }} 米</template></p><label v-if="locationEvidence&&locationEvidence.status!=='captured'">定位说明（拒绝、超时或精度不足时可填写）<textarea v-model="locationNote" placeholder="例如：厂房内无卫星信号，已核对门牌和点位标识" /></label><p>定位失败不会阻断“保存本机”，系统不会后台持续跟踪。</p></section>
+      <section class="submission-status departure-check" aria-labelledby="departure-title"><h3 id="departure-title">离场检查</h3><ul><li :class="{done:milestones.localComplete}">本机数据：{{ milestones.localComplete?'已保存到本机':'尚未完整保存' }}</li><li :class="{done:milestones.confirmationComplete}">双人确认：{{ milestones.confirmationComplete?'已确认':'待确认' }}</li><li :class="{done:milestones.formalSubmissionComplete}">正式记录：{{ milestones.formalSubmissionComplete?'已正式提交':'尚未正式提交' }}</li><li :class="{done:milestones.localComplete}">可以离场：{{ milestones.localComplete?'可以':'暂不可' }}</li></ul><p>本机保存、双人确认和正式提交是三个独立状态。</p><button data-testid="capture-location" type="button" class="secondary-action" @click="captureLocation">主动记录一次位置</button><p v-if="locationEvidence">定位结果：{{ locationEvidence.status }}<template v-if="locationEvidence.accuracy"> · 精度约 {{ Math.round(locationEvidence.accuracy) }} 米</template></p><label v-if="locationEvidence&&locationEvidence.status!=='captured'">定位说明（拒绝、超时或精度不足时可填写）<textarea v-model="locationNote" placeholder="例如：厂房内无卫星信号，已核对门牌和点位标识" /></label><p>定位失败不会阻断“保存本机”，系统不会后台持续跟踪。</p></section>
       <footer><button data-primary-action="true" type="button" :disabled="!editable" @click="flushCurrent">保存本机</button></footer>
     </section>
   </main>

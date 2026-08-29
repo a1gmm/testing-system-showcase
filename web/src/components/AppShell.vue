@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { getCurrentInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import templates from '../data/templates.json'
+import { installAdminUi } from '../adminUi'
 import { api, currentUser, ROLE_LABEL, hasRole } from '../api'
 import { PAGE_ROLES } from '../permissions'
 import { BUSINESS_STAGES } from '../workflow/businessStages'
@@ -10,6 +11,7 @@ import { recoveryIdentityHint, resolveRecoveryNamespace } from '../offline/recov
 
 const route = useRoute()
 const router = useRouter()
+installAdminUi(getCurrentInstance()!.appContext.app)
 const title = computed(() => (route.meta.title as string) || '环境检测 LIMS')
 const roleText = computed(() => (currentUser.value?.roles || []).map(r => ROLE_LABEL[r] || r).join(' · '))
 const recoveryNamespace = computed(() => resolveRecoveryNamespace(currentUser.value, recoveryIdentityHint.value))
@@ -41,7 +43,7 @@ const allGroups = [
     { to: '/customers', label: '客户档案', icon: 'OfficeBuilding', roles: PAGE_ROLES.customers },
     { to: '/instruments', label: '资源台账', icon: 'Cpu', roles: PAGE_ROLES.instruments },
     { to: '/users', label: '人员与权限', icon: 'User', roles: PAGE_ROLES.users },
-    { to: '/templates', label: '记录表模板库', icon: 'Grid', badge: String(templates.length) },
+    { to: '/templates', label: '记录表模板库', icon: 'Grid' },
     { to: '/archive', label: '数据留痕归档', icon: 'Finished', roles: PAGE_ROLES.archive },
   ] },
   { label: '质量体系', items: [
@@ -141,7 +143,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <span></span><span></span><span></span>
         </button>
         <div class="crumb"><b>{{ title }}</b></div>
-        <button class="ksearch" @click="openK">
+        <button class="ksearch" aria-label="搜项目或跳转页面" @click="openK">
           <span>搜项目 / 跳页面…</span>
           <kbd class="key">⌘K</kbd>
         </button>
@@ -152,7 +154,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             <div class="uname">{{ currentUser?.name || '未登录' }}</div>
             <div class="uorg">{{ roleText || '示例环境检测' }}</div>
           </div>
-          <span class="logout" title="退出登录" @click="doLogout">退出</span>
+          <button class="logout" type="button" title="退出登录" @click="doLogout">退出</button>
         </div>
       </header>
       <main class="content">
@@ -185,7 +187,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 .shell.narrow .side{position:fixed;top:0;left:0;bottom:0;width:248px;z-index:60;transform:translateX(-100%);transition:transform .22s ease}
 .shell.narrow.open .side{transform:translateX(0);box-shadow:10px 0 34px -8px rgba(26,26,30,.22)}
 .backdrop{position:fixed;inset:0;background:rgba(26,26,30,.28);z-index:55}
-.burger{width:34px;height:34px;flex:none;display:grid;place-content:center;gap:4px;background:none;border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:0}
+.burger{width:44px;height:44px;flex:none;display:grid;place-content:center;gap:4px;background:none;border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:0}
 .burger span{display:block;width:16px;height:2px;background:var(--ink);border-radius:2px}
 .burger:hover{border-color:var(--accent)}
 .side{background:var(--sidebar);color:var(--sidebar-ink);display:flex;flex-direction:column;padding:14px 12px;gap:2px;overflow-y:auto;border-right:1px solid var(--line)}
@@ -210,7 +212,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 .avatar{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-weight:600;font-size:14px}
 .uname{font-size:13px;font-weight:600}
 .uorg{font-size:11px;color:var(--faint)}
-.logout{font-size:11.5px;color:var(--faint);cursor:pointer;margin-left:6px;padding:3px 9px;border:1px solid var(--line);border-radius:7px}
+.logout{min-height:44px;font:600 12px inherit;color:var(--faint);cursor:pointer;margin-left:6px;padding:8px 12px;border:1px solid var(--line);border-radius:7px;background:var(--surface)}
 .logout:hover{color:var(--crit);border-color:var(--crit)}
 .content{overflow:auto;flex:1;padding:28px 32px}
 /* —— 顶栏搜索入口 + ⌘K 面板 —— */
@@ -231,5 +233,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   .top{padding:0 14px;gap:10px}
   .content{padding:16px 14px}
   .uinfo{display:none}
+}
+@media (max-width:600px){
+  .top{gap:6px;padding:0 10px}
+  .crumb{display:none}
+  .ksearch{width:44px;height:44px;flex:none;justify-content:center;gap:0;margin-left:0;padding:0}
+  .ksearch>span{display:none}
+  .ksearch .key{font-size:0}
+  .ksearch .key::before{content:'⌕';font:600 22px/1 var(--font-sans)}
+  .user{gap:6px}
+  .user :deep(.recovery-entry){width:44px;padding:0;font-size:0}
+  .user :deep(.recovery-entry)::before{content:'↺';font:600 22px/1 var(--font-sans)}
+  .logout{width:44px;margin-left:0;padding:0}
 }
 </style>
