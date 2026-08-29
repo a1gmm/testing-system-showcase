@@ -198,6 +198,13 @@ const chlorophyll: Schema = {
 
 export const gasForms: Record<string, Schema> = {
   'HJ-TC-037': mercuryCVGas, // 汞·废气 冷原子吸收（无波长）
+  'HJ-TC-039': photometricGas, // 铅·环境空气
+  'HJ-TC-045': photometricGas, // 铬·环境空气
+  'HJ-TC-088': photometricGas, // 硫化氢·环境空气/废气
+  'HJ-TC-175': photometricGas, // 苯胺类·环境空气/废气
+  'HJ-TC-376': photometricGas, // 氰化氢·环境空气
+  'HJ-TC-442': photometricGas, // 硝基苯类·环境空气
+  'HJ-TC-444': photometricGas, // 硝基苯类·有组织废气
   'HJ-TC-041': photometricGas, // 镍·环境空气
   'HJ-TC-086': photometricGas, // 二氧化硫·环境空气
   'HJ-TC-190': photometricGas, // 环境空气

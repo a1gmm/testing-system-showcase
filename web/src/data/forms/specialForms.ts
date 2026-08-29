@@ -291,6 +291,7 @@ const noxAir: Schema = {
 }
 
 export const specialForms: Record<string, Schema> = {
+  'HJ-TC-52': dualWaveSample,   // 硝酸盐氮 220/275nm 双波长
   'HJ-TC-094': irOil,           // 石油类 红外 HJ637
   'HJ-TC-118': noxAir,          // 氮氧化物·环境空气 HJ479
   'HJ-TC-097': dualWaveSample,  // 总氮 HJ636
