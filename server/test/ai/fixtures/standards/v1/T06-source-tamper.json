@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T06","scenario":"source_tamper","variants":["host","content_hash","locator"],"expected":{"errorCode":"AI_CITATION_MISSING"}}

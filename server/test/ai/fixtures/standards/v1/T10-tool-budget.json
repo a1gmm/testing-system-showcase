@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T10","scenario":"tool_and_budget_denial","expected":{"toolCode":"AI_TOOL_DENIED","budgetCode":"AI_BUDGET_EXCEEDED","formalWrites":0}}

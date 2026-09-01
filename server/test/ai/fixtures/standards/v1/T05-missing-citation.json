@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T05","scenario":"missing_citation","expected":{"state":"failed","errorCode":"AI_CITATION_MISSING"}}

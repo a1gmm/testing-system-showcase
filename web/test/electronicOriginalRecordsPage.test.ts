@@ -77,6 +77,14 @@ test('报告入口自动读取精确冻结版本并连续呈现全部电子原�
   print.mockRestore()
 })
 
+test('非电子模板归档记录也使用正式表格投影，不再退回通用字段清单', async () => {
+  const wrapper = shallowMount(ElectronicOriginalRecords)
+  await flushPromises()
+
+  expect(wrapper.findAllComponents({ name: 'ArchiveFormalRecord' })).toHaveLength(2)
+  expect(wrapper.findAllComponents({ name: 'ArchiveSnapshotPreview' })).toHaveLength(0)
+})
+
 test('历史报告没有冻结归档时如实说明，绝不伪装成完整记录册', async () => {
   mocks.getReport.mockResolvedValueOnce({ ...report, archive_package_id: null })
   const wrapper = shallowMount(ElectronicOriginalRecords)

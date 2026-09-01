@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T04","scenario":"source_conflict","expected":{"state":"failed","errorCode":"AI_SOURCE_CONFLICT","resolutionState":"requires_human"}}

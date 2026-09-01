@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T03","scenario":"stale_event_and_target","expected":{"staleEventCode":"AI_JOB_STALE","driftState":"superseded","driftCode":"AI_TOOL_CONFLICT"}}

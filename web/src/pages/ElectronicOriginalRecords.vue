@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { api, type ArchiveItem, type ArchivePackage, type Report } from '../api'
-import ArchiveSnapshotPreview from '../components/ArchiveSnapshotPreview.vue'
+import ArchiveFormalRecord from '../components/ArchiveFormalRecord.vue'
 import ArchiveValue from '../components/ArchiveValue.vue'
 import StructuredSheet from '../components/StructuredSheet.vue'
 import {
@@ -174,7 +174,7 @@ onMounted(load)
                 <details class="record-audit"><summary>附件完整性信息</summary><p class="mono hash">{{ item.content_hash }}</p></details>
               </template>
 
-              <ArchiveSnapshotPreview v-else :item="item" />
+              <ArchiveFormalRecord v-else :item="item" />
             </article>
           </section>
         </div>
@@ -195,5 +195,5 @@ onMounted(load)
 .template-missing{margin:18px;padding:16px;border-left:4px solid var(--warn,#B05C00);background:var(--warn-soft,#FFF1DF);color:var(--ink);font-size:13px;line-height:1.6}.template-missing>b{color:var(--warn,#B05C00)}.template-missing>p{margin:4px 0 14px;color:var(--muted)}
 @media(max-width:900px){.reader-toolbar{grid-template-columns:1fr auto}.reader-toolbar>div{display:none}.record-book{padding:20px 12px 48px}.book-cover{min-height:0;padding:32px 24px}.book-cover h1{margin-top:42px;font-size:28px}.book-cover dl{grid-template-columns:1fr}.book-cover dl>div:nth-child(odd){border-right:0}.reader-layout{grid-template-columns:1fr}.book-toc{top:60px;z-index:10;display:flex;overflow-x:auto}.toc-head{display:none}.book-toc>a{min-width:176px;border-right:1px solid var(--line);border-bottom:0}.record-head{grid-template-columns:34px minmax(0,1fr)}.file-action{grid-column:1/-1;justify-content:center}.attachment-pdf{height:620px}}
 @media(max-width:520px){.reader-toolbar{padding:8px 12px}.reader-toolbar button{padding:0 12px}.book-cover dl>div{grid-template-columns:88px minmax(0,1fr)}.book-cover h1{font-size:24px}.stage-head{padding:12px}.attachment-pdf{height:520px}}
-@media print{.no-print{display:none!important}.reader-shell,.record-book{background:#fff}.record-book{padding:0}.book-cover{min-height:270mm;margin:0;border:0;box-shadow:none;break-after:page}.reader-layout{display:block}.book-stage{margin:0;break-before:page}.stage-head{border-color:#555;background:#eee;print-color-adjust:exact;-webkit-print-color-adjust:exact}.book-record{border-color:#777;box-shadow:none;break-before:page}.attachment-pdf{height:230mm}.record-audit{break-inside:avoid}}
+@media print{.no-print{display:none!important}.reader-shell,.record-book{background:#fff}.record-book{padding:0}.book-cover{min-height:270mm;margin:0;border:0;box-shadow:none;break-after:page}.reader-layout{display:block}.book-stage{margin:0;break-before:auto}.stage-head,.stage-empty{display:none}.book-record{margin:0;border:0;box-shadow:none;break-before:page}.record-head{border:1px solid #777;border-bottom:0}.frozen-sheet,.approval-trail,.record-audit{border-left:1px solid #777;border-right:1px solid #777}.record-audit{border-bottom:1px solid #777;break-inside:avoid}.attachment-pdf{height:230mm}}
 </style>
