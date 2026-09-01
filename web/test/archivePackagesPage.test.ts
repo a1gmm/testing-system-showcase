@@ -83,6 +83,17 @@ test('归档页并列呈现可归档、阻塞、已确认和已失效状态，�
   expect(wrapper.text()).toContain('实验室分析还有 2 份记录待审核，暂不能归档')
 })
 
+test('已确认归档提供连续查看电子记录册入口', async () => {
+  const wrapper = mount(ArchivePackages, { global: { directives: { loading: () => undefined } } })
+  await flushPromises()
+
+  const entry = wrapper.get('[data-open-electronic-record-book="confirmed-1"]')
+  expect(entry.text()).toContain('连续查看电子记录册')
+  expect(entry.attributes('href')).toBe('/archive-packages/confirmed-1/original-records')
+  expect(wrapper.get('[data-open-electronic-record-book="invalid-1"]').attributes('href')).toBe('/archive-packages/invalid-1/original-records')
+  expect(wrapper.find('[data-open-electronic-record-book="draft-1"]').exists()).toBe(false)
+})
+
 test('归档阻断按问题类型给出可操作入口', async () => {
   mocks.listArchivePackages.mockResolvedValueOnce([])
   mocks.listProjects.mockResolvedValueOnce([{ id: 'WT-5', client: '入口测试厂' }])
