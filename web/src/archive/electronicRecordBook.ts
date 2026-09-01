@@ -3,7 +3,15 @@ import templatesJson from '../data/templates.json'
 import { templateMatchesAnalyte, type LaboratoryTemplate } from '../data/laboratoryTemplateMatching'
 import { templateMatchesSampleMatrix } from '../data/templateMatrix'
 import { templatePhase } from '../data/phase'
-import { ARCHIVE_STAGES, archiveStageForItem, type ArchiveStageKey } from './archiveViewer'
+import {
+  ARCHIVE_STAGES,
+  archiveAttachmentsForItem,
+  archiveStageForItem,
+  unassignedArchiveAttachmentsForStage,
+  type ArchiveStageKey,
+} from './archiveViewer'
+
+export { archiveAttachmentsForItem }
 
 type RecordTemplate = LaboratoryTemplate & {
   name?: string
@@ -12,7 +20,7 @@ type RecordTemplate = LaboratoryTemplate & {
   meta?: Record<string, any>
 }
 
-export type ElectronicRecordBookSection = (typeof ARCHIVE_STAGES)[number] & { items: ArchiveItem[] }
+export type ElectronicRecordBookSection = (typeof ARCHIVE_STAGES)[number] & { items: ArchiveItem[]; attachments: ArchiveItem[] }
 
 export type FrozenSheet = {
   code: string
@@ -70,6 +78,8 @@ export function electronicRecordBookSections(items: ArchiveItem[]): ElectronicRe
     ...stage,
     items: items
       .filter(item => archiveStageForItem(item) === stage.key)
+      .sort((left, right) => left.item_order - right.item_order),
+    attachments: unassignedArchiveAttachmentsForStage(stage.key, items)
       .sort((left, right) => left.item_order - right.item_order),
   }))
 }

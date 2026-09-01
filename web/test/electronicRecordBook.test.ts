@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import type { ArchiveItem } from '../src/api'
 import {
+  archiveAttachmentsForItem,
   attachmentPresentation,
   electronicRecordBookSections,
   resolveFrozenSheet,
@@ -22,21 +23,28 @@ function item(id: number, entityType: string, snapshot: Record<string, unknown>)
 }
 
 describe('电子原始记录册投影', () => {
-  test('每条冻结归档记录只进入一个阶段且保持归档顺序', () => {
+  test('目录只统计第1至第8类正式单据，内部指派、留痕和附件不单独占记录', () => {
     const items = [
-      item(2, 'round_sheet', { template_code: 'HJ-TC-136', data: { rows: [] } }),
+      item(2, 'round_sheet', { round_id: 'ROUND-1', template_code: 'HJ-TC-136', data: { rows: [] } }),
       item(1, 'contract', { id: 'WT-1' }),
       item(3, 'lab_record_workflow', { record: { templateCode: 'HJ-TC-103', analyte: '化学需氧量', data: { rows: [] } } }),
-      item(4, 'attachment', { id: 'ATT-1', entity_type: 'record', orig_name: '色谱图.pdf', mime: 'application/pdf' }),
+      item(4, 'attachment', { id: 'ATT-1', entity_type: 'record', entity_id: 'lab_record_workflow-3', orig_name: '色谱图.pdf', mime: 'application/pdf' }),
+      item(9, 'attachment', { id: 'ATT-2', entity_type: 'round_sheet', entity_id: 'ROUND-1::HJ-TC-136', orig_name: '现场照片.jpg', mime: 'image/jpeg' }),
       item(5, 'audit_entry', { action: 'approve' }),
+      item(6, 'quality_plan_workflow', { requirements: [] }),
+      item(7, 'assignment', { scope: 'quality' }),
+      item(8, 'report_batch', { name: '第一批报告' }),
     ]
 
     const sections = electronicRecordBookSections(items)
 
-    expect(sections.map(section => section.key)).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', 'audit'])
-    expect(sections.flatMap(section => section.items).map(entry => entry.id)).toEqual([1, 2, 3, 4, 5])
+    expect(sections.map(section => section.key)).toEqual(['1', '2', '3', '4', '5', '6', '7', '8'])
+    expect(sections.flatMap(section => section.items).map(entry => entry.id)).toEqual([1, 2, 6, 3])
     expect(sections.find(section => section.key === '5')?.items.map(entry => entry.id)).toEqual([2])
-    expect(sections.find(section => section.key === '8')?.items.map(entry => entry.id)).toEqual([3, 4])
+    expect(sections.find(section => section.key === '7')?.items.map(entry => entry.id)).toEqual([6])
+    expect(sections.find(section => section.key === '8')?.items.map(entry => entry.id)).toEqual([3])
+    expect(archiveAttachmentsForItem(items[2], items).map(entry => entry.id)).toEqual([4])
+    expect(archiveAttachmentsForItem(items[0], items).map(entry => entry.id)).toEqual([9])
   })
 
   test('实验室原始表使用工作流冻结数据并按项目消除同表号歧义', () => {

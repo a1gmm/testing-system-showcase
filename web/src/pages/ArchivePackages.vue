@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { api, hasRole, type ArchiveItem, type ArchivePackage, type ArchiveReadiness, type ProjectSummary, type ReportBatch } from '../api'
 import ArchiveSnapshotPreview from '../components/ArchiveSnapshotPreview.vue'
-import { ARCHIVE_STAGES, archiveItemSearchText, archiveStageForItem, type ArchiveStageKey } from '../archive/archiveViewer'
+import { ARCHIVE_STAGES, archiveAttachmentsForItem, archiveItemSearchText, archiveStageForItem, isOriginalArchiveItem, type ArchiveStageKey } from '../archive/archiveViewer'
 
 type QueueRow = {
   key: string; scopeKey: string; contractId: string; reportBatchId: string | null; client: string; scopeLabel: string
@@ -21,13 +21,15 @@ const archiveKeyword = ref('')
 const canConfirm = computed(() => hasRole('archivist'))
 const statusLabel = { ready: '待归档', blocked: '阻塞', confirmed: '已确认归档', invalidated: '已失效' } as const
 const scopeKey = (contractId: string, reportBatchId?: string | null) => `${contractId}::${reportBatchId || 'project'}`
+const originalCount = (archive: ArchivePackage) => archive.items.filter(isOriginalArchiveItem).length
+const originalArchiveItems = computed(() => (selectedArchive.value?.items || []).filter(isOriginalArchiveItem))
 const stageRows = computed(() => ARCHIVE_STAGES.map(stage => ({
   ...stage,
-  items: (selectedArchive.value?.items || []).filter(item => archiveStageForItem(item) === stage.key),
+  items: originalArchiveItems.value.filter(item => archiveStageForItem(item) === stage.key),
 })))
 const visibleArchiveItems = computed(() => {
   const keyword = archiveKeyword.value.trim().toLocaleLowerCase()
-  return (selectedArchive.value?.items || []).filter(item => {
+  return originalArchiveItems.value.filter(item => {
     if (selectedStage.value !== 'all' && archiveStageForItem(item) !== selectedStage.value) return false
     return !keyword || archiveItemSearchText(item).includes(keyword)
   })
@@ -37,6 +39,8 @@ const selectedItem = computed<ArchiveItem | null>(() => {
   if (exact && visibleArchiveItems.value.some(item => item.id === exact.id)) return exact
   return visibleArchiveItems.value[0] || null
 })
+const selectedItemAttachments = computed(() => selectedItem.value && selectedArchive.value
+  ? archiveAttachmentsForItem(selectedItem.value, selectedArchive.value.items) : [])
 
 async function refresh() {
   loading.value = true; error.value = ''
@@ -109,7 +113,7 @@ async function confirm(row: QueueRow) {
 function showManifest(archive: ArchivePackage) {
   selectedArchive.value = archive
   selectedStage.value = 'all'
-  selectedItemId.value = archive.items.find(item => item.entity_type !== 'audit_entry')?.id ?? archive.items[0]?.id ?? null
+  selectedItemId.value = archive.items.find(isOriginalArchiveItem)?.id ?? null
   archiveKeyword.value = ''
   manifestOpen.value = true
 }
@@ -145,8 +149,8 @@ onMounted(refresh)
         <div class="detail">
           <p v-if="row.message" :class="{ blocker: row.status === 'blocked' || row.status === 'invalidated' }">{{ row.message }}</p>
           <div v-if="row.archive" class="manifest-summary">
-            <span>归档清单 {{ row.archive.items.length }} 项 · 创建于 {{ fmt(row.archive.created_at) }}</span>
-            <button class="manifest-link" type="button" :data-view-archive="row.archive.id" @click="showManifest(row.archive)">查看全部 {{ row.archive.items.length }} 项</button>
+            <span>原始记录 {{ originalCount(row.archive) }} 项 · 创建于 {{ fmt(row.archive.created_at) }}</span>
+            <button class="manifest-link" type="button" :data-view-archive="row.archive.id" @click="showManifest(row.archive)">查看原始记录 {{ originalCount(row.archive) }} 项</button>
             <a v-if="row.archive.status === 'confirmed' || row.archive.status === 'invalidated'" class="book-link"
               :href="`/archive-packages/${encodeURIComponent(row.archive.id)}/original-records`"
               :data-open-electronic-record-book="row.archive.id">连续查看电子记录册</a>
@@ -172,14 +176,14 @@ onMounted(refresh)
             <span class="archive-status" :class="selectedArchive.status">{{ statusLabel[selectedArchive.status === 'draft' ? 'blocked' : selectedArchive.status] }}</span>
             <b class="mono">归档版本 {{ selectedArchive.version }}</b>
             <span>{{ selectedArchive.report_batch_id ? `报告批次 ${selectedArchive.report_batch_id}` : '项目全部期次' }}</span>
-            <span>{{ selectedArchive.items.length }} 项</span>
+            <span>{{ originalArchiveItems.length }} 项原始记录</span>
           </div>
           <p>这里显示报告实际引用的冻结版本。选择左侧业务步骤，再从中间打开具体记录。</p>
         </div>
-        <div v-if="selectedArchive.items.length" class="archive-viewer">
+        <div v-if="originalArchiveItems.length" class="archive-viewer">
           <nav class="stage-nav" aria-label="第1至第8步档案导航">
             <button type="button" :class="{ active: selectedStage === 'all' }" data-archive-stage="all" @click="selectStage('all')">
-              <span class="stage-number">全部</span><span><b>全部原始档案</b><small>按归档顺序查看</small></span><em>{{ selectedArchive.items.length }}</em>
+              <span class="stage-number">全部</span><span><b>全部原始记录</b><small>按归档顺序查看</small></span><em>{{ originalArchiveItems.length }}</em>
             </button>
             <button v-for="stage in stageRows" :key="stage.key" type="button" :class="{ active: selectedStage === stage.key }"
               :data-archive-stage="stage.key" @click="selectStage(stage.key)">
@@ -199,11 +203,11 @@ onMounted(refresh)
             </div>
           </section>
           <div class="preview-pane">
-            <ArchiveSnapshotPreview v-if="selectedItem" :item="selectedItem" />
+            <ArchiveSnapshotPreview v-if="selectedItem" :item="selectedItem" :attachments="selectedItemAttachments" />
             <p v-else class="manifest-empty">请选择一条记录查看原始内容。</p>
           </div>
         </div>
-        <p v-else class="manifest-empty">该归档版本没有清单项。</p>
+        <p v-else class="manifest-empty">该归档版本没有符合第 1–8 类的正式单据。</p>
       </section>
     </el-dialog>
   </div>

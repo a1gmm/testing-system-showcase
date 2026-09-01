@@ -155,7 +155,7 @@ test('已确认归档向只读角色提供查看全部清单入口并显示冻�
   await flushPromises()
 
   const viewButton = wrapper.get('[data-view-archive="confirmed-1"]')
-  expect(viewButton.text()).toContain('查看全部 9 项')
+  expect(viewButton.text()).toContain('查看原始记录 8 项')
   await viewButton.trigger('click')
 
   const manifest = wrapper.get('[data-archive-manifest="confirmed-1"]')
@@ -170,7 +170,8 @@ test('已确认归档向只读角色提供查看全部清单入口并显示冻�
   expect(manifest.get('[data-archive-stage="6"]').text()).toContain('样品交接')
   expect(manifest.get('[data-archive-stage="7"]').text()).toContain('质控')
   expect(manifest.get('[data-archive-stage="8"]').text()).toContain('实验室分析')
-  expect(manifest.get('[data-archive-stage="audit"]').text()).toContain('1')
+  expect(manifest.find('[data-archive-stage="audit"]').exists()).toBe(false)
+  expect(manifest.text()).not.toContain('报告批次 第一批报告')
   const contractPreview = manifest.get('[data-archive-preview="1"]')
   expect(contractPreview.text()).toContain('受理时间')
   expect(contractPreview.text()).toContain('创建时间')
@@ -219,5 +220,5 @@ test('空归档版本给出明确提示', async () => {
   await flushPromises()
   await wrapper.get('[data-view-archive="empty-1"]').trigger('click')
 
-  expect(wrapper.get('[data-archive-manifest="empty-1"]').text()).toContain('该归档版本没有清单项')
+  expect(wrapper.get('[data-archive-manifest="empty-1"]').text()).toContain('没有符合第 1–8 类的正式单据')
 })
