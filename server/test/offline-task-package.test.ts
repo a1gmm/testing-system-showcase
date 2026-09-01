@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { spawn } from 'node:child_process'
 import { openDb } from '../src/db.ts'
 import { assignRound, cancelRound, createContract, createUser, deviceBindingFingerprint, issueOfflineTaskPackage } from '../src/handlers.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 
 function setup() {
   const db = openDb(':memory:')
@@ -128,9 +129,8 @@ test('真实 HTTP 响应禁止缓存，且客户端请求不能开启未安装�
     db.prepare(`INSERT INTO rounds (id,contract_id,round_no,due_date,items,status,created_at) VALUES ('ROUND-HTTP-OFFLINE',?,1,'2026-08-16','[{"matrix":"废水","items":["COD"],"qty":1}]','pending','2026-08-16')`).run(contract.id)
     createUser(db, { username: 'http-sampler', name: 'HTTP采样', roles: ['sampler'], password: 'secret1' }); db.prepare(`UPDATE users SET must_change_pw=0 WHERE username='http-sampler'`).run(); assignRound(db, 'ROUND-HTTP-OFFLINE', ['http-sampler']); db.close()
     child = spawn(process.execPath, ['src/server.ts'], { cwd: join(import.meta.dirname, '..'), env: { ...process.env, PORT: String(port), DB_PATH: path, OFFLINE_WRITE_ENABLED: 'true', SENSITIVE_OFFLINE_PACKAGE_ENABLED: 'true', OFFLINE_PACKAGE_SIGNING_PRIVATE_KEY: keys.privateKey }, stdio: 'ignore' })
-    const base = `http://127.0.0.1:${port}`; let login: Response | undefined
-    for (let i = 0; i < 40; i++) { try { login = await fetch(base + '/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'http-sampler', password: 'secret1' }) }); if (login.ok) break } catch {} await new Promise(r => setTimeout(r, 25)) }
-    const token = (await login!.json() as any).token
+    const base = `http://127.0.0.1:${port}`
+    const token = await loginToTestServer(base, 'http-sampler', 'secret1')
     const response = await fetch(base + '/api/rounds/ROUND-HTTP-OFFLINE/offline-package', { headers: { authorization: `Bearer ${token}`, 'x-managed-device-id': 'client-cannot-bypass', 'x-managed-device-proof': 'fake' } })
     assert.equal(response.status, 403)
     assert.equal(response.headers.get('cache-control'), 'private, no-store')

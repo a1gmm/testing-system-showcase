@@ -92,3 +92,66 @@ test('只有档案管理员能看到确认归档主动作', async () => {
   await flushPromises()
   expect(readOnly.find('[data-confirm-archive="ready-1"]').exists()).toBe(false)
 })
+
+test('已确认归档向只读角色提供查看全部清单入口并显示冻结版本资料', async () => {
+  const confirmed = pkg('confirmed-1', 'WT-3', 'confirmed')
+  confirmed.items = [
+    {
+      id: 1, archive_package_id: confirmed.id, item_order: 1, entity_type: 'contract', entity_id: 'WT-3',
+      workflow_instance_id: null, revision: null, content_hash: 'a'.repeat(64), label: '委托合同 WT-3', metadata: { snapshot: {} },
+    },
+    {
+      id: 2, archive_package_id: confirmed.id, item_order: 2, entity_type: 'lab_record_workflow', entity_id: 'LAB-1',
+      workflow_instance_id: 'WF-LAB-1', revision: 4, content_hash: 'b'.repeat(64), label: '实验室记录批准版本 LAB-1', metadata: { snapshot: {} },
+    },
+  ]
+  mocks.roles = ['report_editor']
+  mocks.listArchivePackages.mockResolvedValueOnce([confirmed])
+  mocks.listProjects.mockResolvedValueOnce([{ id: 'WT-3', client: '丙厂' }])
+
+  const wrapper = mount(ArchivePackages, { global: { directives: { loading: () => undefined } } })
+  await flushPromises()
+
+  const viewButton = wrapper.get('[data-view-archive="confirmed-1"]')
+  expect(viewButton.text()).toContain('查看全部 2 项')
+  await viewButton.trigger('click')
+
+  const manifest = wrapper.get('[data-archive-manifest="confirmed-1"]')
+  const manifestItems = manifest.findAll('.manifest-list li')
+  expect(manifestItems.map(item => item.text())).toEqual([
+    expect.stringContaining('委托合同 WT-3'),
+    expect.stringContaining('实验室记录批准版本 LAB-1'),
+  ])
+  expect(manifest.text()).toContain('定稿版本 4')
+  expect(manifest.text()).toContain(`SHA-256 ${'b'.repeat(64)}`)
+})
+
+test('已失效历史版本保留只读清单入口', async () => {
+  const invalidated = pkg('invalid-1', 'WT-4', 'invalidated')
+  invalidated.items = [{
+    id: 3, archive_package_id: invalidated.id, item_order: 1, entity_type: 'contract', entity_id: 'WT-4',
+    workflow_instance_id: null, revision: null, content_hash: 'c'.repeat(64), label: '委托合同 WT-4', metadata: { snapshot: {} },
+  }]
+  mocks.roles = ['report_editor']
+  mocks.listArchivePackages.mockResolvedValueOnce([invalidated])
+  mocks.listProjects.mockResolvedValueOnce([{ id: 'WT-4', client: '丁厂' }])
+
+  const wrapper = mount(ArchivePackages, { global: { directives: { loading: () => undefined } } })
+  await flushPromises()
+
+  expect(wrapper.text()).toContain('上游撤回')
+  await wrapper.get('[data-view-archive="invalid-1"]').trigger('click')
+  expect(wrapper.get('[data-archive-manifest="invalid-1"]').text()).toContain('委托合同 WT-4')
+})
+
+test('空归档版本给出明确提示', async () => {
+  mocks.roles = ['report_editor']
+  mocks.listArchivePackages.mockResolvedValueOnce([pkg('empty-1', 'WT-5', 'confirmed')])
+  mocks.listProjects.mockResolvedValueOnce([{ id: 'WT-5', client: '戊厂' }])
+
+  const wrapper = mount(ArchivePackages, { global: { directives: { loading: () => undefined } } })
+  await flushPromises()
+  await wrapper.get('[data-view-archive="empty-1"]').trigger('click')
+
+  expect(wrapper.get('[data-archive-manifest="empty-1"]').text()).toContain('该归档版本没有清单项')
+})

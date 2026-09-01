@@ -9,12 +9,15 @@ import { resolveTemplateSchema } from '../data/schemas'
 import { projectResultSummary, schemaColumns } from '../data/resultProjection'
 import { isTemplateReadyForEntry } from '../data/templateEntry'
 import { templateMatchesSampleMatrix } from '../data/templateMatrix'
+import { templateMatchesAnyAnalyte } from '../data/laboratoryTemplateMatching'
 import { api, currentUser, hasRole, type Sample, type TestTask } from '../api'
 import { todayLocal } from '../utils/date'
 import { markDirty, clearDirty, confirmIfDirty } from '../utils/dirty'
 
 type Tpl = {
   code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; raw: string; file: string
+  applicableMatrices?: string[]
+  applicableAnalytes?: string[]
   retired?: boolean
   meta?: { methodFull?: string; detectionLimit?: string; basis?: string }
 }
@@ -49,21 +52,13 @@ function blankRowFor(sampleId: string) {
 }
 
 // 候选样品：tech 看全部待检样品；实验室分析人员只看质控派给自己的项目匹配这张表的
-function analyteHits(items: string[], analyte: string, raw = '') {
-  const a = analyte.toLowerCase()
-  const source = raw.toLowerCase()
-  return items.some(it => {
-    const s = it.toLowerCase().trim()
-    return !!s && ((a && (a.includes(s) || s.includes(a))) || source.includes(s))
-  })
-}
 const pickable = computed<Sample[]>(() => {
   if (!tpl.value) return []
   const t = tpl.value
   const base = props.samples.filter(s => s.status !== 'done' && templateMatchesSampleMatrix(t, s.matrix)
-    && (!s.items.length || analyteHits(s.items, t.analyte, t.raw)))
+    && (!s.items.length || templateMatchesAnyAnalyte(t, s.items)))
   if (hasRole('tech')) return base
-  const mine = new Set(props.myTasks.filter(k => analyteHits([k.analyte], t.analyte, t.raw)).map(k => k.sample_id))
+  const mine = new Set(props.myTasks.filter(k => templateMatchesAnyAnalyte(t, [k.analyte])).map(k => k.sample_id))
   return base.filter(s => mine.has(s.id))
 })
 

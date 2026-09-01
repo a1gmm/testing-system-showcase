@@ -132,3 +132,104 @@ test('已完成修订对照的模板可以进入正式样品录入', async () =>
 
   expect(wrapper.get('.pk-list').text()).toContain('HJ-TC-003')
 })
+
+test('废水样品同时有氨氮和化学需氧量时显示两张测量原始记录表', async () => {
+  const wastewaterSample = { ...sample, items: ['氨氮', '化学需氧量'] }
+  const { api } = await import('../src/api')
+  vi.mocked(api.listSamples).mockResolvedValueOnce([wastewaterSample])
+  vi.mocked(api.getSample).mockResolvedValueOnce(wastewaterSample)
+
+  const wrapper = mount(Samples, {
+    global: {
+      stubs: {
+        'el-button': { template: '<button><slot /></button>' },
+        'el-pagination': { template: '<div />' },
+        'el-icon': { template: '<i><slot /></i>' },
+        'el-tag': { template: '<span><slot /></span>' },
+        'el-input': { template: '<input />' },
+        ArrowRight: { template: '<i />' },
+        RecordAttachments: true,
+        BatchEntry: true,
+        SymbolInput: true,
+        StructuredSheet: true,
+      },
+      directives: { loading: () => undefined },
+    },
+  })
+  await flushPromises()
+
+  await wrapper.get('.item').trigger('click')
+  await flushPromises()
+
+  const choices = wrapper.get('.pk-list').text()
+  expect(choices).toContain('HJ-TC-092')
+  expect(choices).toContain('HJ-TC-103')
+  expect(wrapper.get('.pk-scope').text()).toContain('项目覆盖 2/2 可录')
+})
+
+test('完全没有适用表的检测项目会明确提示且默认不铺无关记录表', async () => {
+  const unknownItemSample = { ...sample, items: ['完全不存在项目'] }
+  const { api } = await import('../src/api')
+  vi.mocked(api.listSamples).mockResolvedValueOnce([unknownItemSample])
+  vi.mocked(api.getSample).mockResolvedValueOnce(unknownItemSample)
+
+  const wrapper = mount(Samples, {
+    global: {
+      stubs: {
+        'el-button': { template: '<button><slot /></button>' },
+        'el-pagination': { template: '<div />' },
+        'el-icon': { template: '<i><slot /></i>' },
+        'el-tag': { template: '<span><slot /></span>' },
+        'el-input': { template: '<input />' },
+        ArrowRight: { template: '<i />' },
+        RecordAttachments: true,
+        BatchEntry: true,
+        SymbolInput: true,
+        StructuredSheet: true,
+      },
+      directives: { loading: () => undefined },
+    },
+  })
+  await flushPromises()
+
+  await wrapper.get('.item').trigger('click')
+  await flushPromises()
+
+  const warning = wrapper.get('[data-template-coverage-warning]').text()
+  expect(warning).toContain('完全不存在项目')
+  expect(warning).toContain('未找到该基质下的实验室原始记录表')
+  expect(wrapper.findAll('.pk-list .pk-item')).toHaveLength(0)
+})
+
+test('名称有包含关系的检测项目不会互相串表', async () => {
+  const soilChromiumSample = { ...sample, matrix: '土壤', items: ['六价铬'] }
+  const { api } = await import('../src/api')
+  vi.mocked(api.listSamples).mockResolvedValueOnce([soilChromiumSample])
+  vi.mocked(api.getSample).mockResolvedValueOnce(soilChromiumSample)
+
+  const wrapper = mount(Samples, {
+    global: {
+      stubs: {
+        'el-button': { template: '<button><slot /></button>' },
+        'el-pagination': { template: '<div />' },
+        'el-icon': { template: '<i><slot /></i>' },
+        'el-tag': { template: '<span><slot /></span>' },
+        'el-input': { template: '<input />' },
+        ArrowRight: { template: '<i />' },
+        RecordAttachments: true,
+        BatchEntry: true,
+        SymbolInput: true,
+        StructuredSheet: true,
+      },
+      directives: { loading: () => undefined },
+    },
+  })
+  await flushPromises()
+
+  await wrapper.get('.item').trigger('click')
+  await flushPromises()
+
+  const choices = wrapper.get('.pk-list').text()
+  expect(choices).toContain('HJ-TC-581')
+  expect(choices).not.toContain('HJ-TC-029')
+})

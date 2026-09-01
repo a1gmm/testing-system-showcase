@@ -1,5 +1,6 @@
 type TemplateMatrixEvidence = {
   matrix?: string
+  applicableMatrices?: string[]
   name?: string
   raw?: string
   analyte?: string
@@ -42,6 +43,10 @@ function inferredFamilies(template: TemplateMatrixEvidence) {
 }
 
 export function templateMatchesSampleMatrix(template: TemplateMatrixEvidence, sampleMatrix: string) {
+  if (template.applicableMatrices?.length) {
+    const sample = explicitMatrix(sampleMatrix.trim())
+    return template.applicableMatrices.some(matrix => explicitMatrix(matrix.trim()) === sample)
+  }
   if (template.matrix?.trim()) return explicitMatrix(template.matrix.trim()) === explicitMatrix(sampleMatrix.trim())
   const family = matrixFamily(sampleMatrix.trim())
   const inferred = inferredFamilies(template)

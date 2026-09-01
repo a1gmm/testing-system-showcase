@@ -12,6 +12,7 @@ import {
   saveRoundSheet, terminateContract, updateUser,
 } from '../src/handlers.ts'
 import { approveRoundSampling } from './support/approved-sampling.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 
 function freshDb() { return openDb(':memory:') }
 
@@ -325,19 +326,7 @@ test('真实 HTTP API 对任务详情、表单、附件和确认执行同一对�
       stdio: 'ignore',
     })
     const base = `http://127.0.0.1:${port}`
-    let loginResponse: Response | undefined
-    for (let i = 0; i < 30; i++) {
-      try {
-        loginResponse = await fetch(base + '/api/login', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ username: 'http-a', password: 'secret1' }),
-        })
-        if (loginResponse.ok) break
-      } catch { /* server still starting */ }
-      await new Promise(resolve => setTimeout(resolve, 25))
-    }
-    assert.ok(loginResponse?.ok, '测试服务器应启动并允许登录')
-    const tokenA = (await loginResponse!.json() as any).token
+    const tokenA = await loginToTestServer(base, 'http-a', 'secret1')
     const loginB = await fetch(base + '/api/login', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ username: 'http-b', password: 'secret2' }),

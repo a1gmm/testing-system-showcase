@@ -11,6 +11,7 @@ import { createUser, assignRound, currentOfflineTaskScope, type User } from '../
 import { ensureSampleSlots } from '../src/mobileSampleSlots.ts'
 import { assignProjectReviewers, setUserQualifications } from '../src/qualifications.ts'
 import { decideWorkflow, submitWorkflowRevision } from '../src/workflow.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 
 const actor = { username: 'sampler-a', name: '采样员甲', roles: ['sampler'], status: 'active' } as any
 
@@ -144,9 +145,8 @@ test('real HTTP explicitly creates a no-store pending receipt and replayed devic
     const scope = currentOfflineTaskScope(db, 'round-http'); db.close()
     const { privateKey, publicKey } = generateKeyPairSync('ec', { namedCurve: 'prime256v1' }), publicKeySpki = publicKey.export({ type: 'spki', format: 'pem' }).toString(), fingerprint = createHash('sha256').update(publicKey.export({ type: 'spki', format: 'der' })).digest('hex')
     child = spawn(process.execPath, ['src/server.ts'], { cwd: join(import.meta.dirname, '..'), env: { ...process.env, PORT: String(port), DB_PATH: dbPath, OFFLINE_WRITE_ENABLED: 'true', SENSITIVE_OFFLINE_PACKAGE_ENABLED: 'true', SIGNED_FORM_RULE_APPROVED: 'true', MOBILE_SUBMISSION_ENABLED: 'true', MANAGED_DEVICE_REGISTRY_JSON: JSON.stringify({ 'http-sampler|round-http': { deviceId: 'device-http', compliant: true, expiresAt: '2099-01-01T00:00:00.000Z', publicKeySpki, fingerprint } }) }, stdio: 'ignore' })
-    const base = `http://127.0.0.1:${port}`; let login: Response | undefined
-    for (let i = 0; i < 60; i++) { try { login = await fetch(base + '/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'http-sampler', password: 'secret1' }) }); if (login.ok) break } catch {}; await new Promise(resolve => setTimeout(resolve, 25)) }
-    const token = (await login!.json() as any).token, canonicalPayload = canonicalJson({draftRevision:3,formCode:'HJ-TC-136',global:{org:'机构',orgSign:'张三',samplingDate:'2026-08-17'},rows:[{sampleSlotId:slotId,sampleNo:'临1',point:'排口',time:'09:00',item:'COD',volume:'',preserve:'',waterColor:'',smell:'',oil:'',floating:'',anomaly:'',note:''}]}), payloadHash = createHash('sha256').update(canonicalPayload).digest('hex')
+    const base = `http://127.0.0.1:${port}`
+    const token = await loginToTestServer(base, 'http-sampler', 'secret1'), canonicalPayload = canonicalJson({draftRevision:3,formCode:'HJ-TC-136',global:{org:'机构',orgSign:'张三',samplingDate:'2026-08-17'},rows:[{sampleSlotId:slotId,sampleNo:'临1',point:'排口',time:'09:00',item:'COD',volume:'',preserve:'',waterColor:'',smell:'',oil:'',floating:'',anomaly:'',note:''}]}), payloadHash = createHash('sha256').update(canonicalPayload).digest('hex')
     const body = { clientSubmissionId: 'submission-http-00000001', taskVersion: scope.taskVersion, ruleVersion: scope.ruleVersion, draftRevision: 3, canonicalPayload, payloadHash, attachmentReceipts: [] }, raw = JSON.stringify(body), bodyHash = createHash('sha256').update(raw).digest('hex'), path = '/api/rounds/round-http/mobile-submissions', nonce = 'submission-http-nonce-0001', issuedAt = new Date().toISOString()
     const canonical = ['POST', path, 'http-sampler', 'round-http', '', body.clientSubmissionId, payloadHash, '', 'application/json', bodyHash, '3', scope.taskVersion, scope.ruleVersion, nonce, issuedAt].join('\n')
     const headers = { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'x-device-nonce': nonce, 'x-device-issued-at': issuedAt, 'x-device-signature': sign('sha256', Buffer.from(canonical), { key: privateKey, dsaEncoding: 'ieee-p1363' }).toString('base64'), 'x-task-version': scope.taskVersion, 'x-rule-version': scope.ruleVersion, 'x-content-revision': '3' }

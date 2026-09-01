@@ -39,3 +39,17 @@ test('跨合同批量录入能用证据明确但未标基质的模板匹配真�
   await wrapper.get('.titem').trigger('click')
   expect(wrapper.get('.pick-samples').text()).toContain(wastewaterSample.id)
 })
+
+test('跨合同批量录入不把名称包含的另一个项目样品带进来', async () => {
+  const chromiumSample = { ...wastewaterSample, id: 'S260830-1', matrix: '土壤', items: ['铬'] }
+  const wrapper = mount(BatchEntry, {
+    props: { samples: [chromiumSample], myTasks: [] },
+    global: { stubs: { 'el-button': { template: '<button><slot /></button>' } } },
+  })
+
+  await wrapper.get('.search').setValue('HJ-TC-581')
+  await wrapper.get('.titem').trigger('click')
+
+  expect(wrapper.get('.pick-samples').text()).not.toContain(chromiumSample.id)
+  expect(wrapper.get('.pick-samples').text()).toContain('没有待检的匹配样品')
+})

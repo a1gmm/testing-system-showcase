@@ -7,6 +7,8 @@ import { can, type PermAction } from '../permissions'
 import { daysTo, todayLocal } from '../utils/date'
 import { rmbUpper } from '../../../server/src/rmb'
 import templatesJson from '../data/templates.json'
+import { laboratoryTemplateCoverage, type LaboratoryTemplate } from '../data/laboratoryTemplateMatching'
+import { templateMatchesSampleMatrix } from '../data/templateMatrix'
 import StageQueueNav from '../components/StageQueueNav.vue'
 import ProjectStageProgress from '../components/ProjectStageProgress.vue'
 import type { BusinessStageKey, StageQueueKey } from '../workflow/businessStages'
@@ -16,6 +18,7 @@ const route = useRoute()
 const activeStage = computed<BusinessStageKey>(() => route.query.stage === 'review' ? 'contract-review' : route.query.stage === 'scheme' ? 'scheme' : 'contract')
 const activeQueue = computed<StageQueueKey>(() => ['write', 'review', 'approve', 'rejected', 'final'].includes(String(route.query.queue)) ? route.query.queue as StageQueueKey : 'write')
 const MATRICES = ['废水', '地表水', '地下水', '海水', '土壤', '固废', '环境空气', '有组织废气', '无组织废气', '废气', '生活饮用水', '大气降水', '噪声']
+const templates = templatesJson as LaboratoryTemplate[]
 const rollupLabel: Record<string, string> = { pending: '待检测', testing: '检测中', review: '待审核', approved: '已审核' }
 
 const projects = ref<ProjectSummary[]>([])
@@ -98,9 +101,16 @@ const submitting = ref(false)
 function addPlan() { form.value.plan.push({ matrix: '废水', items: [] as string[], qty: 1, cycleMonths: 3 }) }
 function delPlan(i: number) { if (form.value.plan.length > 1) form.value.plan.splice(i, 1) }
 // allow-create 兜底：清单真缺项能现打，但当场提醒后果
-function warnFreeItem(items: string[]) {
+function warnFreeItem(items: string[], matrix: string) {
   const last = items[items.length - 1]
-  if (last && !ITEM_SET.has(last)) ElMessage.warning(`「${last}」是手打的项目名，对不上模板库，后面记录表带不出来——尽量从下拉里选`)
+  if (!last) return
+  if (!ITEM_SET.has(last) || !analyteOpts(matrix).includes(last)) {
+    ElMessage.warning(`「${last}」不是 ${matrix} 的模板项目，后面可能没有适用记录表——请先核对基质和项目名`)
+    return
+  }
+  const status = itemReadiness(matrix, last)
+  if (status === 'pending') ElMessage.warning(`「${last}」有对应记录表，但尚未开放正式录入；建项前请确认模板审核安排`)
+  else if (status === 'missing') ElMessage.warning(`「${last}」在 ${matrix} 下缺少实验室原始记录表；建项前请先补齐模板`)
 }
 async function createContract() {
   if (!form.value.client.trim()) return ElMessage.warning('请填写委托单位')
@@ -118,7 +128,7 @@ async function createContract() {
 // —— 按合同模板填写（报价单 → 自动生成检测计划，可打印） ——
 const QUOTE_CATEGORIES = ['有组织废气', '无组织废气', '废水', '噪声', '地表水', '地下水', '土壤', '固废', '环境空气']
 // 项目字典：来自 454 个记录表模板，勾选的项目系统认识、后续自动对上原始记录
-const ITEM_DICT = [...new Set((templatesJson as any[]).map(t => t.analyte).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh'))
+const ITEM_DICT = [...new Set(templates.map(t => t.analyte).filter((item): item is string => !!item))].sort((a, b) => a.localeCompare(b, 'zh'))
 const ITEM_SET = new Set(ITEM_DICT)
 const blankQuoteRow = () => ({ category: '有组织废气', point: '', items: [] as string[], price: 0, points: 1, perDay: 1, perYear: 1, note: '' })
 const blankQuoteForm = () => ({
@@ -138,9 +148,10 @@ const quoteTotal = computed(() => Math.round(qform.value.rows.reduce((s, r) => s
 const quoteDiscount = computed(() => qform.value.discount ?? quoteTotal.value)
 const quoteUpper = computed(() => rmbUpper(quoteDiscount.value))
 // 勾选框允许现打字新增（allow-create）；不在字典里的就是"手写项目"，提交时拆出来标注待确认
-function splitRowItems(items: string[]) {
-  const dict = items.filter(i => ITEM_SET.has(i))
-  const extra = items.filter(i => !ITEM_SET.has(i))
+function splitRowItems(matrix: string, items: string[]) {
+  const matrixItems = new Set(analyteOpts(matrix))
+  const dict = items.filter(i => ITEM_SET.has(i) && matrixItems.has(i))
+  const extra = items.filter(i => !ITEM_SET.has(i) || !matrixItems.has(i))
   return { items: dict, extraItems: extra.join('、') }
 }
 async function createByQuote() {
@@ -150,7 +161,7 @@ async function createByQuote() {
   submitting.value = true
   try {
     const rows = f.rows.map(r => ({
-      category: r.category, point: r.point.trim(), ...splitRowItems(r.items),
+      category: r.category, point: r.point.trim(), ...splitRowItems(r.category, r.items),
       price: Number(r.price) || 0, points: Math.max(1, Number(r.points) || 1),
       perDay: Math.max(1, Number(r.perDay) || 1), perYear: Math.max(0, Number(r.perYear) || 0), note: r.note,
     }))
@@ -248,18 +259,32 @@ const schemeEditing = ref(false)
 // S2 频次结构化：编辑态用「每天N次 perDay + 监测周期 cycleMonths」两个下拉，存盘时合成 freq 规范文本
 type PtRow = { element: string; point: string; items: string[]; perDay: number; cycleMonths: number; standard: string }
 // 决策7：检测项目必须从模板库选（手打自由文本会与模板对不上号，后续自动带出全失效）
-const ANALYTES_BY_MATRIX = (() => {
-  const m = new Map<string, string[]>()
-  for (const t of templatesJson as any[]) {
-    if (!t.analyte) continue
-    const arr = m.get(t.matrix) || []
-    if (!arr.includes(t.analyte)) arr.push(t.analyte)
-    m.set(t.matrix, arr)
-  }
-  for (const arr of m.values()) arr.sort((a, b) => a.localeCompare(b, 'zh'))
-  return m
-})()
-function analyteOpts(matrix: string): string[] { return ANALYTES_BY_MATRIX.get(matrix) || [] }
+const analytesByMatrix = new Map<string, string[]>()
+const itemReadinessByMatrix = new Map<string, ReturnType<typeof laboratoryTemplateCoverage>[number]['status']>()
+function analyteOpts(matrix: string): string[] {
+  const cached = analytesByMatrix.get(matrix)
+  if (cached) return cached
+  const items = [...new Set(templates
+    .filter(template => template.analyte && templateMatchesSampleMatrix(template, matrix))
+    .map(template => template.analyte!))].sort((a, b) => a.localeCompare(b, 'zh'))
+  analytesByMatrix.set(matrix, items)
+  return items
+}
+function itemReadiness(matrix: string, item: string) {
+  const key = `${matrix}\u0000${item}`
+  const cached = itemReadinessByMatrix.get(key)
+  if (cached) return cached
+  const status = laboratoryTemplateCoverage(templates, matrix, [item])[0]?.status || 'missing'
+  itemReadinessByMatrix.set(key, status)
+  return status
+}
+function analyteOptionLabel(matrix: string, item: string) {
+  const status = itemReadiness(matrix, item)
+  if (status === 'pending') return `${item}（记录表待开放）`
+  if (status === 'field') return `${item}（现场录入）`
+  if (status === 'missing') return `${item}（缺实验室原始记录表）`
+  return item
+}
 // 决策：执行标准从标准库(596条)选；挂了被替代的标准要红字警告
 import { resolveStandard, lookupStandard } from '../data/standardLink'
 import standardsRaw from '../data/standards.json'
@@ -679,8 +704,8 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
                 <div v-for="(r, i) in qform.rows" :key="i" class="qf-qt-row">
                   <select v-model="r.category"><option v-for="cg in QUOTE_CATEGORIES" :key="cg" :value="cg">{{ cg }}</option></select>
                   <input v-model="r.point" placeholder="如：熔炉废气排气筒" />
-                  <el-select v-model="r.items" multiple filterable allow-create default-first-option collapse-tags collapse-tags-tooltip :max-collapse-tags="2" placeholder="勾选或打字" size="small">
-                    <el-option v-for="it in ITEM_DICT" :key="it" :label="it" :value="it" />
+                  <el-select v-model="r.items" multiple filterable allow-create default-first-option collapse-tags collapse-tags-tooltip :max-collapse-tags="2" placeholder="勾选或打字" size="small" @change="warnFreeItem(r.items, r.category)">
+                    <el-option v-for="it in analyteOpts(r.category)" :key="it" :label="analyteOptionLabel(r.category, it)" :value="it" />
                   </el-select>
                   <input v-model.number="r.price" type="number" min="0" />
                   <input v-model.number="r.points" type="number" min="1" />
@@ -726,8 +751,8 @@ watch(() => route.query.open, async v => { if (v) await open(String(v)) })
               <div v-for="(p, i) in form.plan" :key="i" class="prow">
                 <select v-model="p.matrix"><option v-for="m in MATRICES" :key="m" :value="m">{{ m === '废气' ? '废气（历史未区分）' : m }}</option></select>
                 <!-- 决策7 同口径：项目从模板库勾选才对得上记录表；实在缺项可现打（会提醒） -->
-                <el-select v-model="p.items" multiple filterable allow-create default-first-option collapse-tags collapse-tags-tooltip :max-collapse-tags="2" placeholder="从模板库选项目（可搜）" size="small" class="items" @change="warnFreeItem">
-                  <el-option v-for="it in ITEM_DICT" :key="it" :label="it" :value="it" />
+                <el-select v-model="p.items" multiple filterable allow-create default-first-option collapse-tags collapse-tags-tooltip :max-collapse-tags="2" placeholder="从模板库选项目（可搜）" size="small" class="items" @change="warnFreeItem(p.items, p.matrix)">
+                  <el-option v-for="it in analyteOpts(p.matrix)" :key="it" :label="analyteOptionLabel(p.matrix, it)" :value="it" />
                 </el-select>
                 <input v-model.number="p.qty" type="number" min="1" class="qty" />
                 <select v-model.number="p.cycleMonths" class="cyc"><option v-for="c in CYCLES" :key="c.v" :value="c.v">{{ c.t }}</option></select>

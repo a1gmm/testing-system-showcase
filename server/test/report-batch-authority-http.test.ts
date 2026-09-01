@@ -7,6 +7,7 @@ import assert from 'node:assert/strict'
 import { openDb } from '../src/db.ts'
 import { createContract, createUser } from '../src/handlers.ts'
 import { createReportBatch } from '../src/archivePackages.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 
 test('only a planner can create a report batch or choose its rounds through the service and HTTP API', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'report-batch-authority-'))
@@ -28,18 +29,7 @@ test('only a planner can create a report batch or choose its rounds through the 
   const child = spawn(process.execPath, ['src/server.ts'], {
     cwd: join(import.meta.dirname, '..'), env: { ...process.env, PORT: String(port), DB_PATH: dbPath }, stdio: 'ignore',
   })
-  async function login(username: string) {
-    let response: Response | undefined
-    for (let attempt = 0; attempt < 60; attempt += 1) {
-      try {
-        response = await fetch(base + '/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username, password: 'secret1' }) })
-        if (response.ok) break
-      } catch { /* server starting */ }
-      await new Promise(resolve => setTimeout(resolve, 25))
-    }
-    assert.equal(response?.status, 200)
-    return String((await response!.json() as any).token)
-  }
+  const login = (username: string) => loginToTestServer(base, username, 'secret1')
   const create = (token: string, name: string) => fetch(base + '/api/report-batches', {
     method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
     body: JSON.stringify({ contractId: contract.id, name, roundIds: ['ROUND-BATCH-AUTH'] }),

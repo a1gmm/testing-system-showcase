@@ -5,6 +5,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { openDb } from '../src/db.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 import {
   addAttachment,
   assignRound,
@@ -217,24 +218,8 @@ test('real HTTP sampling submit rejects broad roles and accepts only the exact a
       stdio: 'ignore',
     })
     const base = `http://127.0.0.1:${port}`
-    const login = async (username: string, password: string) => {
-      const response = await fetch(base + '/api/login', {
-        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username, password }),
-      })
-      assert.equal(response.status, 200)
-      return (await response.json() as any).token as string
-    }
-    let ready = false
-    for (let i = 0; i < 50; i++) {
-      try {
-        const response = await fetch(base + '/api/login', {
-          method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'sampler', password: 'secret1' }),
-        })
-        if (response.ok) { ready = true; break }
-      } catch { /* server is still starting */ }
-      await new Promise(resolve => setTimeout(resolve, 25))
-    }
-    assert.equal(ready, true, '测试服务器应启动')
+    const login = (username: string, password: string) => loginToTestServer(base, username, password)
+    await login('sampler', 'secret1')
     const route = `/api/workflows/round_sampling/${encodeURIComponent(round.id)}/submit`
     for (const user of deniedUsers) {
       const token = await login(user.username, user.password)
