@@ -11,6 +11,8 @@ const rows = ref<QueueRow[]>([])
 const loading = ref(false)
 const error = ref('')
 const busy = ref('')
+const manifestOpen = ref(false)
+const selectedArchive = ref<ArchivePackage | null>(null)
 const canConfirm = computed(() => hasRole('archivist'))
 const statusLabel = { ready: '待归档', blocked: '阻塞', confirmed: '已确认归档', invalidated: '已失效' } as const
 const scopeKey = (contractId: string, reportBatchId?: string | null) => `${contractId}::${reportBatchId || 'project'}`
@@ -78,6 +80,11 @@ async function confirm(row: QueueRow) {
   catch (reason: any) { error.value = reason?.response?.data?.error || reason?.message || '确认归档失败' }
   finally { busy.value = '' }
 }
+function showManifest(archive: ArchivePackage) {
+  selectedArchive.value = archive
+  manifestOpen.value = true
+}
+function clearManifest() { selectedArchive.value = null }
 function fmt(value: string | null | undefined) { return value ? value.slice(0, 16).replace('T', ' ') : '—' }
 function needsAssignments(row: QueueRow) { return row.readiness.issues.some(issue => issue.code === 'ASSIGNMENT_NOT_ACTIVE') }
 function needsLaboratory(row: QueueRow) { return row.readiness.issues.some(issue => issue.code.startsWith('LAB_')) }
@@ -95,8 +102,11 @@ onMounted(refresh)
         <div class="state"><span class="pill" :class="row.status">{{ statusLabel[row.status] }}</span><span v-if="row.archive" class="mono">版本 {{ row.archive.version }}</span></div>
         <div class="detail">
           <p v-if="row.message" :class="{ blocker: row.status === 'blocked' || row.status === 'invalidated' }">{{ row.message }}</p>
-          <p v-else-if="row.archive">归档清单 {{ row.archive.items.length }} 项 · 创建于 {{ fmt(row.archive.created_at) }}</p>
-          <p v-else>前八阶段已满足归档条件，可以构建冻结清单。</p>
+          <div v-if="row.archive" class="manifest-summary">
+            <span>归档清单 {{ row.archive.items.length }} 项 · 创建于 {{ fmt(row.archive.created_at) }}</span>
+            <button class="manifest-link" type="button" :data-view-archive="row.archive.id" @click="showManifest(row.archive)">查看全部 {{ row.archive.items.length }} 项</button>
+          </div>
+          <p v-else-if="!row.message">前八阶段已满足归档条件，可以构建冻结清单。</p>
           <div v-if="row.message" class="fix-links">
             <a v-if="needsAssignments(row)" href="/plans?stage=dispatch" data-fix-assignments>去④采样指派设置复核/审核人</a>
             <a v-if="needsLaboratory(row)" href="/samples?stage=laboratory" data-fix-laboratory>去⑧实验室分析补录/完成审核</a>
@@ -110,9 +120,34 @@ onMounted(refresh)
       </article>
       <div v-if="!rows.length && !loading" class="empty">当前没有归档项目</div>
     </section>
+    <el-dialog v-if="selectedArchive" v-model="manifestOpen" :title="`${selectedArchive.contract_id} · 归档清单`" width="min(760px, calc(100vw - 32px))" @closed="clearManifest">
+      <section class="manifest" :data-archive-manifest="selectedArchive.id">
+        <p class="manifest-meta">
+          <span class="mono">版本 {{ selectedArchive.version }}</span>
+          <span>{{ selectedArchive.report_batch_id ? `报告批次 ${selectedArchive.report_batch_id}` : '项目全部期次' }}</span>
+          <span>{{ selectedArchive.items.length }} 项</span>
+          <span v-if="selectedArchive.confirmed_at">确认于 {{ fmt(selectedArchive.confirmed_at) }}</span>
+        </p>
+        <ol v-if="selectedArchive.items.length" class="manifest-list">
+          <li v-for="item in selectedArchive.items" :key="item.id">
+            <span class="manifest-order mono">{{ item.item_order }}</span>
+            <div class="manifest-item">
+              <b>{{ item.label }}</b>
+              <span v-if="item.revision !== null" class="manifest-revision mono">定稿版本 {{ item.revision }}</span>
+              <details>
+                <summary>审计信息</summary>
+                <div class="audit-detail mono">记录类型 {{ item.entity_type }} · 记录编号 {{ item.entity_id }}</div>
+                <div class="audit-hash mono">SHA-256 {{ item.content_hash }}</div>
+              </details>
+            </div>
+          </li>
+        </ol>
+        <p v-else class="manifest-empty">该归档版本没有清单项。</p>
+      </section>
+    </el-dialog>
   </div>
 </template>
 
 <style scoped>
-.phead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}.page{font-size:24px;font-weight:650;margin:0}.phead p{font-size:14px;color:var(--muted);margin:5px 0 0}.secondary,.primary{min-height:44px;border-radius:7px;padding:0 16px;font:600 14px inherit;cursor:pointer}.secondary{background:var(--surface);border:1px solid var(--line);color:var(--ink)}.primary{background:var(--accent);border:1px solid var(--accent);color:#fff}.page-error{padding:10px 12px;background:#FDECEA;color:var(--crit);border-radius:6px;font-size:14px}.legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:12px;color:var(--muted);font-size:13px}.legend span{display:flex;align-items:center;gap:6px}.legend i{width:8px;height:8px;border-radius:50%;background:var(--line)}.legend i.ready{background:var(--warn)}.legend i.blocked,.legend i.invalidated{background:var(--crit)}.legend i.confirmed{background:var(--good)}.queue{border-top:1px solid var(--line)}.archive-row{display:grid;grid-template-columns:minmax(160px,1fr) 150px minmax(240px,2fr) auto;gap:16px;align-items:center;min-height:72px;border-bottom:1px solid var(--line);padding:12px 4px}.identity{display:grid;gap:4px}.identity span,.detail p{font-size:13px;color:var(--muted);margin:0}.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}.state{display:flex;align-items:center;gap:8px;font-size:12px}.pill{border-radius:999px;padding:4px 9px;background:var(--surface-2)}.pill.ready{background:var(--warn-soft);color:var(--warn)}.pill.confirmed{background:var(--good-soft);color:var(--good)}.pill.blocked,.pill.invalidated{background:#FDECEA;color:var(--crit)}.detail .blocker{color:var(--crit)}.fix-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}.fix-links a{display:inline-flex;align-items:center;min-height:32px;color:var(--accent);font-size:13px;font-weight:600;text-decoration:none}.fix-links a:hover{text-decoration:underline}.fix-links a:focus-visible{outline:2px solid var(--accent-ring);outline-offset:2px}.empty{padding:28px;text-align:center;color:var(--muted)}@media(max-width:860px){.archive-row{grid-template-columns:1fr auto}.detail,.actions{grid-column:1/-1}.actions button{width:100%}}
+.phead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}.page{font-size:24px;font-weight:650;margin:0}.phead p{font-size:14px;color:var(--muted);margin:5px 0 0}.secondary,.primary{min-height:44px;border-radius:7px;padding:0 16px;font:600 14px inherit;cursor:pointer}.secondary{background:var(--surface);border:1px solid var(--line);color:var(--ink)}.primary{background:var(--accent);border:1px solid var(--accent);color:#fff}.page-error{padding:10px 12px;background:#FDECEA;color:var(--crit);border-radius:6px;font-size:14px}.legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:12px;color:var(--muted);font-size:13px}.legend span{display:flex;align-items:center;gap:6px}.legend i{width:8px;height:8px;border-radius:50%;background:var(--line)}.legend i.ready{background:var(--warn)}.legend i.blocked,.legend i.invalidated{background:var(--crit)}.legend i.confirmed{background:var(--good)}.queue{border-top:1px solid var(--line)}.archive-row{display:grid;grid-template-columns:minmax(160px,1fr) 150px minmax(240px,2fr) auto;gap:16px;align-items:center;min-height:72px;border-bottom:1px solid var(--line);padding:12px 4px}.identity{display:grid;gap:4px}.identity span,.detail p{font-size:13px;color:var(--muted);margin:0}.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}.state{display:flex;align-items:center;gap:8px;font-size:12px}.pill{border-radius:999px;padding:4px 9px;background:var(--surface-2)}.pill.ready{background:var(--warn-soft);color:var(--warn)}.pill.confirmed{background:var(--good-soft);color:var(--good)}.pill.blocked,.pill.invalidated{background:#FDECEA;color:var(--crit)}.detail .blocker{color:var(--crit)}.fix-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}.fix-links a{display:inline-flex;align-items:center;min-height:32px;color:var(--accent);font-size:13px;font-weight:600;text-decoration:none}.fix-links a:hover{text-decoration:underline}.fix-links a:focus-visible{outline:2px solid var(--accent-ring);outline-offset:2px}.manifest-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.manifest-link{min-height:36px;padding:0 10px;border:1px solid var(--accent);border-radius:7px;background:var(--surface);color:var(--accent);font:600 13px inherit;cursor:pointer}.manifest-link:hover{background:var(--accent-soft)}.manifest-meta{display:flex;gap:8px 16px;flex-wrap:wrap;margin:0 0 12px;color:var(--muted);font-size:13px}.manifest-list{max-height:min(65vh,640px);overflow:auto;margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}.manifest-list li{display:grid;grid-template-columns:32px 1fr;gap:8px;padding:10px 4px;border-bottom:1px solid var(--line)}.manifest-order{color:var(--faint);font-size:12px;padding-top:2px}.manifest-item{min-width:0}.manifest-item b{display:block;font-size:13px;font-weight:600;overflow-wrap:anywhere}.manifest-revision{display:block;margin-top:3px;color:var(--good);font-size:12px}.manifest-item details{margin-top:4px;color:var(--muted);font-size:12px}.manifest-item summary{width:max-content;cursor:pointer}.audit-detail,.audit-hash{margin-top:4px;overflow-wrap:anywhere;color:var(--faint)}.manifest-empty,.empty{padding:28px;text-align:center;color:var(--muted)}@media(max-width:860px){.archive-row{grid-template-columns:1fr auto}.detail,.actions{grid-column:1/-1}.actions button,.manifest-link{width:100%;min-height:44px}}
 </style>

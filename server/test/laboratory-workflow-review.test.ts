@@ -5,6 +5,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { openDb } from '../src/db.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 import {
   addAttachment,
   addHandover,
@@ -370,21 +371,7 @@ test('real HTTP record routes enforce analyst ownership and assigned qualified l
       stdio: 'ignore',
     })
     const base = `http://127.0.0.1:${port}`
-    const login = async (user: User) => {
-      let response: Response | undefined
-      for (let i = 0; i < 50; i++) {
-        try {
-          response = await fetch(base + '/api/login', {
-            method: 'POST', headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ username: user.username, password: `secret-${user.username}` }),
-          })
-          if (response.ok) break
-        } catch { /* server is starting */ }
-        await new Promise(resolve => setTimeout(resolve, 25))
-      }
-      assert.equal(response?.status, 200, `${user.username} 应能登录`)
-      return (await response!.json() as any).token as string
-    }
+    const login = (user: User) => loginToTestServer(base, user.username, `secret-${user.username}`)
     const tokens = new Map<User, string>()
     for (const user of [
       analyst, otherAnalyst, reviewer, approver, tech, adminUser, legacyReviewer, legacyApprover,

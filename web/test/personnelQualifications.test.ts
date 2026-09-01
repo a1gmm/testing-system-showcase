@@ -1,10 +1,15 @@
 import { flushPromises, mount } from '@vue/test-utils'
+import { ElMessageBox } from 'element-plus'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { ref } from 'vue'
 import { beforeEach, expect, test, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
+  hasRole: vi.fn(),
   listUsers: vi.fn(),
   listUserQualifications: vi.fn(),
+  resetPassword: vi.fn(),
   setUserQualifications: vi.fn(),
   updateUser: vi.fn(),
   updateUserPersonnel: vi.fn(),
@@ -12,7 +17,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('../src/api', () => ({
   currentUser: ref({ username: 'admin', name: '管理员', roles: ['admin'], status: 'active', created_at: '2026-01-01T00:00:00.000Z' }),
-  hasRole: () => true,
+  hasRole: mocks.hasRole,
   ROLE_LABEL: {
     admin: '系统管理员', sampler: '采样员', analyst: '实验室分析人员', report_editor: '报告编制人员',
   },
@@ -54,8 +59,11 @@ function mountUsers() {
 }
 
 beforeEach(() => {
+  vi.restoreAllMocks()
+  mocks.hasRole.mockReset().mockReturnValue(true)
   mocks.listUsers.mockReset().mockResolvedValue(users)
   mocks.listUserQualifications.mockReset().mockResolvedValue(qualifications)
+  mocks.resetPassword.mockReset().mockResolvedValue(undefined)
   mocks.setUserQualifications.mockReset().mockResolvedValue(qualifications)
   mocks.updateUser.mockReset().mockResolvedValue(users[0])
   mocks.updateUserPersonnel.mockReset().mockResolvedValue({ user: users[0], qualifications })
@@ -72,6 +80,98 @@ test('人员行分开显示全部基础岗位、专业审核资格及有效期',
   expect(wrapper.text()).toContain('采样复核')
   expect(wrapper.text()).toContain('2026-01-01 至 2026-12-31')
   expect(wrapper.text()).not.toContain('采样审核')
+})
+
+test('高行人员的四个管理动作是边界明确且可区分的按钮组', async () => {
+  mocks.listUserQualifications.mockResolvedValueOnce([
+    'sampling_review', 'sampling_approve', 'quality_review', 'quality_approve',
+    'laboratory_review', 'laboratory_approve', 'report_review', 'report_approve',
+  ].map(code => ({ ...qualifications[0], code })))
+  const wrapper = mountUsers()
+  await flushPromises()
+
+  expect(wrapper.get('.qualification-list').findAll('.qualification-item')).toHaveLength(8)
+  const actions = wrapper.get('[role="group"][aria-label="管理 多岗人员"]')
+  const buttons = actions.findAll('button')
+  expect(buttons).toHaveLength(4)
+  expect(buttons.map(button => button.attributes('type'))).toEqual(['button', 'button', 'button', 'button'])
+  expect(buttons.map(button => button.attributes('aria-label'))).toEqual([
+    '编辑 多岗人员', '授权 多岗人员', '重置多岗人员的密码', '停用 多岗人员',
+  ])
+})
+
+test('人员台账保持宽表结构，姓名、用户名、岗位和入职日期不被操作列挤成逐字折行', async () => {
+  const wrapper = mountUsers()
+  await flushPromises()
+
+  expect(wrapper.get('.pagewrap').classes()).toContain('wide')
+  expect(wrapper.get('colgroup').findAll('col').map(col => col.classes()[0] || '')).toEqual([
+    'person-col', 'username-col', 'roles-col', '', 'status-col', 'cert-col', 'joined-col', 'actions-col',
+  ])
+  expect(wrapper.get('td.nm').text()).toContain('多岗人员')
+  expect(wrapper.get('td.username').text()).toBe('multi-role')
+  expect(wrapper.get('td.joined-at').text()).toBe('2026-01-02')
+
+  const source = readFileSync(resolve(process.cwd(), 'src/pages/Users.vue'), 'utf8')
+  expect(source).toMatch(/\.list\{overflow-x:auto\}/)
+  expect(source).toMatch(/table\{[^}]*min-width:1280px/)
+  expect(source).toMatch(/\.actions-col\{width:196px\}/)
+  expect(source).toMatch(/\.nm\{[^}]*white-space:nowrap/)
+  expect(source).not.toMatch(/\.nm\{[^}]*display:flex/)
+  expect(source).toMatch(/\.username,\.joined-at\{white-space:nowrap\}/)
+  expect(source).toMatch(/\.role\{white-space:nowrap\}/)
+  expect(source).toMatch(/\.acts\{min-width:196px/)
+})
+
+test('无管理员动作列时 colgroup、表头和数据列仍保持七列对齐', async () => {
+  mocks.hasRole.mockReturnValue(false)
+  const wrapper = mountUsers()
+  await flushPromises()
+
+  expect(wrapper.get('colgroup').findAll('col')).toHaveLength(7)
+  expect(wrapper.get('thead tr').findAll('th')).toHaveLength(7)
+  expect(wrapper.get('tbody tr').findAll('td')).toHaveLength(7)
+  expect(wrapper.find('.actions-col').exists()).toBe(false)
+  expect(wrapper.find('.action-grid').exists()).toBe(false)
+})
+
+test('停用人员显示可区分的启用动作', async () => {
+  mocks.listUsers.mockResolvedValueOnce([{ ...users[0], status: 'disabled' }])
+  vi.spyOn(ElMessageBox, 'confirm').mockResolvedValue('confirm' as any)
+  const wrapper = mountUsers()
+  await flushPromises()
+
+  const enable = wrapper.get('[aria-label="启用 多岗人员"]')
+  expect(enable.text()).toBe('启用')
+  expect(enable.classes()).not.toContain('danger')
+  await enable.trigger('click')
+  await flushPromises()
+  expect(mocks.updateUser).toHaveBeenCalledWith('multi-role', { status: 'active' })
+})
+
+test('授权、重置密码和停用按钮分别调用正确管理动作', async () => {
+  const prompt = vi.spyOn(ElMessageBox, 'prompt')
+    .mockResolvedValueOnce({ value: '授权签字人授权书' } as any)
+    .mockResolvedValueOnce({ value: '2027-12-31' } as any)
+    .mockResolvedValueOnce({ value: 'new-password' } as any)
+  vi.spyOn(ElMessageBox, 'confirm').mockResolvedValue('confirm' as any)
+  const wrapper = mountUsers()
+  await flushPromises()
+
+  await wrapper.get('[aria-label="授权 多岗人员"]').trigger('click')
+  await flushPromises()
+  expect(mocks.updateUser).toHaveBeenCalledWith('multi-role', {
+    certName: '授权签字人授权书', certUntil: '2027-12-31',
+  })
+
+  await wrapper.get('[aria-label="重置多岗人员的密码"]').trigger('click')
+  await flushPromises()
+  expect(mocks.resetPassword).toHaveBeenCalledWith('multi-role', 'new-password')
+
+  await wrapper.get('[aria-label="停用 多岗人员"]').trigger('click')
+  await flushPromises()
+  expect(mocks.updateUser).toHaveBeenCalledWith('multi-role', { status: 'disabled' })
+  expect(prompt).toHaveBeenCalledTimes(3)
 })
 
 test('编辑人员时按四个专业范围多选复核与审核，并分别保存资格有效期', async () => {

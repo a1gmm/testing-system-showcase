@@ -2,6 +2,14 @@ import { describe, expect, test } from 'vitest'
 import { templateMatchesSampleMatrix } from '../src/data/templateMatrix'
 
 describe('模板基质安全推断', () => {
+  test('明确标注可适用基质时允许同一水质方法表用于废水', () => {
+    expect(templateMatchesSampleMatrix({
+      matrix: '地表水', analyte: '氨氮', raw: '092-氨氮地表水--分光光度法原始记录表',
+      applicableMatrices: ['地表水', '废水'],
+      meta: { basis: 'HJ535-2009', detectionLimit: '0.025mg/L' },
+    }, '废水')).toBe(true)
+  })
+
   test('已修订的水质色度表可用于水样', () => {
     expect(templateMatchesSampleMatrix({
       matrix: '', analyte: '色度', raw: '112-1色度原始记录',

@@ -7,6 +7,7 @@ import assert from 'node:assert/strict'
 import { openDb } from '../src/db.ts'
 import { createContract, createUser, type User } from '../src/handlers.ts'
 import { setUserQualifications } from '../src/qualifications.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 
 test('项目审核候选接口按合同、专业、层级和日期过滤且只向计划员或管理员开放', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'workflow-candidates-http-'))
@@ -32,18 +33,7 @@ test('项目审核候选接口按合同、专业、层级和日期过滤且只�
     cwd: join(import.meta.dirname, '..'), env: { ...process.env, PORT: String(port), DB_PATH: dbPath }, stdio: 'ignore',
   })
 
-  async function login(username: string) {
-    let response: Response | undefined
-    for (let attempt = 0; attempt < 60; attempt += 1) {
-      try {
-        response = await fetch(base + '/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username, password: 'secret1' }) })
-        if (response.ok) break
-      } catch { /* server is still starting */ }
-      await new Promise(resolve => setTimeout(resolve, 25))
-    }
-    assert.equal(response?.status, 200)
-    return String((await response!.json() as any).token)
-  }
+  const login = (username: string) => loginToTestServer(base, username, 'secret1')
   const request = (token: string, suffix = `/${contract.id}/workflow-candidates?scope=sampling&level=review&at=2026-08-22`) => fetch(
     base + '/api/contracts' + suffix, { headers: { authorization: `Bearer ${token}` } },
   )

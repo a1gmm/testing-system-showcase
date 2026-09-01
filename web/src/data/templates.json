@@ -1624,6 +1624,7 @@
     "name": "氨氮 · 地表水",
     "analyte": "氨氮",
     "matrix": "地表水",
+    "applicableMatrices": ["地表水", "废水"],
     "method": "分光光度",
     "sheetType": "原始记录",
     "raw": "092-氨氮地表水--分光光度法原始记录表",

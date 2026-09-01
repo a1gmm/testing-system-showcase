@@ -6,6 +6,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { openDb } from '../src/db.ts'
 import { createUser } from '../src/handlers.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 
 test('人员专业资格 HTTP 接口仅管理员可用并复用日期、代码校验', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'personnel-qualifications-http-'))
@@ -25,21 +26,7 @@ test('人员专业资格 HTTP 接口仅管理员可用并复用日期、代码�
     stdio: 'ignore',
   })
 
-  async function login(username: string) {
-    let response: Response | undefined
-    for (let attempt = 0; attempt < 60; attempt += 1) {
-      try {
-        response = await fetch(base + '/api/login', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ username, password: 'secret1' }),
-        })
-        if (response.ok) break
-      } catch { /* server is still starting */ }
-      await new Promise(resolve => setTimeout(resolve, 25))
-    }
-    assert.equal(response?.status, 200)
-    return String((await response!.json() as any).token)
-  }
+  const login = (username: string) => loginToTestServer(base, username, 'secret1')
   const request = (token: string, method: 'GET' | 'POST', body?: unknown) => fetch(
     base + '/api/users/worker-http/qualifications',
     {

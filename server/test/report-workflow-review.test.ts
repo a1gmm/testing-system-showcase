@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { openDb, type DB } from '../src/db.ts'
+import { loginToTestServer } from './support/http-test-server.ts'
 import {
   createUser,
   generateContractReport,
@@ -488,19 +489,7 @@ test('generic workflow and contract routes enforce exact assignees with stable c
       stdio: 'ignore',
     })
     const base = `http://127.0.0.1:${port}`
-    const login = async (username: string) => {
-      for (let attempt = 0; attempt < 60; attempt++) {
-        try {
-          const response = await fetch(base + '/api/login', {
-            method: 'POST', headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ username, password: 'secret1' }),
-          })
-          if (response.ok) return (await response.json() as any).token as string
-        } catch { /* server is still starting */ }
-        await new Promise(resolve => setTimeout(resolve, 25))
-      }
-      throw new Error(`测试服务器未启动或 ${username} 登录失败`)
-    }
+    const login = (username: string) => loginToTestServer(base, username, 'secret1')
     const request = (token: string, path: string, body?: unknown) => fetch(base + path, {
       method: body === undefined ? 'GET' : 'POST',
       headers: { authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'content-type': 'application/json' }) },

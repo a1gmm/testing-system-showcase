@@ -14,6 +14,7 @@ import templatesJson from '../data/templates.json'
 import { templatePhase } from '../data/phase'
 import { templateMatchesSampleMatrix } from '../data/templateMatrix'
 import { isTemplateReadyForEntry } from '../data/templateEntry'
+import { laboratoryTemplateCoverage, templateMatchesAnyAnalyte } from '../data/laboratoryTemplateMatching'
 import StructuredSheet from '../components/StructuredSheet.vue'
 import StageQueueNav from '../components/StageQueueNav.vue'
 import WorkflowReviewPanel from '../components/WorkflowReviewPanel.vue'
@@ -31,6 +32,8 @@ const laboratoryError = ref<{ code: string; message: string }>({ code: '', messa
 
 type Tpl = {
   code: string; name: string; analyte: string; matrix: string; method: string; sheetType: string; raw: string; file: string
+  applicableMatrices?: string[]
+  applicableAnalytes?: string[]
   retired?: boolean
   meta?: { methodFull?: string; detectionLimit?: string; basis?: string }
 }
@@ -417,10 +420,6 @@ async function doClaim(t: TestTask) {
 
 // 该样品基质下的候选记录表（优先原始记录），按关键词过滤
 const showAllTpls = ref(false)
-function tplHitsItem(t: any, items: string[]) {
-  const a = String(t.analyte || '').toLowerCase(), raw = String(t.raw || '').toLowerCase()
-  return items.some(it => { const s = String(it).toLowerCase().trim(); if (!s) return false; return (a && (a.includes(s) || s.includes(a))) || raw.includes(s) })
-}
 const baseTpls = computed(() => {
   if (!selected.value) return []
   const mx = selected.value.matrix
@@ -433,12 +432,17 @@ const baseTpls = computed(() => {
 })
 const matchedTpls = computed(() => {
   const its = selectedItems.value
-  return its.length ? baseTpls.value.filter(t => tplHitsItem(t, its)) : []
+  return its.length ? baseTpls.value.filter(t => templateMatchesAnyAnalyte(t, its)) : []
 })
+const itemTemplateCoverage = computed(() => selected.value
+  ? laboratoryTemplateCoverage(templates, selected.value.matrix, selectedItems.value)
+  : [])
+const templateCoverageIssues = computed(() => itemTemplateCoverage.value.filter(item => item.status !== 'ready'))
+const readyItemCount = computed(() => itemTemplateCoverage.value.filter(item => item.status === 'ready').length)
 const candidateTpls = computed(() => {
   const k = tplKeyword.value.trim()
-  // 默认只给匹配本样品检测项目的表；搜索中/点了「显示全部」/无匹配时才铺全部（避免看不到表）
-  if (!k && !showAllTpls.value && matchedTpls.value.length) return matchedTpls.value.slice(0, 60)
+  // 默认始终只给匹配本样品项目的表；零匹配时也不能铺一屏无关表掩盖配置缺口。
+  if (!k && !showAllTpls.value && selectedItems.value.length) return matchedTpls.value.slice(0, 60)
   return baseTpls.value.slice(0, 60)
 })
 
@@ -820,13 +824,20 @@ watch(() => route.query.queue, loadLaboratoryQueue)
                 <div v-if="!chosenTpl" class="picker">
                   <div class="pk-h">
                     <div class="sechead">
-                      <span v-if="selected.items.length && matchedTpls.length && !tplKeyword.trim()" class="pk-scope">
-                        <template v-if="!showAllTpls">已按本样品项目筛出 <b class="num">{{ matchedTpls.length }}</b> 张 · <a @click="showAllTpls = true">显示全部 {{ baseTpls.length }} 张 →</a></template>
+                      <span v-if="selected.items.length && !tplKeyword.trim()" class="pk-scope">
+                        <template v-if="!showAllTpls">项目覆盖 <b class="num">{{ readyItemCount }}/{{ itemTemplateCoverage.length }}</b> 可录 · 已筛出 {{ matchedTpls.length }} 张 · <a @click="showAllTpls = true">显示全部 {{ baseTpls.length }} 张 →</a></template>
                         <template v-else>显示全部 <b class="num">{{ baseTpls.length }}</b> 张 · <a @click="showAllTpls = false">只看本样品项目（{{ matchedTpls.length }}）→</a></template>
                       </span>
                       <span v-else class="pk-scope">{{ selected.matrix }} 下的原始记录 / 前处理表</span>
                     </div>
                     <input v-model="tplKeyword" class="pk-search" placeholder="搜检测项目 / 表号 / 方法…" />
+                  </div>
+                  <div v-if="templateCoverageIssues.length" class="template-coverage-warning" data-template-coverage-warning>
+                    <b>有 {{ templateCoverageIssues.length }} 个检测项目暂不能在实验室正式录入</b>
+                    <div v-for="coverage in templateCoverageIssues" :key="coverage.item" class="template-coverage-item">
+                      <strong>{{ coverage.item }}</strong>：<template v-if="coverage.status === 'pending'">有对应记录表，但尚未开放正式录入</template><template v-else-if="coverage.status === 'field'">属于现场阶段项目，不在实验室记录表中录入</template><template v-else>未找到该基质下的实验室原始记录表</template>
+                    </div>
+                    <span>样品项目不会丢失；非现场项目请到 <a href="/templates">记录表模板库</a> 完成标准与结构审核，开放后再录入。</span>
                   </div>
                   <div class="pk-list">
                     <div v-for="t in candidateTpls" :key="t.file" class="pk-item" @click="chosenTpl = t">
@@ -982,6 +993,11 @@ button.step-h:hover{background:var(--surface-2)}
 .pk-scope a:hover{text-decoration:underline}
 .pk-search{width:100%;border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:8px 11px;font-size:13px;font-family:inherit;color:var(--ink);background:var(--surface)}
 .pk-search:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.template-coverage-warning{padding:8px 16px;border-bottom:1px solid var(--warn);border-left:3px solid var(--warn);background:var(--warn-soft);color:var(--warn);font-size:14px;line-height:1.55;flex:none}
+.template-coverage-warning>b{display:block;margin-bottom:3px}
+.template-coverage-item strong{font-weight:650}
+.template-coverage-warning>span{display:block;margin-top:4px}
+.template-coverage-warning a{color:var(--accent);font-weight:600}
 .pk-list{flex:1;overflow-y:auto}
 .pk-item{padding:11px 18px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s ease}
 .pk-item:last-child{border-bottom:0}

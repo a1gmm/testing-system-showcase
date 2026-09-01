@@ -214,7 +214,7 @@ onMounted(refresh)
 </script>
 
 <template>
-  <div class="pagewrap">
+  <div class="pagewrap wide">
     <div class="phead">
       <div>
         <h1 class="page">人员与权限</h1>
@@ -294,11 +294,21 @@ onMounted(refresh)
 
         <div class="list" v-loading="loading">
           <table>
+            <colgroup>
+              <col class="person-col" />
+              <col class="username-col" />
+              <col class="roles-col" />
+              <col />
+              <col class="status-col" />
+              <col class="cert-col" />
+              <col class="joined-col" />
+              <col v-if="hasRole('admin')" class="actions-col" />
+            </colgroup>
             <thead><tr><th>姓名</th><th>用户名</th><th>基础岗位</th><th>专业审核资格</th><th>状态</th><th>上岗授权</th><th>入职</th><th v-if="hasRole('admin')">操作</th></tr></thead>
             <tbody>
               <tr v-for="u in users" :key="u.username" :class="{ off: u.status !== 'active' }">
                 <td class="nm"><span class="av">{{ u.name[0] }}</span>{{ u.name }}</td>
-                <td class="mono">{{ u.username }}</td>
+                <td class="mono username">{{ u.username }}</td>
                 <td class="roles"><span v-for="(r, n) in u.roles" :key="r" class="role" :class="{ key: r === 'admin' }"><i v-if="n">·</i>{{ ROLE_LABEL[r] || r }}</span></td>
                 <td class="qualifications">
                   <div v-if="qualificationErrors[u.username]" class="qualification-error" role="status">
@@ -310,7 +320,7 @@ onMounted(refresh)
                     >{{ qualificationLoading[u.username] ? '重试中…' : '重试' }}</button>
                   </div>
                   <span v-else-if="qualificationLoading[u.username]" class="dim" role="status">专业审核资格加载中…</span>
-                  <template v-else>
+                  <div v-else class="qualification-list">
                     <span v-if="!qualifications(u).length" class="dim">未授权</span>
                     <span v-for="item in qualifications(u)" :key="item.code" class="qualification-item" :class="{ unavailable: qualificationUnavailable(item) }">
                       <b>{{ QUALIFICATION_LABEL[item.code] }}</b>
@@ -318,19 +328,21 @@ onMounted(refresh)
                       <em v-if="item.status !== 'active'">已停用</em>
                       <em v-else-if="item.valid_until && item.valid_until < today">已过期</em>
                     </span>
-                  </template>
+                  </div>
                 </td>
                 <td><span class="st"><span class="sdot" :class="u.status === 'active' ? 'good' : ''"></span>{{ u.status === 'active' ? '在岗' : '停用' }}</span></td>
                 <td class="mono dim">
                   <template v-if="u.cert_until"><span :class="{ expired: u.cert_until < today }">{{ u.cert_until }}</span><span v-if="u.cert_name" class="dim"> {{ u.cert_name }}</span></template>
                   <span v-else class="dim">未设</span>
                 </td>
-                <td class="mono dim">{{ u.created_at?.slice(0, 10) }}</td>
+                <td class="mono dim joined-at">{{ u.created_at?.slice(0, 10) }}</td>
                 <td v-if="hasRole('admin')" class="acts">
-                  <button class="lk" :data-testid="`edit-user-${u.username}`" :disabled="editBusy || !!qualificationErrors[u.username] || !!qualificationLoading[u.username]" @click="openEdit(u)">编辑</button>
-                  <button class="lk" @click="editCert(u)">授权</button>
-                  <button class="lk" @click="resetPw(u)">重置密码</button>
-                  <button class="lk" :class="u.status === 'active' ? 'danger' : ''" @click="toggleStatus(u)" :disabled="u.username === currentUser?.username">{{ u.status === 'active' ? '停用' : '启用' }}</button>
+                  <div class="action-grid" role="group" :aria-label="`管理 ${u.name}`">
+                    <button type="button" class="lk" :aria-label="`编辑 ${u.name}`" :data-testid="`edit-user-${u.username}`" :disabled="editBusy || !!qualificationErrors[u.username] || !!qualificationLoading[u.username]" @click="openEdit(u)">编辑</button>
+                    <button type="button" class="lk" :aria-label="`授权 ${u.name}`" @click="editCert(u)">授权</button>
+                    <button type="button" class="lk" :aria-label="`重置${u.name}的密码`" @click="resetPw(u)">重置密码</button>
+                    <button type="button" class="lk" :aria-label="`${u.status === 'active' ? '停用' : '启用'} ${u.name}`" :class="u.status === 'active' ? 'danger' : ''" @click="toggleStatus(u)" :disabled="u.username === currentUser?.username">{{ u.status === 'active' ? '停用' : '启用' }}</button>
+                  </div>
                 </td>
               </tr>
               <tr v-if="!users.length && !loading"><td class="empty" colspan="8">还没有人员</td></tr>
@@ -387,20 +399,29 @@ section{margin-bottom:20px}
 .validity-row input:focus{outline:2px solid var(--accent);outline-offset:-1px}
 
 .list{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{text-align:left;padding:11px 18px;font-size:14px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
-td{padding:11px 18px;border-bottom:1px solid var(--line)}
+table{width:100%;min-width:1280px;border-collapse:collapse;font-size:14px}
+.person-col{width:120px}
+.username-col{width:120px}
+.roles-col{width:220px}
+.status-col{width:80px}
+.cert-col{width:110px}
+.joined-col{width:110px}
+.actions-col{width:196px}
+th{text-align:left;padding:11px 16px;font-size:14px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);background:var(--surface-2);white-space:nowrap}
+td{padding:11px 16px;border-bottom:1px solid var(--line)}
 tbody tr:last-child td{border-bottom:0}
 tbody tr:hover{background:var(--surface-2)}
-.nm{font-weight:600;display:flex;align-items:center;gap:9px}
-.av{width:28px;height:28px;border-radius:50%;background:var(--surface-2);color:var(--muted);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.nm{font-weight:600;white-space:nowrap}
+.av{width:28px;height:28px;margin-right:9px;border-radius:50%;background:var(--surface-2);color:var(--muted);display:inline-grid;place-items:center;vertical-align:middle;font-size:12px;font-weight:600}
+.username,.joined-at{white-space:nowrap}
 /* 岗位角色：纯文字，关键角色点亮，避免整列彩色胶囊 */
 .roles{font-size:14px;color:var(--muted);min-width:160px}
+.role{white-space:nowrap}
 .role i{font-style:normal;color:var(--line-strong);margin:0 6px}
 .role.key{color:var(--accent-ink);font-weight:600}
 .qualifications{min-width:230px}
-.qualification-item{display:flex;align-items:baseline;gap:6px;margin:0 0 6px;line-height:1.45;white-space:nowrap}
-.qualification-item:last-child{margin-bottom:0}
+.qualification-list{display:flex;align-items:flex-start;flex-wrap:wrap;gap:6px 14px}
+.qualification-item{display:inline-flex;align-items:baseline;gap:6px;line-height:1.45;white-space:nowrap}
 .qualification-item b{font-size:14px;font-weight:600;color:var(--ink)}
 .qualification-item .mono{font-size:12px;color:var(--muted)}
 .qualification-item em{font-size:12px;font-style:normal;color:var(--crit)}
@@ -410,11 +431,16 @@ tbody tr:hover{background:var(--surface-2)}
 .st{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);white-space:nowrap}
 tr.off td{color:var(--faint)}
 tr.off .av{color:var(--faint)}
-.acts{white-space:nowrap}
+.acts{min-width:196px;vertical-align:top}
+.action-grid{display:grid;grid-template-columns:repeat(2,minmax(76px,1fr));gap:8px;align-content:start}
 .lk{min-height:44px;background:none;border:0;color:var(--accent);font-size:14px;cursor:pointer;padding:8px 6px;font-family:inherit}
 .lk:hover{text-decoration:underline}
 .lk.danger{color:var(--crit)}
 .lk:disabled{color:var(--faint);cursor:not-allowed;text-decoration:none}
+.action-grid .lk{display:inline-flex;align-items:center;justify-content:center;min-width:76px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--surface);font-weight:600;padding:8px 10px;transition:border-color .15s ease,background .15s ease,color .15s ease}
+.action-grid .lk:hover{border-color:var(--accent);background:var(--accent-soft);text-decoration:none}
+.action-grid .lk.danger:hover{border-color:var(--crit);background:var(--crit-soft)}
+.action-grid .lk:disabled{border-color:var(--line);background:var(--surface-2)}
 .dim{color:var(--faint);font-size:14px}
 .empty{color:var(--faint);font-size:14px;text-align:center;padding:20px 18px}
 tbody tr:has(.empty):hover{background:transparent}
