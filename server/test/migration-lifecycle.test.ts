@@ -82,7 +82,10 @@ test('openDb records the compatibility baseline once across restarts', () => {
     const reopened = openDb(path)
     assert.deepEqual(
       reopened.prepare('SELECT id,name FROM schema_migrations ORDER BY id').all().map(row => ({ ...row })),
-      [{ id: '2026082501', name: 'record legacy schema compatibility baseline' }],
+      [
+        { id: '2026082501', name: 'record legacy schema compatibility baseline' },
+        { id: '2026090101', name: 'add AI durable execution boundary' },
+      ],
     )
     reopened.close()
   } finally {

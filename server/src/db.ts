@@ -5,6 +5,7 @@ import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, unl
 import { resolve, sep } from 'node:path'
 import { createHash } from 'node:crypto'
 import { detectImageMime } from './attachmentSecurity.ts'
+import { AI_DURABLE_SCHEMA } from './ai/durable-schema.ts'
 import { runMigrations, type Migration } from './migrations.ts'
 
 export type DB = DatabaseSync
@@ -981,11 +982,18 @@ function applyLegacySchemaCompatibility(db: DB) {
   addColumn(db, 'ALTER TABLE reagents ADD COLUMN deleted INTEGER NOT NULL DEFAULT 0')
 }
 
-const SCHEMA_MIGRATIONS: readonly Migration[] = [{
-  id: '2026082501',
-  name: 'record legacy schema compatibility baseline',
-  up: applyLegacySchemaCompatibility,
-}]
+const SCHEMA_MIGRATIONS: readonly Migration[] = [
+  {
+    id: '2026082501',
+    name: 'record legacy schema compatibility baseline',
+    up: applyLegacySchemaCompatibility,
+  },
+  {
+    id: '2026090101',
+    name: 'add AI durable execution boundary',
+    up: db => db.exec(AI_DURABLE_SCHEMA),
+  },
+]
 
 export function openDb(path = 'data.db',options:OpenDbOptions={}): DB {
   const db = new DatabaseSync(path)
