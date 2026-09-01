@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T13","scenario":"idempotency_conflict","expected":{"errorCode":"AI_IDEMPOTENCY_CONFLICT","originalState":"completed"}}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "caseId": "T02",
+  "scenario": "no_material_change",
+  "expected": {
+    "state": "no_change",
+    "errorCode": null,
+    "auditEventTypes": [
+      "run.accepted",
+      "event.validated",
+      "evidence.completed",
+      "run.no_change",
+      "eval.completed",
+      "run.completed"
+    ]
+  }
+}

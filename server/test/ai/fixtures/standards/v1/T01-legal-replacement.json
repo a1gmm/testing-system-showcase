@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "caseId": "T01",
+  "scenario": "legal_replacement",
+  "advisoryModes": ["advisory_clear", "advisory_concerns"],
+  "expected": {
+    "state": "completed",
+    "errorCode": null,
+    "candidateBasis": "HJ 000-2026",
+    "auditEventTypes": [
+      "run.accepted",
+      "event.validated",
+      "tool.authorized",
+      "evidence.completed",
+      "proposal.drafted",
+      "proposal.advisory_recorded",
+      "proposal.machine_verified",
+      "approval.requested",
+      "approval.approved",
+      "fake_apply.completed",
+      "eval.completed",
+      "run.completed"
+    ]
+  }
+}

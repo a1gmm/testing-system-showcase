@@ -1,0 +1,965 @@
+{
+  "schemaVersion": 1,
+  "vectors": [
+    {
+      "name": "event-hash-and-id",
+      "prefix": "sce",
+      "projection": {
+        "schemaVersion": 1,
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "standards-fixture-v1",
+        "eventKind": "replacement",
+        "standardCode": "HJ 000-2026",
+        "oldVersion": "HJ 000-2020",
+        "newVersion": "HJ 000-2026",
+        "detectedBy": "deterministic-standard-diff-v1",
+        "detectedAt": "2026-08-30T00:00:00Z",
+        "sourceSnapshotIds": [
+          "source-snapshot-001"
+        ],
+        "sourceRefs": [
+          {
+            "sourceId": "mee-example",
+            "sourceUrl": "https://www.mee.gov.cn/ywgz/fgbz/bz/",
+            "fetchedAt": "2026-08-30T00:00:00Z",
+            "contentSha256": "1111111111111111111111111111111111111111111111111111111111111111",
+            "status": "current_fixture"
+          }
+        ],
+        "changeHints": [
+          "replacement"
+        ],
+        "targetSnapshotVersion": "templates-fixture-v1"
+      },
+      "expectedCanonical": "{\"changeHints\":[\"replacement\"],\"detectedAt\":\"2026-08-30T00:00:00Z\",\"detectedBy\":\"deterministic-standard-diff-v1\",\"eventKind\":\"replacement\",\"newVersion\":\"HJ 000-2026\",\"oldVersion\":\"HJ 000-2020\",\"schemaVersion\":1,\"scopeId\":\"standards-fixture-v1\",\"sourceRefs\":[{\"contentSha256\":\"1111111111111111111111111111111111111111111111111111111111111111\",\"fetchedAt\":\"2026-08-30T00:00:00Z\",\"sourceId\":\"mee-example\",\"sourceUrl\":\"https://www.mee.gov.cn/ywgz/fgbz/bz/\",\"status\":\"current_fixture\"}],\"sourceSnapshotIds\":[\"source-snapshot-001\"],\"standardCode\":\"HJ 000-2026\",\"targetSnapshotVersion\":\"templates-fixture-v1\",\"tenantId\":\"tenant-synthetic-01\"}",
+      "expectedHash": "a31edea2754041536cdddfc4c6967fe2f07ddd9627baaa1e115a531432b03280",
+      "expectedId": "sce_a31edea2754041536cdddfc4"
+    },
+    {
+      "name": "candidate-snapshot-content-and-id",
+      "prefix": "cts",
+      "projection": {
+        "schemaVersion": 1,
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "standards-fixture-v1",
+        "repositoryId": "repository-synthetic-01",
+        "baseSnapshotVersion": "templates-fixture-v1",
+        "baseSnapshotHash": "2222222222222222222222222222222222222222222222222222222222222222",
+        "resultSnapshotVersion": "templates-fixture-v1-candidate-01",
+        "templateIds": [
+          "template-synthetic-01"
+        ],
+        "fields": [
+          {
+            "templateId": "template-synthetic-01",
+            "fieldId": "basis",
+            "value": "HJ 000-2026"
+          }
+        ],
+        "proposalId": "prp_333333333333333333333333",
+        "proposalRevisionId": "prv_444444444444444444444444",
+        "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "diffHash": "6666666666666666666666666666666666666666666666666666666666666666",
+        "createdByToolVersion": "fake.apply.v1"
+      },
+      "expectedCanonical": "{\"baseSnapshotHash\":\"2222222222222222222222222222222222222222222222222222222222222222\",\"baseSnapshotVersion\":\"templates-fixture-v1\",\"createdByToolVersion\":\"fake.apply.v1\",\"diffHash\":\"6666666666666666666666666666666666666666666666666666666666666666\",\"fields\":[{\"fieldId\":\"basis\",\"templateId\":\"template-synthetic-01\",\"value\":\"HJ 000-2026\"}],\"proposalContentHash\":\"5555555555555555555555555555555555555555555555555555555555555555\",\"proposalId\":\"prp_333333333333333333333333\",\"proposalRevisionId\":\"prv_444444444444444444444444\",\"repositoryId\":\"repository-synthetic-01\",\"resultSnapshotVersion\":\"templates-fixture-v1-candidate-01\",\"schemaVersion\":1,\"scopeId\":\"standards-fixture-v1\",\"templateIds\":[\"template-synthetic-01\"],\"tenantId\":\"tenant-synthetic-01\"}",
+      "expectedHash": "d5dbfd5fc82925b8123e6c9c88125ea60fdc5993677b0e1d812ed3551fa393ed",
+      "expectedId": "cts_d5dbfd5fc82925b8123e6c9c"
+    },
+    {
+      "name": "machine-verification-content-and-id",
+      "prefix": "mvr",
+      "projection": {
+        "schemaVersion": 1,
+        "runId": "run_777777777777777777777777",
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "standards-fixture-v1",
+        "proposalId": "prp_333333333333333333333333",
+        "proposalRevisionId": "prv_444444444444444444444444",
+        "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+        "evidencePacketId": "evp_bbbbbbbbbbbbbbbbbbbbbbbb",
+        "evidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "advisoryCheckId": "adv_cccccccccccccccccccccccc",
+        "advisoryCheckContentHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "targetSnapshotId": "bts_dddddddddddddddddddddddd",
+        "targetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "machineGateResults": [
+          {
+            "gateId": "schema_valid",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3"
+          },
+          {
+            "gateId": "scope_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a44d4f6a7fab67bc975e1e43db96f19915f38c37b95380e1ac566daf118f4fad"
+          },
+          {
+            "gateId": "citations_complete",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "bc2a8fe50b6aabba52813ce426db05302e765bf28e232a8010e2dddd9f10913a"
+          },
+          {
+            "gateId": "target_preconditions_match",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "c44df0489a5951c2fca847c79c25dd0f7281664e1e99e0a67ba3d054c3c72bc3"
+          },
+          {
+            "gateId": "tool_allowlisted",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "cc6820ab1e0c58572811e4112793e2a41ab990ebc08a39d481b76cc491b32da9"
+          },
+          {
+            "gateId": "budget_within_limit",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "0a7a10484f1db36d3ddcd2fb5c11583551d0e5073593517543400b989b844491"
+          },
+          {
+            "gateId": "advisory_artifact_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746"
+          }
+        ],
+        "outcome": "verified",
+        "errorCode": null
+      },
+      "expectedCanonical": "{\"advisoryCheckContentHash\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"advisoryCheckId\":\"adv_cccccccccccccccccccccccc\",\"errorCode\":null,\"evidenceContentHash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"evidencePacketId\":\"evp_bbbbbbbbbbbbbbbbbbbbbbbb\",\"machineGateResults\":[{\"errorCode\":null,\"gateId\":\"schema_valid\",\"outcome\":\"pass\",\"subjectHash\":\"5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3\"},{\"errorCode\":null,\"gateId\":\"scope_bound\",\"outcome\":\"pass\",\"subjectHash\":\"a44d4f6a7fab67bc975e1e43db96f19915f38c37b95380e1ac566daf118f4fad\"},{\"errorCode\":null,\"gateId\":\"citations_complete\",\"outcome\":\"pass\",\"subjectHash\":\"bc2a8fe50b6aabba52813ce426db05302e765bf28e232a8010e2dddd9f10913a\"},{\"errorCode\":null,\"gateId\":\"target_preconditions_match\",\"outcome\":\"pass\",\"subjectHash\":\"c44df0489a5951c2fca847c79c25dd0f7281664e1e99e0a67ba3d054c3c72bc3\"},{\"errorCode\":null,\"gateId\":\"tool_allowlisted\",\"outcome\":\"pass\",\"subjectHash\":\"cc6820ab1e0c58572811e4112793e2a41ab990ebc08a39d481b76cc491b32da9\"},{\"errorCode\":null,\"gateId\":\"budget_within_limit\",\"outcome\":\"pass\",\"subjectHash\":\"0a7a10484f1db36d3ddcd2fb5c11583551d0e5073593517543400b989b844491\"},{\"errorCode\":null,\"gateId\":\"advisory_artifact_bound\",\"outcome\":\"pass\",\"subjectHash\":\"a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746\"}],\"outcome\":\"verified\",\"proposalContentHash\":\"5555555555555555555555555555555555555555555555555555555555555555\",\"proposalId\":\"prp_333333333333333333333333\",\"proposalRevisionId\":\"prv_444444444444444444444444\",\"runId\":\"run_777777777777777777777777\",\"schemaVersion\":1,\"scopeId\":\"standards-fixture-v1\",\"targetSnapshotHash\":\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"targetSnapshotId\":\"bts_dddddddddddddddddddddddd\",\"tenantId\":\"tenant-synthetic-01\"}",
+      "expectedHash": "e79942e31298e6a65911a959159cacbf2561dd0f48e6372892bb2000eb8977ba",
+      "expectedId": "mvr_e79942e31298e6a65911a959"
+    },
+    {
+      "name": "audit-hash-and-id",
+      "prefix": "aud",
+      "projection": {
+        "schemaVersion": 1,
+        "sequence": 2,
+        "runId": "run_777777777777777777777777",
+        "eventType": "proposal.machine_verified",
+        "actorKind": "service_principal",
+        "role": "control",
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "standards-fixture-v1",
+        "objectType": "MachineVerificationResultV1",
+        "objectId": "mvr_888888888888888888888888",
+        "objectHash": "9999999999999999999999999999999999999999999999999999999999999999",
+        "policyVersion": "policy-offline-v1",
+        "promptVersion": "prompt-fixture-v1",
+        "modelVersion": "fake-provider-v1",
+        "toolVersion": "proposal.machine_verify.v1",
+        "budgetSnapshot": {
+          "stepsUsed": 4,
+          "toolCallsUsed": 3,
+          "evidenceItemsUsed": 2,
+          "inputBytesUsed": 1024
+        },
+        "outcome": "pass",
+        "errorCode": null,
+        "previousAuditHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expectedCanonical": "{\"actorKind\":\"service_principal\",\"budgetSnapshot\":{\"evidenceItemsUsed\":2,\"inputBytesUsed\":1024,\"stepsUsed\":4,\"toolCallsUsed\":3},\"errorCode\":null,\"eventType\":\"proposal.machine_verified\",\"modelVersion\":\"fake-provider-v1\",\"objectHash\":\"9999999999999999999999999999999999999999999999999999999999999999\",\"objectId\":\"mvr_888888888888888888888888\",\"objectType\":\"MachineVerificationResultV1\",\"outcome\":\"pass\",\"policyVersion\":\"policy-offline-v1\",\"previousAuditHash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"promptVersion\":\"prompt-fixture-v1\",\"role\":\"control\",\"runId\":\"run_777777777777777777777777\",\"schemaVersion\":1,\"scopeId\":\"standards-fixture-v1\",\"sequence\":2,\"tenantId\":\"tenant-synthetic-01\",\"toolVersion\":\"proposal.machine_verify.v1\"}",
+      "expectedHash": "7eea42035347302266f8d76634d516fc36d1333d09563c7e2ecd810947c0f877",
+      "expectedId": "aud_7eea42035347302266f8d766"
+    }
+  ],
+  "bindings": {
+    "envelope": {
+      "tenantId": "tenant-synthetic-01",
+      "scopeId": "standards-fixture-v1"
+    },
+    "acceptedArtifacts": [
+      {
+        "kind": "CitationV1",
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "standards-fixture-v1"
+      },
+      {
+        "kind": "AdvisoryCheckV1",
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "standards-fixture-v1"
+      },
+      {
+        "kind": "FakeApplyResultV1",
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "standards-fixture-v1"
+      },
+      {
+        "kind": "EvalResultV1",
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "standards-fixture-v1"
+      }
+    ],
+    "rejectedArtifacts": [
+      {
+        "kind": "CitationV1",
+        "tenantId": "tenant-other",
+        "scopeId": "standards-fixture-v1"
+      },
+      {
+        "kind": "AdvisoryCheckV1",
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "scope-other"
+      },
+      {
+        "kind": "FakeApplyResultV1",
+        "tenantId": "tenant-other",
+        "scopeId": "standards-fixture-v1"
+      },
+      {
+        "kind": "EvalResultV1",
+        "tenantId": "tenant-synthetic-01",
+        "scopeId": "scope-other"
+      }
+    ]
+  },
+  "machineGateCases": [
+    {
+      "name": "all-pass-advisory-clear",
+      "input": {
+        "schemas": { "proposal": true, "evidencePacket": true, "advisoryCheck": true, "targetSnapshot": true },
+        "bindings": {
+          "expectedTenantId": "tenant-synthetic-01",
+          "expectedScopeId": "standards-fixture-v1",
+          "artifacts": [
+            { "objectType": "ProposalV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "EvidencePacketV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "AdvisoryCheckV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "BaseTemplateSnapshotV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" }
+          ]
+        },
+        "citations": {
+          "evidenceCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "proposalCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "changes": [{ "changeId": "change-001", "citationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"] }],
+          "missingEvidence": []
+        },
+        "target": {
+          "proposalSnapshotId": "bts_dddddddddddddddddddddddd",
+          "proposalSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "proposalTargetVersion": "templates-fixture-v1",
+          "currentSnapshotId": "bts_dddddddddddddddddddddddd",
+          "currentSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "currentTargetVersion": "templates-fixture-v1",
+          "changedFieldIds": ["basis"],
+          "allowedFieldIds": ["basis"]
+        },
+        "tools": {
+          "machineToolVersion": "proposal.machine_verify.v1",
+          "proposalToolVersion": "proposal.create.v1",
+          "advisoryToolVersion": "advisory.check.v1",
+          "proposalCapabilityPackVersion": "standards.template-impact.v1",
+          "advisoryCapabilityPackVersion": "standards.independent-review.v1",
+          "allowedToolVersions": ["advisory.check.v1", "proposal.create.v1", "proposal.machine_verify.v1"],
+          "allowedCapabilityPackVersions": ["standards.independent-review.v1", "standards.template-impact.v1"]
+        },
+        "budget": {
+          "used": { "steps": 4, "toolCalls": 3, "evidenceItems": 2, "inputBytes": 1024 },
+          "limits": { "steps": 8, "toolCalls": 4, "evidenceItems": 4, "inputBytes": 4096 }
+        },
+        "advisoryBinding": {
+          "advisoryRole": "independent_review",
+          "capabilityPackVersion": "standards.independent-review.v1",
+          "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "expectedProposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "evidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expectedEvidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "targetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "expectedTargetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        "advisoryOutcome": "advisory_clear"
+      },
+      "expectedOutput": {
+        "ok": true,
+        "machineGateResults": [
+          {
+            "gateId": "schema_valid",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3"
+          },
+          {
+            "gateId": "scope_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a44d4f6a7fab67bc975e1e43db96f19915f38c37b95380e1ac566daf118f4fad"
+          },
+          {
+            "gateId": "citations_complete",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "bc2a8fe50b6aabba52813ce426db05302e765bf28e232a8010e2dddd9f10913a"
+          },
+          {
+            "gateId": "target_preconditions_match",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "c44df0489a5951c2fca847c79c25dd0f7281664e1e99e0a67ba3d054c3c72bc3"
+          },
+          {
+            "gateId": "tool_allowlisted",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "cc6820ab1e0c58572811e4112793e2a41ab990ebc08a39d481b76cc491b32da9"
+          },
+          {
+            "gateId": "budget_within_limit",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "0a7a10484f1db36d3ddcd2fb5c11583551d0e5073593517543400b989b844491"
+          },
+          {
+            "gateId": "advisory_artifact_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746"
+          }
+        ],
+        "outcome": "verified",
+        "errorCode": null,
+        "nextRunState": "machine_verified"
+      }
+    },
+    {
+      "name": "all-pass-advisory-concerns",
+      "input": {
+        "schemas": { "proposal": true, "evidencePacket": true, "advisoryCheck": true, "targetSnapshot": true },
+        "bindings": {
+          "expectedTenantId": "tenant-synthetic-01",
+          "expectedScopeId": "standards-fixture-v1",
+          "artifacts": [
+            { "objectType": "ProposalV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "EvidencePacketV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "AdvisoryCheckV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "BaseTemplateSnapshotV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" }
+          ]
+        },
+        "citations": {
+          "evidenceCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "proposalCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "changes": [{ "changeId": "change-001", "citationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"] }],
+          "missingEvidence": []
+        },
+        "target": {
+          "proposalSnapshotId": "bts_dddddddddddddddddddddddd",
+          "proposalSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "proposalTargetVersion": "templates-fixture-v1",
+          "currentSnapshotId": "bts_dddddddddddddddddddddddd",
+          "currentSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "currentTargetVersion": "templates-fixture-v1",
+          "changedFieldIds": ["basis"],
+          "allowedFieldIds": ["basis"]
+        },
+        "tools": {
+          "machineToolVersion": "proposal.machine_verify.v1",
+          "proposalToolVersion": "proposal.create.v1",
+          "advisoryToolVersion": "advisory.check.v1",
+          "proposalCapabilityPackVersion": "standards.template-impact.v1",
+          "advisoryCapabilityPackVersion": "standards.independent-review.v1",
+          "allowedToolVersions": ["advisory.check.v1", "proposal.create.v1", "proposal.machine_verify.v1"],
+          "allowedCapabilityPackVersions": ["standards.independent-review.v1", "standards.template-impact.v1"]
+        },
+        "budget": {
+          "used": { "steps": 4, "toolCalls": 3, "evidenceItems": 2, "inputBytes": 1024 },
+          "limits": { "steps": 8, "toolCalls": 4, "evidenceItems": 4, "inputBytes": 4096 }
+        },
+        "advisoryBinding": {
+          "advisoryRole": "independent_review",
+          "capabilityPackVersion": "standards.independent-review.v1",
+          "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "expectedProposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "evidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expectedEvidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "targetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "expectedTargetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        "advisoryOutcome": "advisory_concerns"
+      },
+      "expectedOutput": {
+        "ok": true,
+        "machineGateResults": [
+          {
+            "gateId": "schema_valid",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3"
+          },
+          {
+            "gateId": "scope_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a44d4f6a7fab67bc975e1e43db96f19915f38c37b95380e1ac566daf118f4fad"
+          },
+          {
+            "gateId": "citations_complete",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "bc2a8fe50b6aabba52813ce426db05302e765bf28e232a8010e2dddd9f10913a"
+          },
+          {
+            "gateId": "target_preconditions_match",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "c44df0489a5951c2fca847c79c25dd0f7281664e1e99e0a67ba3d054c3c72bc3"
+          },
+          {
+            "gateId": "tool_allowlisted",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "cc6820ab1e0c58572811e4112793e2a41ab990ebc08a39d481b76cc491b32da9"
+          },
+          {
+            "gateId": "budget_within_limit",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "0a7a10484f1db36d3ddcd2fb5c11583551d0e5073593517543400b989b844491"
+          },
+          {
+            "gateId": "advisory_artifact_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746"
+          }
+        ],
+        "outcome": "verified",
+        "errorCode": null,
+        "nextRunState": "machine_verified"
+      }
+    },
+    {
+      "name": "citation-failure",
+      "input": {
+        "schemas": { "proposal": true, "evidencePacket": true, "advisoryCheck": true, "targetSnapshot": true },
+        "bindings": {
+          "expectedTenantId": "tenant-synthetic-01",
+          "expectedScopeId": "standards-fixture-v1",
+          "artifacts": [
+            { "objectType": "ProposalV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "EvidencePacketV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "AdvisoryCheckV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "BaseTemplateSnapshotV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" }
+          ]
+        },
+        "citations": {
+          "evidenceCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "proposalCitationIds": ["cit_missing00000000000000000"],
+          "changes": [{ "changeId": "change-001", "citationIds": ["cit_missing00000000000000000"] }],
+          "missingEvidence": []
+        },
+        "target": {
+          "proposalSnapshotId": "bts_dddddddddddddddddddddddd",
+          "proposalSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "proposalTargetVersion": "templates-fixture-v1",
+          "currentSnapshotId": "bts_dddddddddddddddddddddddd",
+          "currentSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "currentTargetVersion": "templates-fixture-v1",
+          "changedFieldIds": ["basis"],
+          "allowedFieldIds": ["basis"]
+        },
+        "tools": {
+          "machineToolVersion": "proposal.machine_verify.v1",
+          "proposalToolVersion": "proposal.create.v1",
+          "advisoryToolVersion": "advisory.check.v1",
+          "proposalCapabilityPackVersion": "standards.template-impact.v1",
+          "advisoryCapabilityPackVersion": "standards.independent-review.v1",
+          "allowedToolVersions": ["advisory.check.v1", "proposal.create.v1", "proposal.machine_verify.v1"],
+          "allowedCapabilityPackVersions": ["standards.independent-review.v1", "standards.template-impact.v1"]
+        },
+        "budget": {
+          "used": { "steps": 4, "toolCalls": 3, "evidenceItems": 2, "inputBytes": 1024 },
+          "limits": { "steps": 8, "toolCalls": 4, "evidenceItems": 4, "inputBytes": 4096 }
+        },
+        "advisoryBinding": {
+          "advisoryRole": "independent_review",
+          "capabilityPackVersion": "standards.independent-review.v1",
+          "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "expectedProposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "evidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expectedEvidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "targetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "expectedTargetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        "advisoryOutcome": "advisory_clear"
+      },
+      "expectedOutput": {
+        "ok": false,
+        "machineGateResults": [
+          {
+            "gateId": "schema_valid",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3"
+          },
+          {
+            "gateId": "scope_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a44d4f6a7fab67bc975e1e43db96f19915f38c37b95380e1ac566daf118f4fad"
+          },
+          {
+            "gateId": "citations_complete",
+            "outcome": "fail",
+            "errorCode": "AI_CITATION_MISSING",
+            "subjectHash": "032cf3d23fa581600fc1ecfa138e270d11126d38c8eddc2f8b6f95c35a56028c"
+          },
+          {
+            "gateId": "target_preconditions_match",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "c44df0489a5951c2fca847c79c25dd0f7281664e1e99e0a67ba3d054c3c72bc3"
+          },
+          {
+            "gateId": "tool_allowlisted",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "cc6820ab1e0c58572811e4112793e2a41ab990ebc08a39d481b76cc491b32da9"
+          },
+          {
+            "gateId": "budget_within_limit",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "0a7a10484f1db36d3ddcd2fb5c11583551d0e5073593517543400b989b844491"
+          },
+          {
+            "gateId": "advisory_artifact_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746"
+          }
+        ],
+        "outcome": "rejected",
+        "errorCode": "AI_CITATION_MISSING",
+        "nextRunState": "proposal_draft"
+      }
+    },
+    {
+      "name": "scope-failure",
+      "input": {
+        "schemas": { "proposal": true, "evidencePacket": true, "advisoryCheck": true, "targetSnapshot": true },
+        "bindings": {
+          "expectedTenantId": "tenant-synthetic-01",
+          "expectedScopeId": "standards-fixture-v1",
+          "artifacts": [
+            { "objectType": "ProposalV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "EvidencePacketV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "AdvisoryCheckV1", "tenantId": "tenant-synthetic-01", "scopeId": "scope-other" },
+            { "objectType": "BaseTemplateSnapshotV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" }
+          ]
+        },
+        "citations": {
+          "evidenceCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "proposalCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "changes": [{ "changeId": "change-001", "citationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"] }],
+          "missingEvidence": []
+        },
+        "target": {
+          "proposalSnapshotId": "bts_dddddddddddddddddddddddd",
+          "proposalSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "proposalTargetVersion": "templates-fixture-v1",
+          "currentSnapshotId": "bts_dddddddddddddddddddddddd",
+          "currentSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "currentTargetVersion": "templates-fixture-v1",
+          "changedFieldIds": ["basis"],
+          "allowedFieldIds": ["basis"]
+        },
+        "tools": {
+          "machineToolVersion": "proposal.machine_verify.v1",
+          "proposalToolVersion": "proposal.create.v1",
+          "advisoryToolVersion": "advisory.check.v1",
+          "proposalCapabilityPackVersion": "standards.template-impact.v1",
+          "advisoryCapabilityPackVersion": "standards.independent-review.v1",
+          "allowedToolVersions": ["advisory.check.v1", "proposal.create.v1", "proposal.machine_verify.v1"],
+          "allowedCapabilityPackVersions": ["standards.independent-review.v1", "standards.template-impact.v1"]
+        },
+        "budget": {
+          "used": { "steps": 4, "toolCalls": 3, "evidenceItems": 2, "inputBytes": 1024 },
+          "limits": { "steps": 8, "toolCalls": 4, "evidenceItems": 4, "inputBytes": 4096 }
+        },
+        "advisoryBinding": {
+          "advisoryRole": "independent_review",
+          "capabilityPackVersion": "standards.independent-review.v1",
+          "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "expectedProposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "evidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expectedEvidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "targetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "expectedTargetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        "advisoryOutcome": "advisory_clear"
+      },
+      "expectedOutput": {
+        "ok": false,
+        "machineGateResults": [
+          {
+            "gateId": "schema_valid",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3"
+          },
+          {
+            "gateId": "scope_bound",
+            "outcome": "fail",
+            "errorCode": "AI_SCOPE_DENIED",
+            "subjectHash": "cc55a206f824f8b49af66e147d21755994772215dad85bb0d0a984f644372d1d"
+          },
+          {
+            "gateId": "citations_complete",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "bc2a8fe50b6aabba52813ce426db05302e765bf28e232a8010e2dddd9f10913a"
+          },
+          {
+            "gateId": "target_preconditions_match",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "c44df0489a5951c2fca847c79c25dd0f7281664e1e99e0a67ba3d054c3c72bc3"
+          },
+          {
+            "gateId": "tool_allowlisted",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "cc6820ab1e0c58572811e4112793e2a41ab990ebc08a39d481b76cc491b32da9"
+          },
+          {
+            "gateId": "budget_within_limit",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "0a7a10484f1db36d3ddcd2fb5c11583551d0e5073593517543400b989b844491"
+          },
+          {
+            "gateId": "advisory_artifact_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746"
+          }
+        ],
+        "outcome": "rejected",
+        "errorCode": "AI_SCOPE_DENIED",
+        "nextRunState": "failed"
+      }
+    },
+    {
+      "name": "target-failure",
+      "input": {
+        "schemas": { "proposal": true, "evidencePacket": true, "advisoryCheck": true, "targetSnapshot": true },
+        "bindings": {
+          "expectedTenantId": "tenant-synthetic-01",
+          "expectedScopeId": "standards-fixture-v1",
+          "artifacts": [
+            { "objectType": "ProposalV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "EvidencePacketV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "AdvisoryCheckV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "BaseTemplateSnapshotV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" }
+          ]
+        },
+        "citations": {
+          "evidenceCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "proposalCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "changes": [{ "changeId": "change-001", "citationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"] }],
+          "missingEvidence": []
+        },
+        "target": {
+          "proposalSnapshotId": "bts_dddddddddddddddddddddddd",
+          "proposalSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "proposalTargetVersion": "templates-fixture-v1",
+          "currentSnapshotId": "bts_dddddddddddddddddddddddd",
+          "currentSnapshotHash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "currentTargetVersion": "templates-fixture-v1",
+          "changedFieldIds": ["basis"],
+          "allowedFieldIds": ["basis"]
+        },
+        "tools": {
+          "machineToolVersion": "proposal.machine_verify.v1",
+          "proposalToolVersion": "proposal.create.v1",
+          "advisoryToolVersion": "advisory.check.v1",
+          "proposalCapabilityPackVersion": "standards.template-impact.v1",
+          "advisoryCapabilityPackVersion": "standards.independent-review.v1",
+          "allowedToolVersions": ["advisory.check.v1", "proposal.create.v1", "proposal.machine_verify.v1"],
+          "allowedCapabilityPackVersions": ["standards.independent-review.v1", "standards.template-impact.v1"]
+        },
+        "budget": {
+          "used": { "steps": 4, "toolCalls": 3, "evidenceItems": 2, "inputBytes": 1024 },
+          "limits": { "steps": 8, "toolCalls": 4, "evidenceItems": 4, "inputBytes": 4096 }
+        },
+        "advisoryBinding": {
+          "advisoryRole": "independent_review",
+          "capabilityPackVersion": "standards.independent-review.v1",
+          "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "expectedProposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "evidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expectedEvidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "targetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "expectedTargetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        "advisoryOutcome": "advisory_clear"
+      },
+      "expectedOutput": {
+        "ok": false,
+        "machineGateResults": [
+          {
+            "gateId": "schema_valid",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3"
+          },
+          {
+            "gateId": "scope_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a44d4f6a7fab67bc975e1e43db96f19915f38c37b95380e1ac566daf118f4fad"
+          },
+          {
+            "gateId": "citations_complete",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "bc2a8fe50b6aabba52813ce426db05302e765bf28e232a8010e2dddd9f10913a"
+          },
+          {
+            "gateId": "target_preconditions_match",
+            "outcome": "fail",
+            "errorCode": "AI_TOOL_CONFLICT",
+            "subjectHash": "73b39c85c7e257c3c0227eac315adbd4805b2a0fd408f7473570ca433f668fb6"
+          },
+          {
+            "gateId": "tool_allowlisted",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "cc6820ab1e0c58572811e4112793e2a41ab990ebc08a39d481b76cc491b32da9"
+          },
+          {
+            "gateId": "budget_within_limit",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "0a7a10484f1db36d3ddcd2fb5c11583551d0e5073593517543400b989b844491"
+          },
+          {
+            "gateId": "advisory_artifact_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746"
+          }
+        ],
+        "outcome": "rejected",
+        "errorCode": "AI_TOOL_CONFLICT",
+        "nextRunState": "proposal_draft"
+      }
+    },
+    {
+      "name": "tool-failure",
+      "input": {
+        "schemas": { "proposal": true, "evidencePacket": true, "advisoryCheck": true, "targetSnapshot": true },
+        "bindings": {
+          "expectedTenantId": "tenant-synthetic-01",
+          "expectedScopeId": "standards-fixture-v1",
+          "artifacts": [
+            { "objectType": "ProposalV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "EvidencePacketV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "AdvisoryCheckV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "BaseTemplateSnapshotV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" }
+          ]
+        },
+        "citations": {
+          "evidenceCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "proposalCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "changes": [{ "changeId": "change-001", "citationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"] }],
+          "missingEvidence": []
+        },
+        "target": {
+          "proposalSnapshotId": "bts_dddddddddddddddddddddddd",
+          "proposalSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "proposalTargetVersion": "templates-fixture-v1",
+          "currentSnapshotId": "bts_dddddddddddddddddddddddd",
+          "currentSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "currentTargetVersion": "templates-fixture-v1",
+          "changedFieldIds": ["basis"],
+          "allowedFieldIds": ["basis"]
+        },
+        "tools": {
+          "machineToolVersion": "proposal.machine_verify.v2",
+          "proposalToolVersion": "proposal.create.v1",
+          "advisoryToolVersion": "advisory.check.v1",
+          "proposalCapabilityPackVersion": "standards.template-impact.v1",
+          "advisoryCapabilityPackVersion": "standards.independent-review.v1",
+          "allowedToolVersions": ["advisory.check.v1", "proposal.create.v1", "proposal.machine_verify.v1"],
+          "allowedCapabilityPackVersions": ["standards.independent-review.v1", "standards.template-impact.v1"]
+        },
+        "budget": {
+          "used": { "steps": 4, "toolCalls": 3, "evidenceItems": 2, "inputBytes": 1024 },
+          "limits": { "steps": 8, "toolCalls": 4, "evidenceItems": 4, "inputBytes": 4096 }
+        },
+        "advisoryBinding": {
+          "advisoryRole": "independent_review",
+          "capabilityPackVersion": "standards.independent-review.v1",
+          "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "expectedProposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "evidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expectedEvidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "targetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "expectedTargetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        "advisoryOutcome": "advisory_clear"
+      },
+      "expectedOutput": {
+        "ok": false,
+        "machineGateResults": [
+          {
+            "gateId": "schema_valid",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3"
+          },
+          {
+            "gateId": "scope_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a44d4f6a7fab67bc975e1e43db96f19915f38c37b95380e1ac566daf118f4fad"
+          },
+          {
+            "gateId": "citations_complete",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "bc2a8fe50b6aabba52813ce426db05302e765bf28e232a8010e2dddd9f10913a"
+          },
+          {
+            "gateId": "target_preconditions_match",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "c44df0489a5951c2fca847c79c25dd0f7281664e1e99e0a67ba3d054c3c72bc3"
+          },
+          {
+            "gateId": "tool_allowlisted",
+            "outcome": "fail",
+            "errorCode": "AI_TOOL_DENIED",
+            "subjectHash": "6b5c7039928d49c9a1fb27bc4f5c0843f27ff27979345f8be4d76a1eb834e3b4"
+          },
+          {
+            "gateId": "budget_within_limit",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "0a7a10484f1db36d3ddcd2fb5c11583551d0e5073593517543400b989b844491"
+          },
+          {
+            "gateId": "advisory_artifact_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746"
+          }
+        ],
+        "outcome": "rejected",
+        "errorCode": "AI_TOOL_DENIED",
+        "nextRunState": "failed"
+      }
+    },
+    {
+      "name": "budget-failure",
+      "input": {
+        "schemas": { "proposal": true, "evidencePacket": true, "advisoryCheck": true, "targetSnapshot": true },
+        "bindings": {
+          "expectedTenantId": "tenant-synthetic-01",
+          "expectedScopeId": "standards-fixture-v1",
+          "artifacts": [
+            { "objectType": "ProposalV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "EvidencePacketV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "AdvisoryCheckV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" },
+            { "objectType": "BaseTemplateSnapshotV1", "tenantId": "tenant-synthetic-01", "scopeId": "standards-fixture-v1" }
+          ]
+        },
+        "citations": {
+          "evidenceCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "proposalCitationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"],
+          "changes": [{ "changeId": "change-001", "citationIds": ["cit_aaaaaaaaaaaaaaaaaaaaaaaa"] }],
+          "missingEvidence": []
+        },
+        "target": {
+          "proposalSnapshotId": "bts_dddddddddddddddddddddddd",
+          "proposalSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "proposalTargetVersion": "templates-fixture-v1",
+          "currentSnapshotId": "bts_dddddddddddddddddddddddd",
+          "currentSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "currentTargetVersion": "templates-fixture-v1",
+          "changedFieldIds": ["basis"],
+          "allowedFieldIds": ["basis"]
+        },
+        "tools": {
+          "machineToolVersion": "proposal.machine_verify.v1",
+          "proposalToolVersion": "proposal.create.v1",
+          "advisoryToolVersion": "advisory.check.v1",
+          "proposalCapabilityPackVersion": "standards.template-impact.v1",
+          "advisoryCapabilityPackVersion": "standards.independent-review.v1",
+          "allowedToolVersions": ["advisory.check.v1", "proposal.create.v1", "proposal.machine_verify.v1"],
+          "allowedCapabilityPackVersions": ["standards.independent-review.v1", "standards.template-impact.v1"]
+        },
+        "budget": {
+          "used": { "steps": 4, "toolCalls": 5, "evidenceItems": 2, "inputBytes": 1024 },
+          "limits": { "steps": 8, "toolCalls": 4, "evidenceItems": 4, "inputBytes": 4096 }
+        },
+        "advisoryBinding": {
+          "advisoryRole": "independent_review",
+          "capabilityPackVersion": "standards.independent-review.v1",
+          "proposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "expectedProposalContentHash": "5555555555555555555555555555555555555555555555555555555555555555",
+          "evidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expectedEvidenceContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "targetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "expectedTargetSnapshotHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        },
+        "advisoryOutcome": "advisory_clear"
+      },
+      "expectedOutput": {
+        "ok": false,
+        "machineGateResults": [
+          {
+            "gateId": "schema_valid",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "5c9f9c0f21ac8a56ac8c0e152c204923062bbf39322c21389c230a1677d8dee3"
+          },
+          {
+            "gateId": "scope_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a44d4f6a7fab67bc975e1e43db96f19915f38c37b95380e1ac566daf118f4fad"
+          },
+          {
+            "gateId": "citations_complete",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "bc2a8fe50b6aabba52813ce426db05302e765bf28e232a8010e2dddd9f10913a"
+          },
+          {
+            "gateId": "target_preconditions_match",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "c44df0489a5951c2fca847c79c25dd0f7281664e1e99e0a67ba3d054c3c72bc3"
+          },
+          {
+            "gateId": "tool_allowlisted",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "cc6820ab1e0c58572811e4112793e2a41ab990ebc08a39d481b76cc491b32da9"
+          },
+          {
+            "gateId": "budget_within_limit",
+            "outcome": "fail",
+            "errorCode": "AI_BUDGET_EXCEEDED",
+            "subjectHash": "5881c5c8a45c25da4d73be70245d9cc05f69a0568f7c482a4c9b657c1118800f"
+          },
+          {
+            "gateId": "advisory_artifact_bound",
+            "outcome": "pass",
+            "errorCode": null,
+            "subjectHash": "a7bbcf51f4afd139bf3e47179c29565b538106c0131a9840fa5737372138a746"
+          }
+        ],
+        "outcome": "rejected",
+        "errorCode": "AI_BUDGET_EXCEEDED",
+        "nextRunState": "failed"
+      }
+    }
+  ]
+}

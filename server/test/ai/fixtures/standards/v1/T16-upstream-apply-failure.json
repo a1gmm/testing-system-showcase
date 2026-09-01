@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T16","scenario":"upstream_and_apply_failure","expected":{"sourceState":"failed","sourceCode":"AI_SOURCE_UNAVAILABLE","applyState":"apply_failed","applyCode":"AI_APPLY_TRANSACTION_FAILED"}}

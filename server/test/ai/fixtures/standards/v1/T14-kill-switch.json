@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T14","scenario":"capability_and_kill_switch","expected":{"killCode":"AI_KILL_SWITCH_ACTIVE","disabledCode":"AI_CAPABILITY_DISABLED","executions":0}}

@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T08","scenario":"scope_isolation","artifactKinds":["CitationV1","AdvisoryCheckV1","MachineVerificationResultV1","ApprovalDecisionV1","DiffV1","CandidateTemplateSnapshotV1","FakeApplyResultV1","EvalResultV1"],"expected":{"errorCode":"AI_SCOPE_DENIED","successfulReads":0}}

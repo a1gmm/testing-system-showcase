@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T07","scenario":"approval_boundary","invalidActors":["missing","service_principal","ai_role","wrong_revision"],"expected":{"pendingState":"awaiting_human","errorCode":"AI_APPROVAL_REQUIRED","rejectedState":"rejected","invalidApplySuccesses":0}}

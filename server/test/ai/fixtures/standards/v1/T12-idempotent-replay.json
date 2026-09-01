@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T12","scenario":"idempotent_replay","expected":{"state":"completed","fakeApplyExecutions":1,"newReplaySideEffects":0}}

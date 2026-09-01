@@ -1,0 +1,1 @@
+{"schemaVersion":1,"caseId":"T11","scenario":"s4_rejection","secret":"synthetic-secret-must-not-appear","expected":{"errorCode":"AI_REGION_POLICY_DENIED","providerCutovers":0}}
