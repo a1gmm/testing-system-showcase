@@ -106,10 +106,8 @@ async function genTotal(candidate: (typeof eligibleTotals.value)[number]) {
 }
 // 决策17：签发后要改走作废重出
 const canVoid = () => can('report_issue')
-// —— 批次三：发放登记 + 归档清单 ——
+// —— 批次三：发放登记 + 报告绑定的冻结档案入口 ——
 const deliveries = ref<any[]>([])
-const archive = ref<{ section: string; items: { type: string; id: string; label: string }[] }[]>([])
-const archiveOpen = ref(false)
 async function loadDeliveries() {
   deliveries.value = []
   if (selected.value?.status !== 'issued') return
@@ -127,10 +125,9 @@ async function doDeliver() {
     await loadDeliveries()
   } catch { /* 取消 */ }
 }
-async function showArchive() {
-  if (!selected.value) return
-  try { archive.value = await api.archiveIndex(selected.value.id); archiveOpen.value = true }
-  catch (e: any) { ElMessage.error(e?.response?.data?.error || e?.message || e) }
+function archiveViewerUrl(report: Report) {
+  if (!report.archive_package_id) return ''
+  return `/archive-packages?archive=${encodeURIComponent(report.archive_package_id)}&report=${encodeURIComponent(report.id)}`
 }
 
 async function doVoid() {
@@ -398,7 +395,8 @@ onMounted(refresh)
                   <el-button v-if="canVoid()" size="small" @click="doVoid">作废重出</el-button>
                 </template>
               </template>
-              <el-button size="small" text type="primary" @click="showArchive">归档清单</el-button>
+              <a v-if="selected.archive_package_id" class="archive-view-link" :href="archiveViewerUrl(selected)"
+                :data-view-report-archive="selected.id">查看第1–8步原始档案</a>
             </div>
           </div>
           <ProjectStageProgress current-stage="report" :completed-stages="['contract','contract-review','scheme','dispatch','sampling','handover','quality','laboratory','archive']" />
@@ -416,14 +414,6 @@ onMounted(refresh)
               <RecordAttachments type="delivery" :id="String(dv.id)" />
             </div>
           </div>
-          <!-- 归档清单（装订顺序索引，照扫描包实证顺序） -->
-          <el-dialog v-model="archiveOpen" title="归档清单（装订顺序）" width="560px">
-            <div v-for="sec in archive" :key="sec.section" style="margin-bottom:10px">
-              <b style="font-size:13px">{{ sec.section }}</b>
-              <div v-if="!sec.items.length" style="font-size:12px;color:var(--faint)">（无）</div>
-              <div v-for="it in sec.items" :key="it.type + it.id" style="font-size:12.5px;color:var(--muted)">· {{ it.label }}</div>
-            </div>
-          </el-dialog>
           <div class="paper">
             <!-- 未签发的报告打印带斜向水印，防止草稿被当正式报告用（只在打印时显示） -->
             <div v-if="selected.status !== 'issued'" class="print-watermark" aria-hidden="true">未签发，仅供内部校对</div>
@@ -614,6 +604,8 @@ onMounted(refresh)
 .rpid{font-weight:600;font-size:13px}
 .rpt-actions{display:flex;align-items:center;gap:10px}
 .rpt-actions .btxt{margin-left:5px}
+.archive-view-link{min-height:44px;display:inline-flex;align-items:center;padding:0 12px;border:1px solid var(--accent);border-radius:7px;background:var(--surface);color:var(--accent);font-size:13px;font-weight:600;white-space:nowrap}
+.archive-view-link:hover{background:var(--accent-soft)}
 .paper{flex:1;overflow-y:auto;padding:28px 40px;background:var(--surface-2)}
 
 /* 报告纸 */

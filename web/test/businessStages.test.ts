@@ -34,6 +34,7 @@ describe('十阶段业务主线', () => {
     }
     expect(PAGE_ROLES.contracts).toContain('planner')
     expect(PAGE_ROLES.qc).toContain('planner')
+    expect(PAGE_ROLES['archive-packages']).toContain('signer')
     expect(BUSINESS_STAGES.find(stage => stage.key === 'quality')?.roles).toContain('planner')
     expect(PERM.scheme_edit).toContain('planner')
     expect(PERM.contract_edit).not.toContain('planner')

@@ -289,7 +289,7 @@ const routes: [string, string, Handler][] = [
     return createReportBatch(db, { contractId: c.body?.contractId, name: c.body?.name, roundIds: c.body?.roundIds }, u)
   }],
   ['GET', '/api/report-batches', c => {
-    need(c, 'planner', 'report_editor', 'archivist', 'tech')
+    need(c, 'planner', 'report_editor', 'archivist', 'signer', 'tech')
     return listReportBatches(db, c.query.get('contractId') || undefined)
   }],
   ['GET', '/api/archive-readiness', c => {
@@ -304,7 +304,7 @@ const routes: [string, string, Handler][] = [
     return buildArchivePackage(db, { contractId: c.body?.contractId, reportBatchId: c.body?.reportBatchId }, u)
   }],
   ['GET', '/api/archive-packages', c => {
-    need(c, 'report_editor', 'archivist', 'tech')
+    need(c, 'report_editor', 'archivist', 'signer', 'tech')
     const status = c.query.get('status') || undefined
     if (status && !['draft', 'ready', 'confirmed', 'invalidated'].includes(status)) throw new HttpErr(400, '不支持的归档状态')
     return listArchivePackages(db, { contractId: c.query.get('contractId') || undefined, status: status as any })
