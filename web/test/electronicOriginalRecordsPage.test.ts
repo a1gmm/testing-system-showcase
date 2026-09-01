@@ -40,9 +40,13 @@ const archive = {
     item(1, 'contract', '委托合同 WT-1', { id: 'WT-1', client: '甲厂' }),
     item(2, 'round_sheet', 'HJ-TC-136 现场采样原始记录', { round_id: 'R-1', template_code: 'HJ-TC-136', data: { rows: [{ point: '1#排口' }], meta: { signer: '采样员' } } }),
     item(3, 'lab_record_workflow', 'COD 检测原始记录', { record: { sampleId: 'W260831-1', templateCode: 'HJ-TC-103', templateName: '化学需氧量(CODcr)', analyte: '化学需氧量', matrix: '废水', method: '重铬酸盐法', sheetType: '原始记录', data: { rows: [{ id: 'W260831-1' }], meta: { signer: '分析员' } } } }, [{ level: 'review', decided_by: 'reviewer', decided_at: '2026-08-31T07:00:00.000Z' }]),
-    item(4, 'attachment', '色谱图.pdf', { id: 'ATT-PDF', entity_type: 'record', orig_name: '色谱图.pdf', mime: 'application/pdf' }),
-    item(5, 'attachment', '现场照片.jpg', { id: 'ATT-IMG', entity_type: 'round_sheet', orig_name: '现场照片.jpg', mime: 'image/jpeg' }),
+    item(4, 'attachment', '色谱图.pdf', { id: 'ATT-PDF', entity_type: 'record', entity_id: 'lab_record_workflow-3', orig_name: '色谱图.pdf', mime: 'application/pdf' }),
+    item(5, 'attachment', '现场照片.jpg', { id: 'ATT-IMG', entity_type: 'round_sheet', entity_id: 'R-1::HJ-TC-136', orig_name: '现场照片.jpg', mime: 'image/jpeg' }),
     item(6, 'audit_entry', '报告签批留痕', { action: 'approve', who: '审核员' }),
+    item(7, 'quality_plan_workflow', '质量安排批准记录', { requirements: [] }),
+    item(8, 'qc_record', '质量控制结果记录', { qc_type: '平行样', verdict: '合格' }),
+    item(9, 'assignment', '质控专业复核与审核人员指派表', { scope: 'quality' }),
+    item(10, 'report_batch', '报告批次 第一批', { name: '第一批' }),
   ],
 }
 
@@ -54,7 +58,7 @@ beforeEach(() => {
   mocks.attachmentUrl.mockClear()
 })
 
-test('报告入口自动读取精确冻结版本并连续呈现全部电子原始记录', async () => {
+test('报告入口只统计八类正式单据，保留质控并把照片附件放回所属单据', async () => {
   const print = vi.spyOn(window, 'print').mockImplementation(() => undefined)
   const wrapper = shallowMount(ElectronicOriginalRecords)
   await flushPromises()
@@ -65,23 +69,30 @@ test('报告入口自动读取精确冻结版本并连续呈现全部电子原�
   expect(book.text()).toContain('完整电子原始记录册')
   expect(book.text()).toContain('BG2026-0001')
   expect(book.text()).toContain('归档版本 3')
-  expect(book.text()).toContain('共 6 项冻结记录')
-  expect(wrapper.findAll('[data-record-book-item]')).toHaveLength(6)
+  expect(book.text()).toContain('共 5 项正式单据')
+  expect(wrapper.findAll('[data-record-book-item]')).toHaveLength(5)
+  expect(wrapper.get('.toc-head').text()).toContain('5 项')
+  expect(wrapper.find('[data-record-book-stage="audit"]').exists()).toBe(false)
   expect(wrapper.get('[data-record-book-stage="5"]').text()).toContain('现场采样')
+  expect(wrapper.get('[data-record-book-stage="7"]').text()).toContain('质控')
+  expect(wrapper.get('[data-record-book-stage-link="7"]').text()).toContain('2')
   expect(wrapper.get('[data-record-book-stage="8"]').text()).toContain('实验室分析')
   expect(wrapper.get('[data-frozen-sheet-host="3"]').attributes('data-template-file')).toBe('0100.pdf')
-  expect(wrapper.get('[data-record-book-pdf="ATT-PDF"]').attributes('src')).toBe('/api/attachments/file/ATT-PDF')
-  expect(wrapper.get('[data-record-book-image="ATT-IMG"]').attributes('src')).toBe('/api/attachments/file/ATT-IMG')
+  expect(wrapper.get('[data-record-book-item="3"] [data-record-book-pdf="ATT-PDF"]').attributes('src')).toBe('/api/attachments/file/ATT-PDF')
+  expect(wrapper.get('[data-record-book-item="2"] [data-record-book-image="ATT-IMG"]').attributes('src')).toBe('/api/attachments/file/ATT-IMG')
+  expect(book.text()).not.toContain('质控专业复核与审核人员指派表')
+  expect(book.text()).not.toContain('报告签批留痕')
+  expect(book.text()).not.toContain('报告批次 第一批')
   await wrapper.get('[data-print-record-book]').trigger('click')
   expect(print).toHaveBeenCalledOnce()
   print.mockRestore()
 })
 
-test('非电子模板归档记录也使用正式表格投影，不再退回通用字段清单', async () => {
+test('非电子模板正式单据使用正式表格投影，不为内部记录生成表格', async () => {
   const wrapper = shallowMount(ElectronicOriginalRecords)
   await flushPromises()
 
-  expect(wrapper.findAllComponents({ name: 'ArchiveFormalRecord' })).toHaveLength(2)
+  expect(wrapper.findAllComponents({ name: 'ArchiveFormalRecord' })).toHaveLength(3)
   expect(wrapper.findAllComponents({ name: 'ArchiveSnapshotPreview' })).toHaveLength(0)
 })
 
