@@ -31,15 +31,18 @@ const props = defineProps<{
   roundId?: string                // 期次模式：采样员现场填，存 round_sheets；专业审核由阶段工作流承载
   tplMeta?: Record<string, any>   // 每张表从原件抽出的页脚元数据(方法依据/仪器编号/波长/狭缝/检出限等)
   initialData?: { rows?: Record<string, any>[]; meta?: Record<string, any>; cells?: Record<string, any> } // 新期次表从计划预填；已保存数据优先覆盖
+  frozenData?: RecordData         // 归档阅读：只使用报告绑定的冻结快照，不再请求当前业务记录
+  frozenInstrumentId?: string     // 归档阅读：快照内实际使用的仪器编号
   readonly?: boolean              // 无该表填写权限的岗位（如质控员看采样表）：能看不能改
   lockText?: string               // 只读时的锁提示，按场景传（采样表/检测记录说法不一样）
 }>()
 
-const persist = computed(() => !!props.sampleId)
-const roundPersist = computed(() => !props.sampleId && !!props.roundId)
+const frozen = computed(() => props.frozenData !== undefined)
+const persist = computed(() => !!props.sampleId && !frozen.value)
+const roundPersist = computed(() => !props.sampleId && !!props.roundId && !frozen.value)
 // 演示模式 = 模板库预览。真实录入（样品/期次）绝不预填演示数据——
 // 假编号/假吸光值只改一半就保存，假数据就成了正式原始记录
-const isDemo = !props.sampleId && !props.roundId
+const isDemo = !props.sampleId && !props.roundId && !frozen.value
 const schema = props.file
   ? resolveTemplateSchema({ file: props.file, code: props.code, sheetType: props.sheetType, method: props.method, meta: props.tplMeta })
   : resolveSchema(props.sheetType, props.method, props.code, props.tplMeta?.methodFull)
@@ -101,7 +104,7 @@ const signer = computed({
 })
 meta.analyte = meta.analyte || props.analyte || ''   // layout 表 schema.meta 为空，兜底填测量项目
 // 预览模式（模板库）没有加载环节，签名默认值此刻就写；持久化模式等加载完再写（见 finishLoad）
-if (!props.sampleId && !props.roundId && !meta.signer) meta.signer = (currentUser as any)?.value?.name || ''
+if (!props.sampleId && !props.roundId && !frozen.value && !meta.signer) meta.signer = (currentUser as any)?.value?.name || ''
 const cells = reactive<Record<string, any>>({})
 
 // —— 多组分（如苯系物一张表 8 个组分，各存一套曲线，隔离在开关后，不影响单组分表）——
@@ -186,7 +189,7 @@ const instWarn = computed(() => {
 
 const recStatusLabel: Record<string, string> = { draft: '草稿', submitted: '待复核', reviewed: '待审核', approved: '已通过', rejected: '已打回' }
 // 锁死 = 已提交进审核链 或 调用方判定当前岗位无填写权（后端同样会拦，这里只是别让人白填一场）
-const locked = computed(() => !!props.readonly || ['submitted', 'reviewed', 'approved'].includes(recStatus.value))
+const locked = computed(() => frozen.value || !!props.readonly || ['submitted', 'reviewed', 'approved'].includes(recStatus.value))
 
 // 模板组分改名后，老记录里旧组分名下的数据界面上不显示，但保存时必须原样带回去——不能因为改了个名就把人家的曲线丢了
 const legacyCompRows: Record<string, any[]> = {}
@@ -207,6 +210,13 @@ function applyData(d: any) {
   if (isMulti) for (const c of componentsList) enforceSampleIdentity(compRows[c])
 }
 
+// 电子原始记录册只能显示归档快照。这里在挂载前一次性灌入数据，后续 onMounted
+// 直接返回，避免读取当前记录、仪器或标物台账后把历史画面悄悄改掉。
+if (frozen.value && props.frozenData) {
+  applyData(props.frozenData)
+  instrumentId.value = props.frozenInstrumentId || ''
+}
+
 // 新建现场表时从监测计划带入日期、单位、点位和项目。这里只做初始种子；
 // onMounted 读取到后端已保存版本后会完整覆盖，绝不改写历史记录。
 if (roundPersist.value && props.initialData) {
@@ -224,6 +234,7 @@ const baseUpdatedAt = ref('')
 const dirtyKey = `sheet:${props.sampleId || props.roundId || 'preview'}:${props.code}`
 
 onMounted(async () => {
+  if (frozen.value) { loaded.value = true; return }
   loadRefOpts()
   if (roundPersist.value) {
     try {
@@ -253,7 +264,7 @@ onMounted(async () => {
 })
 function finishLoad() {
   // 签名默认值真正写进 meta（会随保存落盘）；已有签名/已锁定的不动
-  if (!meta.signer && !locked.value) meta.signer = (currentUser as any)?.value?.name || ''
+  if (!frozen.value && !meta.signer && !locked.value) meta.signer = (currentUser as any)?.value?.name || ''
   loaded.value = true
   // 加载完成后再挂脏检查：加载本身引起的变化不算“没保存”
   watch([rows, meta, cells, compRows, manualReg, instrumentId], () => { if (loaded.value) markDirty(dirtyKey) }, { deep: true })
@@ -399,7 +410,11 @@ function logEdit(row: Record<string, any>, label: string) {
         <span v-else class="sb-lock"><el-icon><Lock /></el-icon>{{ lockText || '只有采样员能填这张表' }}</span>
       </div>
     </div>
-    <div v-if="persist && recStatus === 'rejected' && recReject" class="reject-banner">
+    <div v-if="frozen" class="tip frozen-tip" data-frozen-record-sheet>
+      <el-icon><Lock /></el-icon>
+      <span><b>归档冻结快照</b> · 来自报告实际引用的定稿版本，只读显示，不读取或修改当前业务数据。</span>
+    </div>
+    <div v-else-if="persist && recStatus === 'rejected' && recReject" class="reject-banner">
       被打回：{{ recReject }}　—— 请修改后重新提交
     </div>
     <div v-else class="tip">
@@ -489,6 +504,7 @@ function logEdit(row: Record<string, any>, label: string) {
 .ssheet{padding:18px;overflow:auto;height:100%}
 .tip{display:flex;gap:9px;align-items:center;background:var(--accent-soft);color:var(--accent-ink);border:1px dashed var(--accent);border-radius:9px;padding:9px 13px;font-size:12.5px;margin-bottom:16px}
 .tip .g{color:var(--good);font-weight:600}
+.frozen-tip{background:var(--good-soft);border-color:var(--good);color:var(--good)}
 .sheet{box-sizing:border-box;width:100%;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;font-size:12.5px}
 .shead{display:flex;justify-content:space-between;padding:7px 11px;border-bottom:1px solid var(--ink);color:var(--muted);font-size:11.5px;background:var(--surface-2)}
 .stitle{text-align:center;font-size:15px;font-weight:700;padding:9px;border-bottom:1.5px solid var(--ink);letter-spacing:1px}

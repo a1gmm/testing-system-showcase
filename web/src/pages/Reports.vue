@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import RecordAttachments from '../components/RecordAttachments.vue'
-import { api, currentUser, type Report, type RecordRow, type ArchivePackage, type ReportBatch, type WorkflowAssignment, type WorkflowView, type WorkflowDecisionLevel } from '../api'
+import { api, currentUser, hasRole, type Report, type RecordRow, type ArchivePackage, type ReportBatch, type WorkflowAssignment, type WorkflowView, type WorkflowDecisionLevel } from '../api'
 import { can } from '../permissions'
 import { settleAll } from '../utils/settle'
 import StageQueueNav from '../components/StageQueueNav.vue'
@@ -127,8 +127,9 @@ async function doDeliver() {
 }
 function archiveViewerUrl(report: Report) {
   if (!report.archive_package_id) return ''
-  return `/archive-packages?archive=${encodeURIComponent(report.archive_package_id)}&report=${encodeURIComponent(report.id)}`
+  return `/reports/${encodeURIComponent(report.id)}/original-records`
 }
+const canViewOriginalRecords = () => hasRole('archivist', 'report_editor', 'signer', 'tech')
 
 async function doVoid() {
   if (!selected.value) return
@@ -395,8 +396,8 @@ onMounted(refresh)
                   <el-button v-if="canVoid()" size="small" @click="doVoid">作废重出</el-button>
                 </template>
               </template>
-              <a v-if="selected.archive_package_id" class="archive-view-link" :href="archiveViewerUrl(selected)"
-                :data-view-report-archive="selected.id">查看第1–8步原始档案</a>
+              <a v-if="selected.archive_package_id && canViewOriginalRecords()" class="archive-view-link" :href="archiveViewerUrl(selected)"
+                :data-view-report-archive="selected.id">查看完整电子原始记录</a>
             </div>
           </div>
           <ProjectStageProgress current-stage="report" :completed-stages="['contract','contract-review','scheme','dispatch','sampling','handover','quality','laboratory','archive']" />

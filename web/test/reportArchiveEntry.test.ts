@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => {
     checked_at: '2026-08-31T10:00:00.000Z', issuer: '签字人', issued_at: '2026-08-31T11:00:00.000Z',
     created_at: '2026-08-31T09:00:00.000Z', archive_package_id: 'ARCHIVE-1', voided: 0,
   }
-  return { api: {
+  return { roles: ['report_editor'] as string[], report, api: {
     listReports: vi.fn().mockResolvedValue([report]), listRecordsByStatus: vi.fn().mockResolvedValue([]),
     listAllRounds: vi.fn().mockResolvedValue([]), listSamples: vi.fn().mockResolvedValue([]),
     listArchivePackages: vi.fn().mockResolvedValue([]), listReportBatches: vi.fn().mockResolvedValue([]),
@@ -21,18 +21,36 @@ const mocks = vi.hoisted(() => {
 vi.mock('../src/api', () => ({
   api: mocks.api,
   currentUser: ref({ username: 'editor', name: '报告员', roles: ['report_editor'] }),
-  hasRole: (...roles: string[]) => roles.includes('report_editor'),
+  hasRole: (...roles: string[]) => mocks.roles.includes('admin') || roles.some(role => mocks.roles.includes(role)),
 }))
 
 import Reports from '../src/pages/Reports.vue'
 
-test('报告详情提供明确的第1–8步原始档案入口并带入报告绑定的冻结版本', async () => {
+test('报告详情直接打开自动汇编的完整电子原始记录册', async () => {
+  mocks.roles = ['report_editor']
   const wrapper = shallowMount(Reports)
   await flushPromises()
   await wrapper.get('.item').trigger('click')
   await flushPromises()
 
   const entry = wrapper.get('[data-view-report-archive="BG2026-0001"]')
-  expect(entry.text()).toContain('查看第1–8步原始档案')
-  expect(entry.attributes('href')).toBe('/archive-packages?archive=ARCHIVE-1&report=BG2026-0001')
+  expect(entry.text()).toContain('查看完整电子原始记录')
+  expect(entry.attributes('href')).toBe('/reports/BG2026-0001/original-records')
+})
+
+test('报告没有冻结归档或当前岗位无权查看时不显示入口', async () => {
+  mocks.api.listReports.mockResolvedValueOnce([{ ...mocks.report, archive_package_id: null }])
+  const noArchive = shallowMount(Reports)
+  await flushPromises()
+  await noArchive.get('.item').trigger('click')
+  await flushPromises()
+  expect(noArchive.find('[data-view-report-archive]').exists()).toBe(false)
+
+  mocks.roles = ['business']
+  mocks.api.listReports.mockResolvedValueOnce([mocks.report])
+  const forbidden = shallowMount(Reports)
+  await flushPromises()
+  await forbidden.get('.item').trigger('click')
+  await flushPromises()
+  expect(forbidden.find('[data-view-report-archive]').exists()).toBe(false)
 })

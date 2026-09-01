@@ -12,6 +12,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/test-notices/:id/print', name: 'notice-print', meta: { title: '打印任务通知单', roles: PAGE_ROLES.samples }, component: () => import('../pages/NoticePrint.vue') },
   // 报告打印页（批次二）：0096"最新标准"制式，封面→委托信息→结果→方法表→双语声明
   { path: '/reports/:id/print', name: 'report-print', meta: { title: '打印报告', roles: PAGE_ROLES.reports }, component: () => import('../pages/ReportPrint.vue') },
+  // 报告绑定的冻结第1–8步证据自动汇编成完整电子原始记录册；独立工作面便于连续阅读和打印。
+  { path: '/reports/:id/original-records', name: 'report-original-records', meta: { title: '完整电子原始记录', roles: PAGE_ROLES['archive-packages'] }, component: () => import('../pages/ElectronicOriginalRecords.vue') },
+  { path: '/archive-packages/:id/original-records', name: 'archive-original-records', meta: { title: '完整电子原始记录', roles: PAGE_ROLES['archive-packages'] }, component: () => import('../pages/ElectronicOriginalRecords.vue') },
   // 现场任务是独立、可离线冷启动的工作面。保持 eager，避免首次离线缺失动态 chunk。
   { path: '/field-tasks/:id', name: 'field-task', meta: { title: '样品工作台', roles: ['sampler'], offlinePackage: true }, component: FieldTask },
   {
