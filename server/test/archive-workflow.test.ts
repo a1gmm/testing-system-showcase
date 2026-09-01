@@ -81,10 +81,32 @@ function addRound(db: DB, contractId: string, index: number, options: RoundFixtu
     VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
     .run(sampleId, '采样交接', '赵采样', '钱收样', '完好', '', '赵采样', 'sampler-1',
       '2026-08-22T02:10:00.000Z', '钱收样', '2026-08-22T02:20:00.000Z')
+  db.prepare(`INSERT INTO round_sheets
+    (id,round_id,template_code,data,who,username,updated_at) VALUES (?,?,?,?,?,?,?)`)
+    .run(`RS-${index}`, roundId, 'HJ-TC-136', JSON.stringify({ rows: [{ point: '总排口', temperature: 20 }] }),
+      '赵采样', 'sampler-1', '2026-08-22T02:05:00.000Z')
+  db.prepare(`INSERT INTO test_notices
+    (id,sheet_id,round_id,contract_id,category,nature,source,sample_desc,groups_json,received_at,due_at,dept,
+      issuer,issuer_username,status,issued_at,note,created_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+    .run(`TZ-${index}`, `HS-${index}`, roundId, contractId, '废水', '自行监测', '现场采样', '1份水样',
+      JSON.stringify([{ sampleId, analytes: ['COD'] }]), '2026-08-22T02:20:00.000Z', '2026-08-23', '环境室',
+      '吴质控', 'qc-author', 'issued', '2026-08-22T02:30:00.000Z', '', '2026-08-22T02:25:00.000Z')
+  db.prepare(`INSERT INTO test_tasks
+    (sample_id,analyte,assignee,assignee_username,assigned_by,assigned_at) VALUES (?,?,?,?,?,?)`)
+    .run(sampleId, 'COD', '王分析', 'lab-author', '吴质控', '2026-08-22T02:35:00.000Z')
   db.prepare(`INSERT INTO quality_plans
     (subject_id,round_id,batch_id,contract_id,requirements_json,adjustments_json,author_username,updated_at)
     VALUES (?,?,NULL,?,?,?,?,?)`)
     .run(roundId, roundId, contractId, '[{"qcType":"平行样","qty":1}]', '[]', 'qc-author', '2026-08-22T03:00:00.000Z')
+  db.prepare(`INSERT INTO qc_records
+    (qc_type,round_id,sample_id,analyte,data,unit,result,verdict,criterion,note,who,username,at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+    .run('平行样', roundId, sampleId, 'COD', JSON.stringify({ first: 20, second: 20.4 }), '%', 0.99,
+      '合格', '相对偏差≤10%', '', '吴质控', 'qc-author', '2026-08-22T03:10:00.000Z')
+  db.prepare(`INSERT INTO pretreatments
+    (sample_id,method,reagent,condition,vol_final,note,who,username,at) VALUES (?,?,?,?,?,?,?,?,?)`)
+    .run(sampleId, '消解', '重铬酸钾', '165℃ 15min', '50mL', '', '王分析', 'lab-author', '2026-08-22T03:30:00.000Z')
   db.prepare(`INSERT INTO records
     (id,serial,sample_id,template_code,template_name,sheet_type,method,analyte,matrix,data,status,updated_at)
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
@@ -101,6 +123,8 @@ function addRound(db: DB, contractId: string, index: number, options: RoundFixtu
     .run(`ATT-L-${index}`, 'record', recordId, `lab-${index}.pdf`, `lab-${index}.pdf`, 'application/pdf', 20, '分析员', 'lab-author', '2026-08-22T04:05:00.000Z', 'b'.repeat(64))
   db.prepare(`INSERT INTO audit_log(record_id,who,username,action,detail,at) VALUES (?,?,?,?,?,?)`)
     .run(recordId, '审核员', 'lab-approver', 'approve', '{"revision":1}', '2026-08-22T05:00:00.000Z')
+  db.prepare(`INSERT INTO audit_log(record_id,who,username,action,detail,at) VALUES (?,?,?,?,?,?)`)
+    .run('1', '其他模块管理员', 'unrelated-admin', 'unrelated_numeric_entity', '{}', '2026-08-22T05:10:00.000Z')
 
   const sampling = options.sampling === 'missing' ? null : addWorkflow(db, {
     id: `WF-S-${index}`, contractId, roundId, type: 'round_sampling', subjectId: roundId, scope: 'sampling',
@@ -176,9 +200,18 @@ test('单期项目齐备时可归档，并以工作流实例、版本和原始�
   const types = new Set(archive.items.map(item => item.entity_type))
   for (const required of [
     'contract', 'contract_review', 'scheme', 'assignment', 'round', 'sampling_workflow', 'handover_sheet',
-    'sample_handover', 'quality_plan_workflow', 'lab_record_workflow', 'attachment', 'audit_entry',
+    'round_sheet', 'sample', 'sample_handover', 'test_notice', 'test_task', 'quality_plan_workflow',
+    'qc_record', 'pretreatment', 'lab_record_workflow', 'attachment', 'audit_entry',
   ]) assert.ok(types.has(required), `归档清单应包含 ${required}`)
   const sampling = archive.items.find(item => item.entity_type === 'sampling_workflow')!
+  assert.ok(archive.items.some(item => item.entity_type === 'assignment' && item.label === '采样专业复核/审核指派'))
+  assert.ok(archive.items.some(item => item.entity_type === 'assignment' && item.label === '质控专业复核/审核指派'))
+  assert.ok(archive.items.some(item => item.entity_type === 'assignment' && item.label === '实验室分析专业复核/审核指派'))
+  assert.ok(archive.items.some(item => item.entity_type === 'audit_entry' && item.label === `技术合同评审 · ${contractId}`))
+  assert.ok(archive.items.some(item => item.entity_type === 'audit_entry' && item.label === `现场采样完成 · ${rounds[0].roundId}`))
+  assert.ok(archive.items.some(item => item.entity_type === 'audit_entry' && item.label === `审核通过 · ${rounds[0].recordId}`))
+  assert.equal(archive.items.some(item => item.entity_type === 'audit_entry'
+    && (item.metadata.snapshot as any)?.action === 'unrelated_numeric_entity'), false)
   assert.deepEqual(
     { instance: sampling.workflow_instance_id, revision: sampling.revision, hash: sampling.content_hash },
     { instance: rounds[0].sampling!.id, revision: rounds[0].sampling!.revision, hash: rounds[0].sampling!.hash },

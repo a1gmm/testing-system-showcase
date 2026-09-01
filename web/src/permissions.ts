@@ -60,7 +60,7 @@ export const PAGE_ROLES: Record<string, string[]> = {
   reports:    ['report_editor', 'signer', 'tech'],
   instruments: ['sampler', 'analyst', 'tech'],
   archive:    ['archivist', 'tech'],
-  'archive-packages': ['archivist', 'report_editor', 'tech'],
+  'archive-packages': ['archivist', 'report_editor', 'signer', 'tech'],
   'system-records': ['tech'],
   subcontracts: ['sales', 'tech'],
   users:      ['admin'],                             // 人员与权限（菜单与路由共用这一份，别再各写一份）

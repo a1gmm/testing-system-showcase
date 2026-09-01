@@ -369,8 +369,11 @@ function collectArchiveItems(db: DB, readiness: ArchiveReadiness): ItemDraft[] {
   const scheme = db.prepare(`SELECT * FROM schemes WHERE contract_id=? ORDER BY created_at DESC LIMIT 1`).get(readiness.contractId) as any
   if (scheme) items.push(ordinaryItem('scheme', scheme.id, `已批准监测方案 ${scheme.id}`, scheme))
   const assignments = db.prepare(`SELECT * FROM project_stage_assignments WHERE contract_id=? ORDER BY id`).all(readiness.contractId) as any[]
+  const assignmentScopeLabel: Record<string, string> = {
+    sampling: '采样', quality: '质控', laboratory: '实验室分析', report: '报告',
+  }
   for (const assignment of assignments) {
-    items.push(ordinaryItem('assignment', assignment.id, `${assignment.scope} 专业复核/审核指派`, assignment))
+    items.push(ordinaryItem('assignment', assignment.id, `${assignmentScopeLabel[assignment.scope] || assignment.scope}专业复核/审核指派`, assignment))
   }
   if (readiness.reportBatchId) {
     const batch = getReportBatch(db, readiness.reportBatchId)
@@ -384,33 +387,67 @@ function collectArchiveItems(db: DB, readiness: ArchiveReadiness): ItemDraft[] {
     const round = db.prepare(`SELECT * FROM rounds WHERE id=?`).get(roundId) as any
     if (!round) continue
     scopedRounds.push(round)
-    items.push(ordinaryItem('round', round.id, `监测期次 ${round.id}`, round))
+    items.push(ordinaryItem('round', round.id, `采样指派与监测期次 ${round.id}`, round))
     auditEntityIds.add(roundId)
-    const sampling = approvedWorkflowItem(db, 'round_sampling', roundId, 'sampling_workflow', `采样批准版本 ${roundId}`)
+    const sampling = approvedWorkflowItem(db, 'round_sampling', roundId, 'sampling_workflow', `现场采样整期批准记录 · 第${round.round_no}期`)
     if (sampling) { items.push(sampling); auditEntityIds.add(sampling.workflow_instance_id!) }
+    const roundSheets = db.prepare(`SELECT * FROM round_sheets WHERE round_id=? ORDER BY template_code,id`).all(roundId) as any[]
+    for (const sheet of roundSheets) {
+      items.push(ordinaryItem('round_sheet', sheet.id, `${sheet.template_code} 现场采样原始记录`, {
+        ...sheet, data: parseJson(sheet.data, {}),
+      }))
+    }
     const sheets = db.prepare(`SELECT * FROM handover_sheets WHERE round_id=? AND contract_id=? ORDER BY created_at,id`)
       .all(roundId, readiness.contractId) as any[]
     for (const sheet of sheets) {
-      items.push(ordinaryItem('handover_sheet', sheet.id, `样品交接单 ${sheet.id}`, sheet))
+      items.push(ordinaryItem('handover_sheet', sheet.id, `样品交接单 ${sheet.id}`, {
+        ...sheet, sample_ids: parseJson(sheet.sample_ids, []), detail: parseJson(sheet.detail, []),
+      }))
       auditEntityIds.add(String(sheet.id))
+    }
+    const notices = db.prepare(`SELECT * FROM test_notices WHERE round_id=? AND contract_id=? ORDER BY created_at,id`)
+      .all(roundId, readiness.contractId) as any[]
+    for (const notice of notices) {
+      items.push(ordinaryItem('test_notice', notice.id, `检测任务通知单 ${notice.id}`, {
+        ...notice, groups: parseJson(notice.groups_json, []), groups_json: undefined,
+      }))
+      auditEntityIds.add(String(notice.id))
     }
     const samples = db.prepare(`SELECT * FROM samples WHERE round_id=? AND contract_id=? ORDER BY id`)
       .all(roundId, readiness.contractId) as any[]
     for (const sample of samples) {
+      items.push(ordinaryItem('sample', sample.id, `样品登记 ${sample.id} · ${sample.matrix || '未标基质'}`, {
+        ...sample, items: parseJson(sample.items, []),
+      }))
       auditEntityIds.add(String(sample.id))
       const handovers = db.prepare(`SELECT * FROM sample_handovers WHERE sample_id=? ORDER BY id`).all(sample.id) as any[]
       for (const handover of handovers) {
         items.push(ordinaryItem('sample_handover', handover.id, `样品交接 ${sample.id}`, handover))
-        auditEntityIds.add(String(handover.id))
+      }
+      const tasks = db.prepare(`SELECT * FROM test_tasks WHERE sample_id=? ORDER BY analyte,id`).all(sample.id) as any[]
+      for (const task of tasks) {
+        items.push(ordinaryItem('test_task', task.id, `检测任务 ${sample.id} · ${task.analyte}`, task))
+      }
+      const pretreatments = db.prepare(`SELECT * FROM pretreatments WHERE sample_id=? ORDER BY id`).all(sample.id) as any[]
+      for (const pretreatment of pretreatments) {
+        items.push(ordinaryItem('pretreatment', pretreatment.id, `前处理 ${sample.id} · ${pretreatment.method}`, pretreatment))
       }
     }
-    const quality = approvedWorkflowItem(db, 'quality_plan', roundId, 'quality_plan_workflow', `质量安排批准版本 ${roundId}`)
+    const quality = approvedWorkflowItem(db, 'quality_plan', roundId, 'quality_plan_workflow', `质量安排批准记录 · 第${round.round_no}期`)
     if (quality) { items.push(quality); auditEntityIds.add(quality.workflow_instance_id!) }
+    const qualityRecords = db.prepare(`SELECT * FROM qc_records WHERE round_id=? ORDER BY id`).all(roundId) as any[]
+    for (const qualityRecord of qualityRecords) {
+      items.push(ordinaryItem('qc_record', qualityRecord.id,
+        `质控记录 ${qualityRecord.qc_type}${qualityRecord.analyte ? ` · ${qualityRecord.analyte}` : ''}`, {
+          ...qualityRecord, data: parseJson(qualityRecord.data, {}),
+        }))
+    }
     const records = db.prepare(`SELECT r.* FROM records r JOIN samples s ON s.id=r.sample_id
       WHERE s.round_id=? AND s.contract_id=? ORDER BY r.id`).all(roundId, readiness.contractId) as any[]
     for (const record of records) {
       auditEntityIds.add(String(record.id))
-      const laboratory = approvedWorkflowItem(db, 'lab_record', record.id, 'lab_record_workflow', `实验室记录批准版本 ${record.id}`)
+      const laboratory = approvedWorkflowItem(db, 'lab_record', record.id, 'lab_record_workflow',
+        `${record.template_code || '检测记录'} ${record.analyte || '检测'}原始记录 · ${record.sample_id}`)
       if (laboratory) { items.push(laboratory); auditEntityIds.add(laboratory.workflow_instance_id!) }
     }
   }
@@ -427,8 +464,21 @@ function collectArchiveItems(db: DB, readiness: ArchiveReadiness): ItemDraft[] {
     })
   }
   const audits = db.prepare(`SELECT * FROM audit_log ORDER BY id`).all() as any[]
+  const auditActionLabel: Record<string, string> = {
+    contract_tech_review: '技术合同评审', round_assign: '采样指派', round_sample: '现场采样完成',
+    submit: '提交复核', review: '复核完成', approve: '审核通过', reject: '退回修改', withdraw: '撤回',
+    attach_upload: '上传附件', attach_delete: '删除附件', handover: '样品交接', handover_confirm: '确认样品交接',
+    handover_sheet_update: '修改样品交接单', handover_sheet_send: '发送样品交接单', handover_sheet_confirm: '确认样品交接单',
+    report_check: '报告复核',
+    report_issue: '报告签发', report_void: '报告作废', archive_confirm: '确认归档',
+    round_sheet: '保存现场采样原始记录', notice_create: '生成检测任务通知单', notice_update: '修改检测任务通知单',
+    notice_issue: '下达检测任务通知单', notice_revoke: '撤回检测任务通知单', task_claim: '认领检测任务',
+    task_unclaim: '退回检测任务', task_cancel: '取消检测任务',
+  }
   for (const audit of audits) {
-    if (auditEntityIds.has(String(audit.record_id))) items.push(ordinaryItem('audit_entry', audit.id, `${audit.action} · ${audit.record_id}`, audit))
+    if (auditEntityIds.has(String(audit.record_id))) {
+      items.push(ordinaryItem('audit_entry', audit.id, `${auditActionLabel[audit.action] || '操作留痕'} · ${audit.record_id}`, audit))
+    }
   }
   return items
 }

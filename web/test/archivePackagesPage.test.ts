@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { ref } from 'vue'
 import { beforeEach, expect, test, vi } from 'vitest'
 
-const mocks = vi.hoisted(() => ({ roles: ['archivist'] as string[], listArchivePackages: vi.fn(), listProjects: vi.fn(), listReportBatches: vi.fn(), getArchiveReadiness: vi.fn(), buildArchivePackage: vi.fn(), confirmArchivePackage: vi.fn() }))
+const mocks = vi.hoisted(() => ({ roles: ['archivist'] as string[], listArchivePackages: vi.fn(), listProjects: vi.fn(), listReportBatches: vi.fn(), getArchiveReadiness: vi.fn(), getArchivePackage: vi.fn(), buildArchivePackage: vi.fn(), confirmArchivePackage: vi.fn(), attachmentUrl: vi.fn((id: string) => `/api/attachments/file/${id}`) }))
 vi.mock('../src/api', () => ({
   currentUser: ref({ username: 'archivist', name: '档案员', roles: ['archivist'] }),
   hasRole: (...roles: string[]) => mocks.roles.includes('admin') || roles.some(role => mocks.roles.includes(role)),
@@ -19,6 +19,7 @@ const pkg = (id: string, contractId: string, status: string, reportBatchId: stri
 })
 
 beforeEach(() => {
+  window.history.replaceState({}, '', '/')
   mocks.roles = ['archivist']
   const blocked = pkg('draft-1', 'WT-2', 'draft')
   blocked.readiness = { ready: false, contractId: 'WT-2', reportBatchId: null, roundIds: [], issues: [{ code: 'LAB_PENDING', message: '实验室分析还有 2 份记录待审核，暂不能归档' }] }
@@ -28,8 +29,26 @@ beforeEach(() => {
   mocks.getArchiveReadiness.mockReset().mockImplementation(async (id: string, reportBatchId?: string) => id === 'WT-1'
     ? { ready: true, contractId: id, reportBatchId: reportBatchId || null, roundIds: [], issues: [] }
     : { ready: false, contractId: id, reportBatchId: reportBatchId || null, roundIds: [], issues: [{ code: 'LAB_PENDING', message: '实验室分析还有 2 份记录待审核，暂不能归档' }] })
+  mocks.getArchivePackage.mockReset()
   mocks.buildArchivePackage.mockReset()
   mocks.confirmArchivePackage.mockReset()
+})
+
+test('报告深链直接打开其绑定的冻结归档版本，无需用户再次查找项目', async () => {
+  const direct = pkg('archive-from-report', 'WT-9', 'confirmed')
+  direct.items = [{
+    id: 90, archive_package_id: direct.id, item_order: 1, entity_type: 'lab_record_workflow', entity_id: 'LAB-9',
+    workflow_instance_id: 'WF-LAB-9', revision: 2, content_hash: '9'.repeat(64), label: 'COD检测原始记录 · S-009',
+    metadata: { snapshot: { record: { sampleId: 'S-009', analyte: 'COD' } } },
+  }]
+  mocks.getArchivePackage.mockResolvedValueOnce(direct)
+  window.history.replaceState({}, '', '/archive-packages?archive=archive-from-report&report=BG2026-0009')
+
+  const wrapper = mount(ArchivePackages, { global: { directives: { loading: () => undefined } } })
+  await flushPromises()
+
+  expect(mocks.getArchivePackage).toHaveBeenCalledWith('archive-from-report')
+  expect(wrapper.get('[data-archive-manifest="archive-from-report"]').text()).toContain('COD检测原始记录 · S-009')
 })
 
 test('项目与报告批次按精确 scope 核验，失效版本修正后可构建同 scope 新版本且历史不丢', async () => {
@@ -98,12 +117,24 @@ test('已确认归档向只读角色提供查看全部清单入口并显示冻�
   confirmed.items = [
     {
       id: 1, archive_package_id: confirmed.id, item_order: 1, entity_type: 'contract', entity_id: 'WT-3',
-      workflow_instance_id: null, revision: null, content_hash: 'a'.repeat(64), label: '委托合同 WT-3', metadata: { snapshot: {} },
+      workflow_instance_id: null, revision: null, content_hash: 'a'.repeat(64), label: '委托合同 WT-3',
+      metadata: { snapshot: { accepted_at: '2026-08-22T01:00:00.000Z', created_at: '2026-08-21T00:00:00.000Z', review_info: { ability: '具备' } } },
     },
     {
       id: 2, archive_package_id: confirmed.id, item_order: 2, entity_type: 'lab_record_workflow', entity_id: 'LAB-1',
-      workflow_instance_id: 'WF-LAB-1', revision: 4, content_hash: 'b'.repeat(64), label: '实验室记录批准版本 LAB-1', metadata: { snapshot: {} },
+      workflow_instance_id: 'WF-LAB-1', revision: 4, content_hash: 'b'.repeat(64), label: 'COD检测原始记录 · S-001',
+      metadata: {
+        snapshot: { record: { id: 'LAB-1', serial: 'JL-001', sampleId: 'S-001', templateCode: 'HJ-TC-103', analyte: 'COD', method: '重铬酸盐法', data: { meta: { analysisDate: '2026-08-22', analyst: '陈检测' }, resultSummary: { analyte: 'COD', value: 20, unit: 'mg/L' }, rows: [{ absorbance: 0.123, dilution: 1 }] } } },
+        decisions: [{ revision: 4, level: 'approve', decision: 'approve', comment: '审核通过', decided_by: 'demo_tech', decided_at: '2026-08-22T02:00:00.000Z' }],
+      },
     },
+    { id: 3, archive_package_id: confirmed.id, item_order: 3, entity_type: 'contract_review', entity_id: 'WT-3', workflow_instance_id: null, revision: null, content_hash: 'c'.repeat(64), label: '技术合同评审 WT-3', metadata: { snapshot: { result: 'approve' } } },
+    { id: 4, archive_package_id: confirmed.id, item_order: 4, entity_type: 'scheme', entity_id: 'FA-3', workflow_instance_id: null, revision: null, content_hash: 'd'.repeat(64), label: '已批准监测方案 FA-3', metadata: { snapshot: { points: [] } } },
+    { id: 5, archive_package_id: confirmed.id, item_order: 5, entity_type: 'round', entity_id: 'R-1', workflow_instance_id: null, revision: null, content_hash: 'e'.repeat(64), label: '采样指派与监测期次 R-1', metadata: { snapshot: { sampler: '赵采样' } } },
+    { id: 6, archive_package_id: confirmed.id, item_order: 6, entity_type: 'sampling_workflow', entity_id: 'R-1', workflow_instance_id: 'WF-S-1', revision: 1, content_hash: 'f'.repeat(64), label: '现场采样整期批准记录', metadata: { snapshot: { roundSheets: [] } } },
+    { id: 7, archive_package_id: confirmed.id, item_order: 7, entity_type: 'handover_sheet', entity_id: 'JJ-1', workflow_instance_id: null, revision: null, content_hash: '1'.repeat(64), label: '样品交接单 JJ-1', metadata: { snapshot: { status: 'confirmed' } } },
+    { id: 8, archive_package_id: confirmed.id, item_order: 8, entity_type: 'quality_plan_workflow', entity_id: 'R-1', workflow_instance_id: 'WF-Q-1', revision: 1, content_hash: '2'.repeat(64), label: '质量安排批准记录', metadata: { snapshot: { requirements: [] } } },
+    { id: 9, archive_package_id: confirmed.id, item_order: 9, entity_type: 'report_batch', entity_id: 'B-1', workflow_instance_id: null, revision: null, content_hash: '3'.repeat(64), label: '报告批次 第一批报告', metadata: { snapshot: { name: '第一批报告' } } },
   ]
   mocks.roles = ['report_editor']
   mocks.listArchivePackages.mockResolvedValueOnce([confirmed])
@@ -113,17 +144,41 @@ test('已确认归档向只读角色提供查看全部清单入口并显示冻�
   await flushPromises()
 
   const viewButton = wrapper.get('[data-view-archive="confirmed-1"]')
-  expect(viewButton.text()).toContain('查看全部 2 项')
+  expect(viewButton.text()).toContain('查看全部 9 项')
   await viewButton.trigger('click')
 
   const manifest = wrapper.get('[data-archive-manifest="confirmed-1"]')
-  const manifestItems = manifest.findAll('.manifest-list li')
-  expect(manifestItems.map(item => item.text())).toEqual([
-    expect.stringContaining('委托合同 WT-3'),
-    expect.stringContaining('实验室记录批准版本 LAB-1'),
-  ])
+  expect(manifest.text()).toContain('委托合同 WT-3')
+  expect(manifest.text()).toContain('COD检测原始记录 · S-001')
   expect(manifest.text()).toContain('定稿版本 4')
-  expect(manifest.text()).toContain(`SHA-256 ${'b'.repeat(64)}`)
+  expect(manifest.get('[data-archive-stage="1"]').text()).toContain('委托与合同')
+  expect(manifest.get('[data-archive-stage="2"]').text()).toContain('合同评审')
+  expect(manifest.get('[data-archive-stage="3"]').text()).toContain('监测方案')
+  expect(manifest.get('[data-archive-stage="4"]').text()).toContain('采样指派')
+  expect(manifest.get('[data-archive-stage="5"]').text()).toContain('现场采样')
+  expect(manifest.get('[data-archive-stage="6"]').text()).toContain('样品交接')
+  expect(manifest.get('[data-archive-stage="7"]').text()).toContain('质控')
+  expect(manifest.get('[data-archive-stage="8"]').text()).toContain('实验室分析')
+  expect(manifest.get('[data-archive-stage="audit"]').text()).toContain('1')
+  const contractPreview = manifest.get('[data-archive-preview="1"]')
+  expect(contractPreview.text()).toContain('受理时间')
+  expect(contractPreview.text()).toContain('创建时间')
+  expect(contractPreview.text()).toContain('合同评审内容')
+  expect(contractPreview.text()).not.toContain('accepted at')
+
+  await manifest.get('[data-archive-item="2"]').trigger('click')
+  const preview = manifest.get('[data-archive-preview="2"]')
+  expect(preview.text()).toContain('样品编号')
+  expect(preview.text()).toContain('S-001')
+  expect(preview.text()).toContain('检测项目')
+  expect(preview.text()).toContain('COD')
+  expect(preview.text()).toContain('20 mg/L')
+  expect(preview.text()).toContain('分析日期')
+  expect(preview.text()).toContain('分析人员')
+  expect(preview.text()).toContain('吸光度')
+  expect(preview.text()).toContain('稀释倍数')
+  expect(preview.text()).toContain('审批环节审核')
+  expect(preview.text()).not.toContain('absorbance')
 })
 
 test('已失效历史版本保留只读清单入口', async () => {
